@@ -1,0 +1,26 @@
+{
+  "name": "PIBENS ADM",
+  "short_name": "PIBENS",
+  "description": "Gestão eclesiástica com inteligência",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#2563eb",
+  "theme_color": "#2563eb",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "https://i.imgur.com/8Q8Q8Q8.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://i.imgur.com/8Q8Q8Q8.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

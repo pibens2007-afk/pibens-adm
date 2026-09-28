@@ -11,20 +11,23 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     body { font-family: 'Outfit', sans-serif; background: #f8fafc; }
-    .btn-huge { font-size: 1.1rem; font-weight: 800; padding: 1rem 2rem; border-radius: 1.2rem; transition: all 0.2s; }
+    .btn-huge { font-size: 1.05rem; font-weight: 800; padding: 0.9rem 1.8rem; border-radius: 1.2rem; transition: all 0.2s; }
     .btn-huge:hover { transform: translateY(-2px); }
     #modal-overlay { background: rgba(15,23,42,0.7); backdrop-filter: blur(8px); display: none; position: fixed; inset: 0; z-index: 100; align-items: center; justify-content: center; padding: 20px; }
-    .modal-content { background: white; width: 100%; max-width: 700px; max-height: 90vh; border-radius: 2rem; overflow-y: auto; padding: 2rem; }
-    input, select, textarea { width: 100%; padding: 1rem; border-radius: 1rem; border: 2px solid #e2e8f0; margin-top: 0.5rem; }
-    input:focus { border-color: #3b82f6; outline: none; }
+    .modal-content { background: white; width: 100%; max-width: 800px; max-height: 90vh; border-radius: 2rem; overflow-y: auto; padding: 2rem; }
+    input, select, textarea { width: 100%; padding: 0.9rem; border-radius: 1rem; border: 2px solid #e2e8f0; margin-top: 0.3rem; font-size: 1rem; }
+    input:focus, select:focus, textarea:focus { border-color: #3b82f6; outline: none; }
+    .obrigatorio::after { content: ' *'; color: #dc2626; font-weight: 900; }
     .menu-card { transition: all 0.3s; border-radius: 2rem; cursor: pointer; }
     .menu-card:hover { transform: scale(1.03); }
     .spinner { display: inline-block; width: 1rem; height: 1rem; border: 3px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .toast { position: fixed; top: 20px; right: 20px; background: #1e293b; color: #fff; padding: 1rem 1.5rem; border-radius: 1rem; z-index: 999; opacity: 0; transform: translateY(-20px); transition: all 0.3s; }
+    .toast { position: fixed; top: 20px; right: 20px; background: #1e293b; color: #fff; padding: 1rem 1.5rem; border-radius: 1rem; z-index: 999; opacity: 0; transform: translateY(-20px); transition: all 0.3s; max-width: 90vw; }
     .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.erro { background: #dc2626; }
+    .toast.sucesso { background: #059669; }
 
-    /* ===== LOGIN ===== */
+    /* LOGIN */
     #login-overlay {
       background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
       position: fixed; inset: 0; z-index: 200;
@@ -47,7 +50,7 @@
       background: #2563eb; color: white; font-weight: 800; font-size: 1.1rem;
       margin-top: 1rem; cursor: pointer; transition: all 0.2s;
     }
-    .login-box button:hover { background: #1d4ed8; transform: translateY(-2px); }
+    .login-box button:hover { background: #1d4ed8; }
     .login-box button:disabled { opacity: 0.6; cursor: not-allowed; }
     .login-error { color: #dc2626; font-size: 0.9rem; margin-top: 0.8rem; min-height: 1.2rem; }
     #btn-logout {
@@ -58,13 +61,20 @@
     #btn-logout:hover { background: #dc2626; }
     #app-root { display: none; }
     #app-root.visible { display: block; }
+
+    /* Modal detalhes */
+    .campo-detalhe { padding: 0.7rem 0; border-bottom: 1px dashed #e2e8f0; }
+    .campo-detalhe:last-child { border-bottom: none; }
+    .campo-label { color: #64748b; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+    .campo-valor { color: #1e293b; font-size: 1rem; font-weight: 500; margin-top: 0.2rem; word-break: break-word; }
+
+    /* Botão talento */
+    .btn-talento { background: #8b5cf6; color: white; font-weight: 700; padding: 0.5rem 0.7rem; border-radius: 0.6rem; border: none; cursor: pointer; font-size: 0.85rem; }
+    .btn-talento:hover { background: #7c3aed; }
   </style>
 </head>
 <body class="pb-12">
 
-  <!-- ============================================================
-       API_URL — endpoint /exec do seu Apps Script (PIBENS ADM API)
-       ============================================================ -->
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbwUl-1KPF40lIc8FR8itFEYVkq5XhQlNXVvM6D_Hp2-3a2gaVAwg1AX1gZFS0hcaPeS_w/exec';
   </script>
@@ -88,7 +98,7 @@
   <!-- APP -->
   <div id="app-root">
 
-    <!-- MODAL -->
+    <!-- MODAL GENÉRICO (form) -->
     <div id="modal-overlay">
       <div class="modal-content">
         <div class="flex justify-between items-center mb-6">
@@ -103,6 +113,17 @@
             <i class="fas fa-save mr-2"></i> SALVAR
           </button>
         </form>
+      </div>
+    </div>
+
+    <!-- MODAL DETALHES -->
+    <div id="modal-detalhes-overlay" style="background: rgba(15,23,42,0.7); backdrop-filter: blur(8px); display: none; position: fixed; inset: 0; z-index: 110; align-items: center; justify-content: center; padding: 20px;">
+      <div class="modal-content">
+        <div class="flex justify-between items-center mb-6">
+          <h2 id="detalhes-title" class="text-blue-900 font-black text-2xl">Detalhes</h2>
+          <button onclick="closeDetalhes()" class="text-gray-400 hover:text-red-500 text-3xl">&times;</button>
+        </div>
+        <div id="detalhes-conteudo"></div>
       </div>
     </div>
 
@@ -147,6 +168,53 @@
   <script>
     let currentSheet = "";
     let currentData = [];
+
+    // ==================== DEFINIÇÃO DE CAMPOS ====================
+    const CAMPOS_POR_TABELA = {
+      Membros: [
+        { nome: 'Nome',              obrigatorio: true,  tipo: 'text' },
+        { nome: 'Nascimento',        obrigatorio: true,  tipo: 'date' },
+        { nome: 'CPF',               obrigatorio: true,  tipo: 'text' },
+        { nome: 'RG',                obrigatorio: false, tipo: 'text' },
+        { nome: 'Telefone',          obrigatorio: true,  tipo: 'text' },
+        { nome: 'Email',             obrigatorio: false, tipo: 'email' },
+        { nome: 'Endereço',          obrigatorio: false, tipo: 'text' },
+        { nome: 'Bairro',            obrigatorio: false, tipo: 'text' },
+        { nome: 'Cidade',            obrigatorio: false, tipo: 'text' },
+        { nome: 'Estado',            obrigatorio: false, tipo: 'text' },
+        { nome: 'CEP',               obrigatorio: false, tipo: 'text' },
+        { nome: 'Estado Civil',      obrigatorio: false, tipo: 'select', opcoes: ['Solteiro(a)', 'Casado(a)', 'Divorciado(a)', 'Viúvo(a)', 'Outro'] },
+        { nome: 'Profissão',         obrigatorio: true,  tipo: 'text' },
+        { nome: 'Talento',           obrigatorio: false, tipo: 'text' },
+        { nome: 'Data de Batismo',   obrigatorio: false, tipo: 'date' },
+        { nome: 'Data de Membro',    obrigatorio: false, tipo: 'date' },
+        { nome: 'Observações',       obrigatorio: false, tipo: 'textarea' }
+      ],
+      BancoTalentos: [
+        { nome: 'Nome',      obrigatorio: true,  tipo: 'text' },
+        { nome: 'Talento',   obrigatorio: true,  tipo: 'text' },
+        { nome: 'Telefone',  obrigatorio: false, tipo: 'text' },
+        { nome: 'Email',     obrigatorio: false, tipo: 'email' }
+      ],
+      Agenda: [
+        { nome: 'Data',      obrigatorio: true,  tipo: 'date' },
+        { nome: 'Evento',    obrigatorio: true,  tipo: 'text' },
+        { nome: 'Horario',   obrigatorio: false, tipo: 'text' },
+        { nome: 'Local',     obrigatorio: false, tipo: 'text' },
+        { nome: 'Descricao', obrigatorio: false, tipo: 'textarea' }
+      ]
+    };
+
+    // Colunas que aparecem na tabela (compacta) por tabela
+    const COLUNAS_TABELA = {
+      Membros:       ['Nome', 'Telefone', 'Talento'],
+      BancoTalentos: ['Nome', 'Talento', 'Telefone'],
+      Agenda:        ['Data', 'Evento', 'Horario', 'Local']
+    };
+
+    function getCampos(tabela) {
+      return CAMPOS_POR_TABELA[tabela] || [];
+    }
 
     // ==================== AUTENTICAÇÃO ====================
     const SESSAO_KEY = 'pibens_adm_sessao';
@@ -235,9 +303,10 @@
     }
 
     // ==================== TOAST ====================
-    function showToast(msg, ms = 3000) {
+    function showToast(msg, tipo = 'sucesso', ms = 3500) {
       const t = document.getElementById('toast');
       t.textContent = msg;
+      t.className = 'toast ' + tipo;
       t.classList.add('show');
       setTimeout(() => t.classList.remove('show'), ms);
     }
@@ -290,7 +359,7 @@
           <div onclick="loadSection('Membros')" class="menu-card bg-white border-2 border-emerald-400 shadow-lg p-6">
             <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mb-4"><i class="fas fa-users text-2xl"></i></div>
             <h3 class="text-emerald-900 font-bold text-xl mb-1">Membros</h3>
-            <p class="text-gray-500">Controle de dados e aniversários.</p>
+            <p class="text-gray-500">Cadastro completo de membros.</p>
           </div>
           <div onclick="loadSection('BancoTalentos')" class="menu-card bg-white border-2 border-purple-400 shadow-lg p-6">
             <div class="w-14 h-14 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mb-4"><i class="fas fa-star text-2xl"></i></div>
@@ -334,11 +403,9 @@
 
     function sortDataAlphabetically() {
       if (!currentData || currentData.length <= 1) return;
-      const headers = Object.keys(currentData[0]).filter(k => k !== 'sheetRowIndex');
-      const sortKey = headers.find(h => h.toLowerCase().trim() === 'nome') || headers[0];
       currentData.sort((a, b) => {
-        const va = (a[sortKey] || '').toString().trim().toLowerCase();
-        const vb = (b[sortKey] || '').toString().trim().toLowerCase();
+        const va = (a.Nome || '').toString().trim().toLowerCase();
+        const vb = (b.Nome || '').toString().trim().toLowerCase();
         return va.localeCompare(vb, 'pt-BR', { sensitivity: 'base' });
       });
       renderTable(currentSheet, currentData);
@@ -346,6 +413,8 @@
 
     function renderTable(sheetName, data) {
       const c = document.getElementById('app-container');
+      const colunas = COLUNAS_TABELA[sheetName] || ['Nome'];
+
       if (!data || data.length === 0) {
         c.innerHTML = `
           <div class="text-center bg-white p-10 rounded-3xl shadow">
@@ -356,7 +425,6 @@
         return;
       }
 
-      const headers = Object.keys(data[0]).filter(k => k !== 'sheetRowIndex');
       let html = `
         <div class="bg-white rounded-3xl shadow-xl overflow-hidden">
           <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 flex flex-col lg:flex-row justify-between items-center gap-4">
@@ -373,14 +441,27 @@
           <div class="overflow-x-auto">
             <table class="w-full">
               <thead class="bg-slate-800 text-white">
-                <tr>${headers.map(h => `<th class="p-4 text-left">${h}</th>`).join('')}<th class="p-4">Ações</th></tr>
+                <tr>
+                  ${colunas.map(h => `<th class="p-4 text-left">${h}</th>`).join('')}
+                  <th class="p-4 text-center" style="min-width: 260px;">Ações</th>
+                </tr>
               </thead>
               <tbody>
                 ${data.map(row => {
-                  let cells = headers.map(h => `<td class="p-4 border-b">${row[h] || '-'}</td>`).join('');
+                  let cells = colunas.map(h => `<td class="p-4 border-b">${row[h] || '-'}</td>`).join('');
+
+                  // Botão "→ Talentos" só pra Membros com talento preenchido
+                  const botaoTalento = (sheetName === 'Membros' && row.Talento)
+                    ? `<button onclick="enviarParaTalentos(${row.sheetRowIndex})" class="btn-talento" title="Enviar para o Banco de Talentos"><i class="fas fa-star mr-1"></i>→ Talentos</button>`
+                    : '';
+
                   cells += `<td class="p-4 border-b text-center">
-                    <button onclick="openForm(${row.sheetRowIndex})" class="bg-amber-500 text-white font-bold px-3 py-2 rounded-lg mr-1"><i class="fas fa-edit"></i></button>
-                    <button onclick="askDelete(${row.sheetRowIndex})" class="bg-rose-500 text-white font-bold px-3 py-2 rounded-lg"><i class="fas fa-trash"></i></button>
+                    <div class="flex flex-wrap gap-1 justify-center items-center">
+                      <button onclick="verDetalhes(${row.sheetRowIndex})" class="bg-blue-500 text-white font-bold px-3 py-2 rounded-lg" title="Ver detalhes"><i class="fas fa-eye"></i></button>
+                      <button onclick="openForm(${row.sheetRowIndex})" class="bg-amber-500 text-white font-bold px-3 py-2 rounded-lg" title="Editar"><i class="fas fa-edit"></i></button>
+                      <button onclick="askDelete(${row.sheetRowIndex})" class="bg-rose-500 text-white font-bold px-3 py-2 rounded-lg" title="Remover"><i class="fas fa-trash"></i></button>
+                      ${botaoTalento}
+                    </div>
                   </td>`;
                   return `<tr class="hover:bg-blue-50">${cells}</tr>`;
                 }).join('')}
@@ -391,6 +472,60 @@
       c.innerHTML = html;
     }
 
+    // ==================== DETALHES ====================
+    function verDetalhes(rowIndex) {
+      const row = currentData.find(r => r.sheetRowIndex == rowIndex);
+      if (!row) return;
+      const campos = getCampos(currentSheet);
+      const titulo = row.Nome || row.Evento || 'Detalhes';
+
+      document.getElementById('detalhes-title').textContent = titulo;
+
+      const html = campos.map(campo => {
+        const valor = row[campo.nome];
+        let valorExibido = valor;
+        if (campo.tipo === 'date' && valor) {
+          // Converte YYYY-MM-DD pra DD/MM/YYYY
+          if (/^\d{4}-\d{2}-\d{2}$/.test(valor)) {
+            const p = valor.split('-');
+            valorExibido = `${p[2]}/${p[1]}/${p[0]}`;
+          }
+        }
+        return `<div class="campo-detalhe">
+          <div class="campo-label">${campo.nome}</div>
+          <div class="campo-valor">${valorExibido || '<span style="color:#cbd5e1">—</span>'}</div>
+        </div>`;
+      }).join('');
+
+      document.getElementById('detalhes-conteudo').innerHTML = html;
+      document.getElementById('modal-detalhes-overlay').style.display = 'flex';
+    }
+
+    function closeDetalhes() {
+      document.getElementById('modal-detalhes-overlay').style.display = 'none';
+    }
+
+    // ==================== ENVIAR PARA TALENTOS ====================
+    async function enviarParaTalentos(rowIndex) {
+      const row = currentData.find(r => r.sheetRowIndex == rowIndex);
+      if (!row) return;
+
+      if (!confirm(`Enviar "${row.Nome}" (Talento: ${row.Talento}) para o Banco de Talentos?`)) return;
+
+      try {
+        const dados = {
+          Nome: row.Nome || '',
+          Talento: row.Talento || '',
+          Telefone: row.Telefone || '',
+          Email: row.Email || ''
+        };
+        await chamarAPI('salvarRegistro', ['BancoTalentos', dados, null]);
+        showToast(`✅ ${row.Nome} enviado para o Banco de Talentos!`);
+      } catch (e) {
+        showToast('Erro: ' + e.message, 'erro');
+      }
+    }
+
     // ==================== FORM ====================
     function openForm(rowIndex = null) {
       const modal = document.getElementById('modal-overlay');
@@ -399,19 +534,37 @@
       document.getElementById('form-row-index').value = rowIndex || '';
       document.getElementById('form-sheet-name').value = currentSheet;
 
-      const headers = Object.keys(currentData[0] || {}).filter(k => k !== 'sheetRowIndex');
-      const fields = headers.length > 0 ? headers : ['Nome', 'Nascimento', 'Telefone'];
+      const campos = getCampos(currentSheet);
       const activeRow = rowIndex ? currentData.find(r => r.sheetRowIndex == rowIndex) : {};
 
-      container.innerHTML = fields.map(h => {
-        const isDate = /data|nascimento|aniversario/i.test(h);
-        let val = activeRow[h] || '';
-        if (isDate && val.includes('/')) {
+      container.innerHTML = campos.map(campo => {
+        let val = activeRow[campo.nome] || '';
+
+        // Converte data YYYY-MM-DD pra formato de input date
+        if (campo.tipo === 'date' && val && val.includes('/')) {
           const p = val.split('/');
           if (p.length === 3) val = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
         }
-        return `<div><label class="block font-bold text-gray-700 mt-4">${h}</label>
-                <input type="${isDate ? 'date' : 'text'}" name="${h}" value="${val}"></div>`;
+
+        const labelClass = 'block font-bold text-gray-700 mt-4' + (campo.obrigatorio ? ' obrigatorio' : '');
+
+        if (campo.tipo === 'textarea') {
+          return `<div>
+            <label class="${labelClass}">${campo.nome}</label>
+            <textarea name="${campo.nome}" rows="3">${val}</textarea>
+          </div>`;
+        }
+        if (campo.tipo === 'select') {
+          const opcoes = campo.opcoes.map(o => `<option value="${o}" ${val === o ? 'selected' : ''}>${o}</option>`).join('');
+          return `<div>
+            <label class="${labelClass}">${campo.nome}</label>
+            <select name="${campo.nome}"><option value="">— Selecione —</option>${opcoes}</select>
+          </div>`;
+        }
+        return `<div>
+          <label class="${labelClass}">${campo.nome}</label>
+          <input type="${campo.tipo}" name="${campo.nome}" value="${val}" ${campo.obrigatorio ? 'required' : ''}>
+        </div>`;
       }).join('');
 
       modal.style.display = 'flex';
@@ -421,20 +574,32 @@
 
     async function handleFormSubmit(e) {
       e.preventDefault();
-      const data = Object.fromEntries(new FormData(e.target).entries());
+      const form = e.target;
+      const data = Object.fromEntries(new FormData(form).entries());
       const rowIndex = document.getElementById('form-row-index').value;
       const sheetName = document.getElementById('form-sheet-name').value;
+
+      // Validação extra dos obrigatórios
+      const campos = getCampos(sheetName);
+      for (const campo of campos) {
+        if (campo.obrigatorio && (!data[campo.nome] || !data[campo.nome].trim())) {
+          showToast(`Preencha o campo obrigatório: ${campo.nome}`, 'erro');
+          return;
+        }
+      }
+
       const btn = document.getElementById('submit-btn');
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner mr-2"></span> SALVANDO...';
+
       try {
         const res = await chamarAPI('salvarRegistro', [sheetName, data, rowIndex ? parseInt(rowIndex) : null]);
-        showToast(res.message || 'Salvo!');
+        showToast(res.message || 'Salvo!', 'sucesso');
         closeModal();
         loadBanners();
         loadSection(sheetName);
       } catch (err) {
-        showToast('Erro: ' + err.message);
+        showToast('Erro: ' + err.message, 'erro');
       } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-save mr-2"></i> SALVAR';
@@ -445,11 +610,11 @@
       if (!confirm('Confirma a remoção?')) return;
       try {
         const res = await chamarAPI('removerRegistro', [rowIndex]);
-        showToast(res.message || 'Removido!');
+        showToast(res.message || 'Removido!', 'sucesso');
         loadBanners();
         loadSection(currentSheet);
       } catch (e) {
-        showToast('Erro: ' + e.message);
+        showToast('Erro: ' + e.message, 'erro');
       }
     }
 
@@ -500,7 +665,7 @@
 
     function runIADuvida() {
       const q = document.getElementById('duvida-input').value.trim();
-      if (!q) return showToast('Digite a dúvida primeiro.');
+      if (!q) return showToast('Digite a dúvida primeiro.', 'erro');
       runIA('duvidaBiblica', [q]);
     }
 

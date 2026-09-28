@@ -11,15 +11,15 @@
   "lang": "pt-BR",
   "icons": [
     {
-      "src": "https://i.imgur.com/8Q8Q8Q8.png",
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExMCIgZmlsbD0iIzI1NjNlYiIvPjxwYXRoIGQ9Ik0yNTYgMTAwbC0xMTAgOTB2MjIwaDgwdjE0MGg2MFY0MTBoODBWMjAwTDI1NiAxMDB6IiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTIzMCAxMzBsLTcwIDU3djE4M2g0MFYyNzBoNjB2MTAwaDQwVjE4N2wtNzAtNTd6IiBmaWxsPSIjMjU2M2ViIi8+PC9zdmc+",
       "sizes": "192x192",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     },
     {
-      "src": "https://i.imgur.com/8Q8Q8Q8.png",
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExMCIgZmlsbD0iIzI1NjNlYiIvPjxwYXRoIGQ9Ik0yNTYgMTAwbC0xMTAgOTB2MjIwaDgwdjE0MGg2MFY0MTBoODBWMjAwTDI1NiAxMDB6IiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTIzMCAxMzBsLTcwIDU3djE4M2g0MFYyNzBoNjB2MTAwaDQwVjE4N2wtNzAtNTd6IiBmaWxsPSIjMjU2M2ViIi8+PC9zdmc+",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ]

@@ -23,6 +23,41 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .toast { position: fixed; top: 20px; right: 20px; background: #1e293b; color: #fff; padding: 1rem 1.5rem; border-radius: 1rem; z-index: 999; opacity: 0; transform: translateY(-20px); transition: all 0.3s; }
     .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ===== LOGIN ===== */
+    #login-overlay {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+      position: fixed; inset: 0; z-index: 200;
+      display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .login-box {
+      background: white; border-radius: 2rem; padding: 2.5rem;
+      max-width: 420px; width: 100%; box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+    .login-box h1 { font-size: 2rem; font-weight: 800; color: #1e3a8a; margin-bottom: 0.5rem; }
+    .login-box p { color: #64748b; margin-bottom: 1.5rem; }
+    .login-box input {
+      text-align: center; font-size: 1.2rem; letter-spacing: 0.2em;
+      padding: 1rem; border-radius: 1rem; border: 2px solid #e2e8f0;
+    }
+    .login-box input:focus { border-color: #2563eb; outline: none; }
+    .login-box button {
+      width: 100%; padding: 1rem; border-radius: 1rem; border: none;
+      background: #2563eb; color: white; font-weight: 800; font-size: 1.1rem;
+      margin-top: 1rem; cursor: pointer; transition: all 0.2s;
+    }
+    .login-box button:hover { background: #1d4ed8; transform: translateY(-2px); }
+    .login-box button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .login-error { color: #dc2626; font-size: 0.9rem; margin-top: 0.8rem; min-height: 1.2rem; }
+    #btn-logout {
+      background: #ef4444; color: white; font-weight: 700;
+      padding: 0.5rem 0.9rem; border-radius: 0.8rem; border: none;
+      cursor: pointer; font-size: 0.9rem; margin-left: 0.5rem;
+    }
+    #btn-logout:hover { background: #dc2626; }
+    #app-root { display: none; }
+    #app-root.visible { display: block; }
   </style>
 </head>
 <body class="pb-12">
@@ -36,62 +71,141 @@
 
   <div id="toast" class="toast"></div>
 
-  <!-- MODAL -->
-  <div id="modal-overlay">
-    <div class="modal-content">
-      <div class="flex justify-between items-center mb-6">
-        <h2 id="modal-title" class="text-blue-900 font-black text-2xl">Formulário</h2>
-        <button onclick="closeModal()" class="text-gray-400 hover:text-red-500 text-3xl">&times;</button>
-      </div>
-      <form id="dynamic-form" onsubmit="handleFormSubmit(event)">
-        <input type="hidden" id="form-row-index">
-        <input type="hidden" id="form-sheet-name">
-        <div id="form-fields-container"></div>
-        <button type="submit" id="submit-btn" class="btn-huge bg-blue-600 text-white w-full mt-8">
-          <i class="fas fa-save mr-2"></i> SALVAR
-        </button>
+  <!-- TELA DE LOGIN -->
+  <div id="login-overlay">
+    <div class="login-box">
+      <div style="font-size: 3rem; margin-bottom: 0.5rem;">🔒</div>
+      <h1>PIBENS ADM</h1>
+      <p>Digite a senha de acesso</p>
+      <form onsubmit="fazerLogin(event)">
+        <input type="password" id="senha-input" placeholder="••••••••" autocomplete="current-password" required>
+        <button type="submit" id="btn-entrar">ENTRAR</button>
+        <div class="login-error" id="login-erro"></div>
       </form>
     </div>
   </div>
 
-  <!-- NAV -->
-  <nav class="bg-white shadow-xl border-b-4 border-blue-500 mb-6 px-6 py-5 sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-      <div class="flex items-center gap-3 cursor-pointer" onclick="loadDashboard()">
-        <div class="bg-blue-600 text-white p-3 rounded-2xl"><i class="fas fa-church text-2xl"></i></div>
-        <div>
-          <h1 class="text-blue-600 m-0 text-2xl font-extrabold leading-none">PIBENS <span class="text-amber-500">ADM</span></h1>
-          <p class="text-gray-500 text-xs mt-1">Gestão eclesiástica com inteligência</p>
+  <!-- APP -->
+  <div id="app-root">
+
+    <!-- MODAL -->
+    <div id="modal-overlay">
+      <div class="modal-content">
+        <div class="flex justify-between items-center mb-6">
+          <h2 id="modal-title" class="text-blue-900 font-black text-2xl">Formulário</h2>
+          <button onclick="closeModal()" class="text-gray-400 hover:text-red-500 text-3xl">&times;</button>
+        </div>
+        <form id="dynamic-form" onsubmit="handleFormSubmit(event)">
+          <input type="hidden" id="form-row-index">
+          <input type="hidden" id="form-sheet-name">
+          <div id="form-fields-container"></div>
+          <button type="submit" id="submit-btn" class="btn-huge bg-blue-600 text-white w-full mt-8">
+            <i class="fas fa-save mr-2"></i> SALVAR
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- NAV -->
+    <nav class="bg-white shadow-xl border-b-4 border-blue-500 mb-6 px-6 py-5 sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-3 cursor-pointer" onclick="loadDashboard()">
+          <div class="bg-blue-600 text-white p-3 rounded-2xl"><i class="fas fa-church text-2xl"></i></div>
+          <div>
+            <h1 class="text-blue-600 m-0 text-2xl font-extrabold leading-none">PIBENS <span class="text-amber-500">ADM</span></h1>
+            <p class="text-gray-500 text-xs mt-1">Gestão eclesiástica com inteligência</p>
+          </div>
+        </div>
+        <div class="flex flex-wrap justify-center gap-2 items-center">
+          <button onclick="loadDashboard()" class="text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-xl font-bold"><i class="fas fa-home mr-1"></i>Início</button>
+          <button onclick="loadSection('Membros')" class="text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 px-3 py-2 rounded-xl font-bold"><i class="fas fa-users mr-1"></i>Membros</button>
+          <button onclick="loadSection('BancoTalentos')" class="text-gray-700 hover:text-purple-600 hover:bg-purple-50 px-3 py-2 rounded-xl font-bold"><i class="fas fa-star mr-1"></i>Talentos</button>
+          <button onclick="loadSection('Agenda')" class="text-gray-700 hover:text-cyan-600 hover:bg-cyan-50 px-3 py-2 rounded-xl font-bold"><i class="fas fa-calendar-alt mr-1"></i>Agenda</button>
+          <button onclick="loadIA()" class="text-gray-700 hover:text-rose-600 hover:bg-rose-50 px-3 py-2 rounded-xl font-bold"><i class="fas fa-robot mr-1"></i>IA</button>
+          <button id="btn-logout" onclick="fazerLogout()" title="Sair"><i class="fas fa-sign-out-alt mr-1"></i>Sair</button>
         </div>
       </div>
-      <div class="flex flex-wrap justify-center gap-2">
-        <button onclick="loadDashboard()" class="text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-xl font-bold"><i class="fas fa-home mr-1"></i>Início</button>
-        <button onclick="loadSection('Membros')" class="text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 px-3 py-2 rounded-xl font-bold"><i class="fas fa-users mr-1"></i>Membros</button>
-        <button onclick="loadSection('BancoTalentos')" class="text-gray-700 hover:text-purple-600 hover:bg-purple-50 px-3 py-2 rounded-xl font-bold"><i class="fas fa-star mr-1"></i>Talentos</button>
-        <button onclick="loadSection('Agenda')" class="text-gray-700 hover:text-cyan-600 hover:bg-cyan-50 px-3 py-2 rounded-xl font-bold"><i class="fas fa-calendar-alt mr-1"></i>Agenda</button>
-        <button onclick="loadIA()" class="text-gray-700 hover:text-rose-600 hover:bg-rose-50 px-3 py-2 rounded-xl font-bold"><i class="fas fa-robot mr-1"></i>IA</button>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 mb-4 text-right">
+      <span id="live-date" class="bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl text-sm">
+        <i class="fas fa-calendar-day mr-2"></i> Carregando...
+      </span>
+    </div>
+
+    <div id="banners-container" class="max-w-7xl mx-auto px-4 mb-8 grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+
+    <main id="app-container" class="max-w-7xl mx-auto px-4">
+      <div class="text-center py-20 bg-white rounded-3xl shadow">
+        <i class="fas fa-sync fa-spin text-5xl text-blue-500 mb-4"></i>
+        <h2 class="text-blue-900 font-black">Abrindo painel...</h2>
       </div>
-    </div>
-  </nav>
+    </main>
 
-  <div class="max-w-7xl mx-auto px-4 mb-4 text-right">
-    <span id="live-date" class="bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl text-sm">
-      <i class="fas fa-calendar-day mr-2"></i> Carregando...
-    </span>
-  </div>
-
-  <div id="banners-container" class="max-w-7xl mx-auto px-4 mb-8 grid grid-cols-1 md:grid-cols-2 gap-6"></div>
-
-  <main id="app-container" class="max-w-7xl mx-auto px-4">
-    <div class="text-center py-20 bg-white rounded-3xl shadow">
-      <i class="fas fa-sync fa-spin text-5xl text-blue-500 mb-4"></i>
-      <h2 class="text-blue-900 font-black">Abrindo painel...</h2>
-    </div>
-  </main>
+  </div><!-- fecha app-root -->
 
   <script>
     let currentSheet = "";
     let currentData = [];
+
+    // ==================== AUTENTICAÇÃO ====================
+    const SESSAO_KEY = 'pibens_adm_sessao';
+    const SESSAO_DIAS = 7;
+
+    function temSessaoValida() {
+      const raw = localStorage.getItem(SESSAO_KEY);
+      if (!raw) return false;
+      try {
+        const s = JSON.parse(raw);
+        return s.expira && Date.now() < s.expira;
+      } catch (e) { return false; }
+    }
+
+    function salvarSessao() {
+      const expira = Date.now() + (SESSAO_DIAS * 24 * 60 * 60 * 1000);
+      localStorage.setItem(SESSAO_KEY, JSON.stringify({ expira: expira }));
+    }
+
+    function limparSessao() {
+      localStorage.removeItem(SESSAO_KEY);
+    }
+
+    async function fazerLogin(event) {
+      event.preventDefault();
+      const btn = document.getElementById('btn-entrar');
+      const erroEl = document.getElementById('login-erro');
+      const senha = document.getElementById('senha-input').value;
+
+      btn.disabled = true;
+      btn.textContent = 'VERIFICANDO...';
+      erroEl.textContent = '';
+
+      try {
+        await chamarAPI('login', [senha]);
+        salvarSessao();
+        liberarApp();
+      } catch (e) {
+        erroEl.textContent = e.message || 'Senha incorreta.';
+        document.getElementById('senha-input').value = '';
+        document.getElementById('senha-input').focus();
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'ENTRAR';
+      }
+    }
+
+    function liberarApp() {
+      document.getElementById('login-overlay').style.display = 'none';
+      document.getElementById('app-root').classList.add('visible');
+      loadBanners();
+      loadDashboard();
+    }
+
+    function fazerLogout() {
+      if (!confirm('Deseja sair do sistema?')) return;
+      limparSessao();
+      location.reload();
+    }
 
     // ==================== API ====================
     async function chamarAPI(funcao, args = []) {
@@ -103,7 +217,7 @@
           cache: 'no-store',
           redirect: 'follow',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ funcao, args }),
+          body: JSON.stringify({ funcao: funcao, args: args }),
           signal: controller.signal
         });
         clearTimeout(timeoutId);
@@ -196,7 +310,7 @@
         </div>`;
     }
 
-    // ==================== SEÇÃO CRUD ====================
+    // ==================== CRUD ====================
     async function loadSection(sheetName) {
       currentSheet = sheetName;
       document.getElementById('app-container').innerHTML = `
@@ -397,8 +511,12 @@
 
     // ==================== INIT ====================
     window.addEventListener('load', () => {
-      loadBanners();
-      loadDashboard();
+      if (temSessaoValida()) {
+        liberarApp();
+      } else {
+        document.getElementById('login-overlay').style.display = 'flex';
+        document.getElementById('senha-input').focus();
+      }
     });
   </script>
 </body>

@@ -28,7 +28,7 @@
 <body>
 
   <!-- ============================================================
-       TELA DE LOGIN (aparece se não tiver sessão válida)
+       ETAPA 1 — TELA DE LOGIN (senha)
        ============================================================ -->
   <div id="login-screen" class="login-screen" style="display: none;">
     <div class="login-box">
@@ -56,6 +56,53 @@
       <div class="login-footer">
         <i class="fas fa-shield-alt"></i>
         Acesso restrito à liderança
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       ETAPA 2 — TELA DE OTP (código por email)
+       ============================================================ -->
+  <div id="otp-screen" class="login-screen" style="display: none;">
+    <div class="login-box">
+      <div class="login-logo">📧</div>
+      <h1 class="login-title">Verifique seu email</h1>
+      <p class="login-subtitle" id="otp-subtitle">
+        Enviamos um código de 6 dígitos para os líderes cadastrados.
+      </p>
+
+      <form id="otp-form" onsubmit="Auth.handleValidarCodigo(event)">
+        <div class="otp-field">
+          <input
+            type="text"
+            id="otp-input"
+            class="otp-input"
+            placeholder="000000"
+            maxlength="6"
+            inputmode="numeric"
+            pattern="[0-9]{6}"
+            autocomplete="one-time-code"
+            required>
+        </div>
+        <button type="submit" id="otp-btn" class="login-btn">
+          <i class="fas fa-check-circle"></i>
+          <span>VALIDAR</span>
+        </button>
+        <div id="otp-error" class="login-error"></div>
+      </form>
+
+      <div class="otp-actions">
+        <button type="button" id="otp-reenviar" class="otp-reenviar" onclick="Auth.handleReenviar()">
+          <i class="fas fa-redo"></i> Não recebeu? Reenviar
+        </button>
+        <button type="button" class="otp-voltar" onclick="Auth.voltarLogin()">
+          <i class="fas fa-arrow-left"></i> Voltar
+        </button>
+      </div>
+
+      <div class="login-footer">
+        <i class="fas fa-clock"></i>
+        O código expira em 5 minutos
       </div>
     </div>
   </div>
@@ -148,7 +195,7 @@
   </div>
 
   <!-- ============================================================
-       MODAL UNIVERSAL (usado por todos os módulos)
+       MODAL UNIVERSAL
        ============================================================ -->
   <div id="modal" class="modal-overlay" style="display: none;">
     <div class="modal-box">
@@ -158,22 +205,18 @@
           <i class="fas fa-times"></i>
         </button>
       </div>
-      <div id="modal-body" class="modal-body">
-        <!-- Conteúdo dinâmico -->
-      </div>
-      <div id="modal-footer" class="modal-footer">
-        <!-- Botões dinâmicos -->
-      </div>
+      <div id="modal-body" class="modal-body"></div>
+      <div id="modal-footer" class="modal-footer"></div>
     </div>
   </div>
 
   <!-- ============================================================
-       TOAST (notificações)
+       TOAST
        ============================================================ -->
   <div id="toast-container" class="toast-container"></div>
 
   <!-- ============================================================
-       SCRIPTS — carregados em ordem
+       SCRIPTS
        ============================================================ -->
   <script src="./js/config.js"></script>
   <script src="./js/api.js"></script>
@@ -184,9 +227,8 @@
   <script src="./js/membros.js"></script>
   <script src="./js/talentos.js"></script>
   <script src="./js/agenda.js"></script>
+  <script src="./js/financeiro.js"></script>
   <script src="./js/ia.js"></script>
-
-  <!-- Inicialização -->
   <script src="./js/app.js"></script>
 
 </body>

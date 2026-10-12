@@ -1,40 +1,29 @@
 /* ============================================================
-   PIBENS ADM — Configurações globais
-   ============================================================
-   Centraliza:
-   - URL da API (Apps Script)
-   - Constantes do app
-   - Textos padrão
-   - Versão
+   PIBENS ADM — Configurações globais v2.1
    ============================================================ */
 
 const CONFIG = {
 
   /* ---------- API ---------- */
-  // URL do Web App do Apps Script (termine com /exec)
   API_URL: 'https://script.google.com/macros/s/AKfycbwUl-1KPF40lIc8FR8itFEYVkq5XhQlNXVvM6D_Hp2-3a2gaVAwg1AX1gZFS0hcaPeS_w/exec',
-
-  // Timeout das requisições (em ms)
   API_TIMEOUT: 25000,
 
   /* ---------- AUTENTICAÇÃO ---------- */
-  // Chave usada no localStorage pra guardar a sessão
   SESSAO_KEY: 'pibens_adm_sessao',
-
-  // Duração da sessão (em dias)
   SESSAO_DIAS: 7,
 
   /* ---------- APP ---------- */
   APP_NAME: 'PIBENS ADM',
   APP_SHORT_NAME: 'PIBENS',
   APP_TAGLINE: 'Gestão eclesiástica com inteligência',
-  APP_VERSION: '2.0.0',
+  APP_VERSION: '2.1.0',
 
   /* ---------- TABELAS (Supabase) ---------- */
   TABELAS: {
-    MEMBROS:        'Membros',
-    TALENTOS:       'BancoTalentos',
-    AGENDA:         'Agenda'
+    MEMBROS:     'Membros',
+    TALENTOS:    'BancoTalentos',
+    AGENDA:      'Agenda',
+    FINANCEIRO:  'Financeiro'
   },
 
   /* ---------- DEFINIÇÃO DE CAMPOS POR TABELA ---------- */
@@ -70,6 +59,21 @@ const CONFIG = {
       { nome: 'Horario',   obrigatorio: false, tipo: 'text' },
       { nome: 'Local',     obrigatorio: false, tipo: 'text' },
       { nome: 'Descricao', obrigatorio: false, tipo: 'textarea' }
+    ],
+    Financeiro: [
+      { nome: 'Data',           obrigatorio: true,  tipo: 'date' },
+      { nome: 'Tipo',           obrigatorio: true,  tipo: 'select', opcoes: ['Entrada', 'Saída'] },
+      { nome: 'Valor',          obrigatorio: true,  tipo: 'number' },
+      { nome: 'Categoria',      obrigatorio: true,  tipo: 'select', opcoes: [
+          'Dízimo', 'Oferta', 'Missões', 'Doação', 'Evento',
+          'Luz', 'Água', 'Aluguel', 'Salário Pastoral', 'Material', 'Manutenção', 'Outros'
+      ]},
+      { nome: 'Descricao',      obrigatorio: false, tipo: 'text' },
+      { nome: 'Membro',         obrigatorio: false, tipo: 'text' },
+      { nome: 'FormaPagamento', obrigatorio: false, tipo: 'select', opcoes: [
+          'Dinheiro', 'PIX', 'Cartão', 'Transferência', 'Cheque'
+      ]},
+      { nome: 'Observacoes',    obrigatorio: false, tipo: 'textarea' }
     ]
   },
 
@@ -77,7 +81,8 @@ const CONFIG = {
   COLUNAS_TABELA: {
     Membros:       ['Nome', 'Telefone', 'Talento'],
     BancoTalentos: ['Nome', 'Talento', 'Telefone'],
-    Agenda:        ['Data', 'Evento', 'Horario', 'Local']
+    Agenda:        ['Data', 'Evento', 'Horario', 'Local'],
+    Financeiro:    ['Data', 'Tipo', 'Valor', 'Categoria', 'Descricao']
   },
 
   /* ---------- MENU LATERAL ---------- */
@@ -85,16 +90,22 @@ const CONFIG = {
     {
       secao: 'Principal',
       itens: [
-        { id: 'dashboard',  label: 'Início',      icon: 'fa-home',        modulo: 'Dashboard' },
-        { id: 'ia',         label: 'Assistente IA', icon: 'fa-robot',     modulo: 'IA' }
+        { id: 'dashboard',  label: 'Início',        icon: 'fa-home',        modulo: 'Dashboard' },
+        { id: 'ia',         label: 'Assistente IA', icon: 'fa-robot',       modulo: 'IA' }
       ]
     },
     {
       secao: 'Cadastros',
       itens: [
-        { id: 'membros',    label: 'Membros',     icon: 'fa-users',       modulo: 'Membros' },
-        { id: 'talentos',   label: 'Talentos',    icon: 'fa-star',        modulo: 'BancoTalentos' },
-        { id: 'agenda',     label: 'Agenda',      icon: 'fa-calendar-alt', modulo: 'Agenda' }
+        { id: 'membros',    label: 'Membros',       icon: 'fa-users',       modulo: 'Membros' },
+        { id: 'talentos',   label: 'Talentos',      icon: 'fa-star',        modulo: 'BancoTalentos' },
+        { id: 'agenda',     label: 'Agenda',        icon: 'fa-calendar-alt', modulo: 'Agenda' }
+      ]
+    },
+    {
+      secao: 'Administração',
+      itens: [
+        { id: 'financeiro', label: 'Financeiro',    icon: 'fa-dollar-sign', modulo: 'Financeiro' }
       ]
     }
   ],
@@ -117,7 +128,25 @@ const CONFIG = {
 
   /* ---------- MESES (pt-BR) ---------- */
   MESES: ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
-          'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro']
+          'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'],
+
+  /* ---------- FINANCEIRO ---------- */
+  FINANCEIRO: {
+    CORES_CATEGORIA: {
+      'Dízimo':            '#10b981',
+      'Oferta':            '#059669',
+      'Missões':           '#0891b2',
+      'Doação':            '#06b6d4',
+      'Evento':            '#8b5cf6',
+      'Luz':               '#f59e0b',
+      'Água':              '#0ea5e9',
+      'Aluguel':           '#dc2626',
+      'Salário Pastoral':  '#7c3aed',
+      'Material':          '#f97316',
+      'Manutenção':        '#ef4444',
+      'Outros':            '#64748b'
+    }
+  }
 
 };
 
@@ -130,7 +159,8 @@ Object.freeze(CONFIG.MSG);
 Object.freeze(CONFIG.MENU);
 Object.freeze(CONFIG.DIAS_SEMANA);
 Object.freeze(CONFIG.MESES);
+Object.freeze(CONFIG.FINANCEIRO);
+Object.freeze(CONFIG.FINANCEIRO.CORES_CATEGORIA);
 
-// Log de inicialização (ajuda a debugar no console)
 console.log(`%c${CONFIG.APP_NAME} v${CONFIG.APP_VERSION}`, 'color:#2563eb;font-weight:bold;font-size:14px;');
-console.log('%cConfig carregado', 'color:#64748b;font-size:11px;');
+console.log('%cConfig carregado (v2.1)', 'color:#64748b;font-size:11px;');

@@ -1,5 +1,5 @@
 /* ============================================================
-   PIBENS ADM — Menu / Navegação v2.2
+   PIBENS ADM — Menu / Navegação v2.3
    ============================================================ */
 
 const Menu = {
@@ -31,11 +31,8 @@ const Menu = {
   marcarAtivo(id) {
     const itens = document.querySelectorAll('#sidebar-nav .nav-item');
     itens.forEach((el) => {
-      if (el.dataset.id === id) {
-        el.classList.add('active');
-      } else {
-        el.classList.remove('active');
-      }
+      if (el.dataset.id === id) el.classList.add('active');
+      else el.classList.remove('active');
     });
   },
 
@@ -69,31 +66,27 @@ const Menu = {
       case 'Dashboard':
         if (typeof Dashboard !== 'undefined') Dashboard.render();
         break;
-
       case 'Membros':
         if (typeof Membros !== 'undefined') Membros.render();
         break;
-
       case 'BancoTalentos':
         if (typeof Talentos !== 'undefined') Talentos.render();
         break;
-
       case 'Agenda':
         if (typeof Agenda !== 'undefined') Agenda.render();
         break;
-
       case 'Financeiro':
         if (typeof Financeiro !== 'undefined') Financeiro.render();
         break;
-
       case 'Presenca':
         if (typeof Presenca !== 'undefined') Presenca.render();
         break;
-
+      case 'Escalas':
+        if (typeof Escalas !== 'undefined') Escalas.render();
+        break;
       case 'IA':
         if (typeof IA !== 'undefined') IA.render();
         break;
-
       default:
         const c = document.getElementById('content');
         if (c) c.innerHTML = UI.emptyState(
@@ -102,9 +95,7 @@ const Menu = {
         );
     }
 
-    try {
-      localStorage.setItem('pibens_adm_ultima_pagina', id);
-    } catch (e) { /* ignora */ }
+    try { localStorage.setItem('pibens_adm_ultima_pagina', id); } catch (e) {}
   },
 
   _acharItem(id) {
@@ -116,19 +107,15 @@ const Menu = {
   },
 
   _ultimaPagina() {
-    try {
-      return localStorage.getItem('pibens_adm_ultima_pagina') || 'dashboard';
-    } catch (e) {
-      return 'dashboard';
-    }
+    try { return localStorage.getItem('pibens_adm_ultima_pagina') || 'dashboard'; }
+    catch (e) { return 'dashboard'; }
   },
 
   iniciar() {
     this.render();
-    const ultima = this._ultimaPagina();
-    this.navegar(ultima);
+    this.navegar(this._ultimaPagina());
   }
 
 };
 
-console.log('%c[Menu] Módulo carregado (v2.2 com Presença)', 'color:#64748b;font-size:11px;');
+console.log('%c[Menu] Módulo carregado (v2.3 com Escalas)', 'color:#64748b;font-size:11px;');

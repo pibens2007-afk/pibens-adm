@@ -1,5 +1,5 @@
 /* ============================================================
-   PIBENS ADM — Configurações globais v2.3
+   PIBENS ADM — Configurações globais v2.4
    ============================================================ */
 
 const CONFIG = {
@@ -13,15 +13,16 @@ const CONFIG = {
   APP_NAME: 'PIBENS ADM',
   APP_SHORT_NAME: 'PIBENS',
   APP_TAGLINE: 'Gestão eclesiástica com inteligência',
-  APP_VERSION: '2.3.0',
+  APP_VERSION: '2.4.0',
 
   TABELAS: {
-    MEMBROS:     'Membros',
-    TALENTOS:    'BancoTalentos',
-    AGENDA:      'Agenda',
-    FINANCEIRO:  'Financeiro',
-    PRESENCAS:   'Presencas',
-    ESCALAS:     'Escalas'
+    MEMBROS:      'Membros',
+    TALENTOS:     'BancoTalentos',
+    AGENDA:       'Agenda',
+    FINANCEIRO:   'Financeiro',
+    PRESENCAS:    'Presencas',
+    ESCALAS:      'Escalas',
+    DISCIPULADO:  'Discipulado'
   },
 
   CAMPOS: {
@@ -116,6 +117,22 @@ const CONFIG = {
       { nome: 'Recepcao',         obrigatorio: false, tipo: 'text' },
       { nome: 'Dizimos',          obrigatorio: false, tipo: 'text' },
       { nome: 'Observacoes',      obrigatorio: false, tipo: 'textarea' }
+    ],
+    Discipulado: [
+      { nome: 'Nome',          obrigatorio: true,  tipo: 'text' },
+      { nome: 'DataDecisao',   obrigatorio: true,  tipo: 'date' },
+      { nome: 'Idade',         obrigatorio: false, tipo: 'number' },
+      { nome: 'Telefone',      obrigatorio: false, tipo: 'text' },
+      { nome: 'Endereco',      obrigatorio: false, tipo: 'text' },
+      { nome: 'Discipulador',  obrigatorio: false, tipo: 'text' },
+      { nome: 'Etapa',         obrigatorio: true,  tipo: 'select', opcoes: [
+          'Novo Convertido',
+          'Em Discipulado',
+          'Pronto para Batismo',
+          'Batizado'
+      ]},
+      { nome: 'DataBatismo',   obrigatorio: false, tipo: 'date' },
+      { nome: 'Observacoes',   obrigatorio: false, tipo: 'textarea' }
     ]
   },
 
@@ -125,7 +142,8 @@ const CONFIG = {
     Agenda:        ['Data', 'Evento', 'Horario', 'Local'],
     Financeiro:    ['Data', 'Tipo', 'Valor', 'Categoria', 'Descricao'],
     Presencas:     ['Data', 'Tipo', 'TotalPresentes', 'Visitantes', 'Pregador'],
-    Escalas:       ['Data', 'Tipo', 'Louvor', 'Som', 'Projecao']
+    Escalas:       ['Data', 'Tipo', 'Louvor', 'Som', 'Projecao'],
+    Discipulado:   ['Nome', 'Etapa', 'Discipulador', 'DataDecisao']
   },
 
   MENU: [
@@ -149,6 +167,12 @@ const CONFIG = {
       itens: [
         { id: 'presenca',   label: 'Presença',      icon: 'fa-clipboard-check', modulo: 'Presenca' },
         { id: 'escalas',    label: 'Escalas',       icon: 'fa-list-check',      modulo: 'Escalas' }
+      ]
+    },
+    {
+      secao: 'Pastoral',
+      itens: [
+        { id: 'discipulado', label: 'Discipulado',  icon: 'fa-seedling',        modulo: 'Discipulado' }
       ]
     },
     {
@@ -178,18 +202,10 @@ const CONFIG = {
 
   FINANCEIRO: {
     CORES_CATEGORIA: {
-      'Dízimo':            '#10b981',
-      'Oferta':            '#059669',
-      'Missões':           '#0891b2',
-      'Doação':            '#06b6d4',
-      'Evento':            '#8b5cf6',
-      'Luz':               '#f59e0b',
-      'Água':              '#0ea5e9',
-      'Aluguel':           '#dc2626',
-      'Salário Pastoral':  '#7c3aed',
-      'Material':          '#f97316',
-      'Manutenção':        '#ef4444',
-      'Outros':            '#64748b'
+      'Dízimo': '#10b981', 'Oferta': '#059669', 'Missões': '#0891b2',
+      'Doação': '#06b6d4', 'Evento': '#8b5cf6', 'Luz': '#f59e0b',
+      'Água': '#0ea5e9', 'Aluguel': '#dc2626', 'Salário Pastoral': '#7c3aed',
+      'Material': '#f97316', 'Manutenção': '#ef4444', 'Outros': '#64748b'
     }
   },
 
@@ -219,6 +235,15 @@ const CONFIG = {
       { campo: 'Recepcao',    label: '👋 Recepção',     cor: '#f97316' },
       { campo: 'Dizimos',     label: '🎁 Dízimos',      cor: '#10b981' }
     ]
+  },
+
+  DISCIPULADO: {
+    ETAPAS: [
+      { nome: 'Novo Convertido',      cor: '#0891b2', icon: 'fa-seedling',  progresso: 25 },
+      { nome: 'Em Discipulado',       cor: '#2563eb', icon: 'fa-book-open', progresso: 50 },
+      { nome: 'Pronto para Batismo',  cor: '#f59e0b', icon: 'fa-check',     progresso: 75 },
+      { nome: 'Batizado',             cor: '#059669', icon: 'fa-water',     progresso: 100 }
+    ]
   }
 
 };
@@ -236,6 +261,8 @@ Object.freeze(CONFIG.PRESENCA);
 Object.freeze(CONFIG.PRESENCA.CORES_TIPO);
 Object.freeze(CONFIG.ESCALAS);
 Object.freeze(CONFIG.ESCALAS.FUNCOES);
+Object.freeze(CONFIG.DISCIPULADO);
+Object.freeze(CONFIG.DISCIPULADO.ETAPAS);
 
 console.log(`%c${CONFIG.APP_NAME} v${CONFIG.APP_VERSION}`, 'color:#2563eb;font-weight:bold;font-size:14px;');
-console.log('%cConfig carregado (v2.3)', 'color:#64748b;font-size:11px;');
+console.log('%cConfig carregado (v2.4)', 'color:#64748b;font-size:11px;');

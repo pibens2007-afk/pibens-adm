@@ -1,9 +1,23 @@
 /* ============================================================
    PIBENS ADM — Camada de API
+   ============================================================
+   Responsável por:
+   - Fazer requisições POST pro Apps Script
+   - Tratar timeout (25s com AbortController)
+   - Tratar erros de JSON / rede
+   - Atalhos específicos (login, OTP, CRUD, IA)
    ============================================================ */
 
 const API = {
 
+  /* ----------------------------------------------------------
+     Requisição principal
+     ----------------------------------------------------------
+     Uso:
+       await API.call('listarRegistros', ['Membros'])
+       await API.call('salvarRegistro', ['Membros', dados, null])
+       await API.call('removerRegistro', [123])
+     ---------------------------------------------------------- */
   async call(funcao, args = []) {
     if (!funcao) throw new Error('Função não especificada.');
 
@@ -53,9 +67,28 @@ const API = {
     }
   },
 
+  /* ----------------------------------------------------------
+     AUTENTICAÇÃO
+     ---------------------------------------------------------- */
+
+  // Etapa 1: envia a senha, recebe { etapa: 'otp_enviado', destinos }
   login(senha) {
     return this.call('login', [senha]);
   },
+
+  // Etapa 2: valida o código de 6 dígitos
+  validarCodigo(codigo) {
+    return this.call('validarCodigo', [codigo]);
+  },
+
+  // Reenvia um novo código
+  reenviarCodigo() {
+    return this.call('reenviarCodigo');
+  },
+
+  /* ----------------------------------------------------------
+     CRUD GENÉRICO
+     ---------------------------------------------------------- */
 
   listar(tabela) {
     return this.call('listarRegistros', [tabela]);
@@ -69,17 +102,44 @@ const API = {
     return this.call('removerRegistro', [id]);
   },
 
+  /* ----------------------------------------------------------
+     BANNERS
+     ---------------------------------------------------------- */
   banners() {
     return this.call('getHomeBanners');
   },
 
+  /* ----------------------------------------------------------
+     IA (GROQ)
+     ---------------------------------------------------------- */
   devocional()      { return this.call('devocionalDiario'); },
   resumirAgenda()   { return this.call('resumirAgenda'); },
   duvidaBiblica(q)  { return this.call('duvidaBiblica', [q]); },
-  relatorioMensal() { return this.call('relatorioMensal'); }
+  relatorioMensal() { return this.call('relatorioMensal'); },
+
+  /* ----------------------------------------------------------
+     FINANCEIRO (atalhos)
+     ---------------------------------------------------------- */
+  listarFinanceiro() {
+    return this.listar(CONFIG.TABELAS.FINANCEIRO);
+  },
+
+  salvarFinanceiro(dados, id = null) {
+    return this.salvar(CONFIG.TABELAS.FINANCEIRO, dados, id);
+  },
+
+  removerFinanceiro(id) {
+    return this.remover(id);
+  }
 
 };
 
+/* ----------------------------------------------------------
+   Helper: executa uma chamada com tratamento de erro automático
+   ----------------------------------------------------------
+   Uso:
+     const data = await APIComErro(() => API.listar('Membros'));
+   ---------------------------------------------------------- */
 async function APIComErro(fn, mostrarToast = true) {
   try {
     return await fn();
@@ -92,4 +152,4 @@ async function APIComErro(fn, mostrarToast = true) {
   }
 }
 
-console.log('%c[API] Módulo carregado', 'color:#64748b;font-size:11px;');
+console.log('%c[API] Módulo carregado (OTP + Financeiro)', 'color:#64748b;font-size:11px;');

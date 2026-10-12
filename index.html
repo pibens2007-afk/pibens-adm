@@ -2,687 +2,192 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#2563eb">
+  <meta name="description" content="PIBENS ADM — Gestão eclesiástica com inteligência">
   <title>PIBENS ADM</title>
+
   <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/png" href="https://i.imgur.com/P9c9ypS.png">
+
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <!-- Fontes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    body { font-family: 'Outfit', sans-serif; background: #f8fafc; }
-    .btn-huge { font-size: 1.05rem; font-weight: 800; padding: 0.9rem 1.8rem; border-radius: 1.2rem; transition: all 0.2s; }
-    .btn-huge:hover { transform: translateY(-2px); }
-    #modal-overlay { background: rgba(15,23,42,0.7); backdrop-filter: blur(8px); display: none; position: fixed; inset: 0; z-index: 100; align-items: center; justify-content: center; padding: 20px; }
-    .modal-content { background: white; width: 100%; max-width: 800px; max-height: 90vh; border-radius: 2rem; overflow-y: auto; padding: 2rem; }
-    input, select, textarea { width: 100%; padding: 0.9rem; border-radius: 1rem; border: 2px solid #e2e8f0; margin-top: 0.3rem; font-size: 1rem; }
-    input:focus, select:focus, textarea:focus { border-color: #3b82f6; outline: none; }
-    .obrigatorio::after { content: ' *'; color: #dc2626; font-weight: 900; }
-    .menu-card { transition: all 0.3s; border-radius: 2rem; cursor: pointer; }
-    .menu-card:hover { transform: scale(1.03); }
-    .spinner { display: inline-block; width: 1rem; height: 1rem; border: 3px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .toast { position: fixed; top: 20px; right: 20px; background: #1e293b; color: #fff; padding: 1rem 1.5rem; border-radius: 1rem; z-index: 999; opacity: 0; transform: translateY(-20px); transition: all 0.3s; max-width: 90vw; }
-    .toast.show { opacity: 1; transform: translateY(0); }
-    .toast.erro { background: #dc2626; }
-    .toast.sucesso { background: #059669; }
 
-    /* LOGIN */
-    #login-overlay {
-      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
-      position: fixed; inset: 0; z-index: 200;
-      display: none; align-items: center; justify-content: center; padding: 20px;
-    }
-    .login-box {
-      background: white; border-radius: 2rem; padding: 2.5rem;
-      max-width: 420px; width: 100%; box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-      text-align: center;
-    }
-    .login-box h1 { font-size: 2rem; font-weight: 800; color: #1e3a8a; margin-bottom: 0.5rem; }
-    .login-box p { color: #64748b; margin-bottom: 1.5rem; }
-    .login-box input {
-      text-align: center; font-size: 1.2rem; letter-spacing: 0.2em;
-      padding: 1rem; border-radius: 1rem; border: 2px solid #e2e8f0;
-    }
-    .login-box input:focus { border-color: #2563eb; outline: none; }
-    .login-box button {
-      width: 100%; padding: 1rem; border-radius: 1rem; border: none;
-      background: #2563eb; color: white; font-weight: 800; font-size: 1.1rem;
-      margin-top: 1rem; cursor: pointer; transition: all 0.2s;
-    }
-    .login-box button:hover { background: #1d4ed8; }
-    .login-box button:disabled { opacity: 0.6; cursor: not-allowed; }
-    .login-error { color: #dc2626; font-size: 0.9rem; margin-top: 0.8rem; min-height: 1.2rem; }
-    #btn-logout {
-      background: #ef4444; color: white; font-weight: 700;
-      padding: 0.5rem 0.9rem; border-radius: 0.8rem; border: none;
-      cursor: pointer; font-size: 0.9rem; margin-left: 0.5rem;
-    }
-    #btn-logout:hover { background: #dc2626; }
-    #app-root { display: none; }
-    #app-root.visible { display: block; }
-
-    /* Modal detalhes */
-    .campo-detalhe { padding: 0.7rem 0; border-bottom: 1px dashed #e2e8f0; }
-    .campo-detalhe:last-child { border-bottom: none; }
-    .campo-label { color: #64748b; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
-    .campo-valor { color: #1e293b; font-size: 1rem; font-weight: 500; margin-top: 0.2rem; word-break: break-word; }
-
-    /* Botão talento */
-    .btn-talento { background: #8b5cf6; color: white; font-weight: 700; padding: 0.5rem 0.7rem; border-radius: 0.6rem; border: none; cursor: pointer; font-size: 0.85rem; }
-    .btn-talento:hover { background: #7c3aed; }
-  </style>
+  <!-- Estilos globais -->
+  <link rel="stylesheet" href="./css/style.css">
 </head>
-<body class="pb-12">
 
-  <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwUl-1KPF40lIc8FR8itFEYVkq5XhQlNXVvM6D_Hp2-3a2gaVAwg1AX1gZFS0hcaPeS_w/exec';
-  </script>
+<body>
 
-  <div id="toast" class="toast"></div>
-
-  <!-- TELA DE LOGIN -->
-  <div id="login-overlay">
+  <!-- ============================================================
+       TELA DE LOGIN (aparece se não tiver sessão válida)
+       ============================================================ -->
+  <div id="login-screen" class="login-screen" style="display: none;">
     <div class="login-box">
-      <div style="font-size: 3rem; margin-bottom: 0.5rem;">🔒</div>
-      <h1>PIBENS ADM</h1>
-      <p>Digite a senha de acesso</p>
-      <form onsubmit="fazerLogin(event)">
-        <input type="password" id="senha-input" placeholder="••••••••" autocomplete="current-password" required>
-        <button type="submit" id="btn-entrar">ENTRAR</button>
-        <div class="login-error" id="login-erro"></div>
+      <div class="login-logo">🏛️</div>
+      <h1 class="login-title">PIBENS ADM</h1>
+      <p class="login-subtitle">Gestão eclesiástica com inteligência</p>
+
+      <form id="login-form" onsubmit="Auth.handleLogin(event)">
+        <div class="login-field">
+          <i class="fas fa-lock login-field-icon"></i>
+          <input
+            type="password"
+            id="login-password"
+            placeholder="Digite a senha de acesso"
+            autocomplete="current-password"
+            required>
+        </div>
+        <button type="submit" id="login-btn" class="login-btn">
+          <i class="fas fa-sign-in-alt"></i>
+          <span>ENTRAR</span>
+        </button>
+        <div id="login-error" class="login-error"></div>
       </form>
+
+      <div class="login-footer">
+        <i class="fas fa-shield-alt"></i>
+        Acesso restrito à liderança
+      </div>
     </div>
   </div>
 
-  <!-- APP -->
-  <div id="app-root">
+  <!-- ============================================================
+       APP (só aparece depois do login)
+       ============================================================ -->
+  <div id="app-root" class="app-root" style="display: none;">
 
-    <!-- MODAL GENÉRICO (form) -->
-    <div id="modal-overlay">
-      <div class="modal-content">
-        <div class="flex justify-between items-center mb-6">
-          <h2 id="modal-title" class="text-blue-900 font-black text-2xl">Formulário</h2>
-          <button onclick="closeModal()" class="text-gray-400 hover:text-red-500 text-3xl">&times;</button>
+    <!-- Sidebar (desktop) / Drawer (mobile) -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <i class="fas fa-church"></i>
         </div>
-        <form id="dynamic-form" onsubmit="handleFormSubmit(event)">
-          <input type="hidden" id="form-row-index">
-          <input type="hidden" id="form-sheet-name">
-          <div id="form-fields-container"></div>
-          <button type="submit" id="submit-btn" class="btn-huge bg-blue-600 text-white w-full mt-8">
-            <i class="fas fa-save mr-2"></i> SALVAR
-          </button>
-        </form>
-      </div>
-    </div>
-
-    <!-- MODAL DETALHES -->
-    <div id="modal-detalhes-overlay" style="background: rgba(15,23,42,0.7); backdrop-filter: blur(8px); display: none; position: fixed; inset: 0; z-index: 110; align-items: center; justify-content: center; padding: 20px;">
-      <div class="modal-content">
-        <div class="flex justify-between items-center mb-6">
-          <h2 id="detalhes-title" class="text-blue-900 font-black text-2xl">Detalhes</h2>
-          <button onclick="closeDetalhes()" class="text-gray-400 hover:text-red-500 text-3xl">&times;</button>
+        <div class="sidebar-brand">
+          <span class="sidebar-title">PIBENS <span class="text-amber-400">ADM</span></span>
+          <span class="sidebar-tagline">Gestão eclesiástica</span>
         </div>
-        <div id="detalhes-conteudo"></div>
+        <button id="sidebar-close" class="sidebar-close" onclick="Menu.close()">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
-    </div>
 
-    <!-- NAV -->
-    <nav class="bg-white shadow-xl border-b-4 border-blue-500 mb-6 px-6 py-5 sticky top-0 z-50">
-      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-        <div class="flex items-center gap-3 cursor-pointer" onclick="loadDashboard()">
-          <div class="bg-blue-600 text-white p-3 rounded-2xl"><i class="fas fa-church text-2xl"></i></div>
-          <div>
-            <h1 class="text-blue-600 m-0 text-2xl font-extrabold leading-none">PIBENS <span class="text-amber-500">ADM</span></h1>
-            <p class="text-gray-500 text-xs mt-1">Gestão eclesiástica com inteligência</p>
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <!-- Preenchido por js/menu.js -->
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-user-avatar">
+            <i class="fas fa-user-shield"></i>
+          </div>
+          <div class="sidebar-user-info">
+            <span class="sidebar-user-name">Administrador</span>
+            <span class="sidebar-user-role">Acesso total</span>
           </div>
         </div>
-        <div class="flex flex-wrap justify-center gap-2 items-center">
-          <button onclick="loadDashboard()" class="text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-xl font-bold"><i class="fas fa-home mr-1"></i>Início</button>
-          <button onclick="loadSection('Membros')" class="text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 px-3 py-2 rounded-xl font-bold"><i class="fas fa-users mr-1"></i>Membros</button>
-          <button onclick="loadSection('BancoTalentos')" class="text-gray-700 hover:text-purple-600 hover:bg-purple-50 px-3 py-2 rounded-xl font-bold"><i class="fas fa-star mr-1"></i>Talentos</button>
-          <button onclick="loadSection('Agenda')" class="text-gray-700 hover:text-cyan-600 hover:bg-cyan-50 px-3 py-2 rounded-xl font-bold"><i class="fas fa-calendar-alt mr-1"></i>Agenda</button>
-          <button onclick="loadIA()" class="text-gray-700 hover:text-rose-600 hover:bg-rose-50 px-3 py-2 rounded-xl font-bold"><i class="fas fa-robot mr-1"></i>IA</button>
-          <button id="btn-logout" onclick="fazerLogout()" title="Sair"><i class="fas fa-sign-out-alt mr-1"></i>Sair</button>
+        <button class="sidebar-logout" onclick="Auth.logout()">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Sair</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Overlay do drawer (mobile) -->
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="Menu.close()"></div>
+
+    <!-- Área principal -->
+    <main class="main-content">
+
+      <!-- Topbar -->
+      <header class="topbar">
+        <button class="topbar-menu" onclick="Menu.open()">
+          <i class="fas fa-bars"></i>
+        </button>
+
+        <div class="topbar-title" id="topbar-title">
+          <i class="fas fa-home"></i>
+          <span>Início</span>
         </div>
-      </div>
-    </nav>
 
-    <div class="max-w-7xl mx-auto px-4 mb-4 text-right">
-      <span id="live-date" class="bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl text-sm">
-        <i class="fas fa-calendar-day mr-2"></i> Carregando...
-      </span>
-    </div>
+        <div class="topbar-actions">
+          <span id="topbar-date" class="topbar-date">
+            <i class="fas fa-calendar-day"></i>
+            <span>--</span>
+          </span>
+        </div>
+      </header>
 
-    <div id="banners-container" class="max-w-7xl mx-auto px-4 mb-8 grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+      <!-- Banners (aniversariantes + calendário batista) -->
+      <div id="banners" class="banners-container"></div>
 
-    <main id="app-container" class="max-w-7xl mx-auto px-4">
-      <div class="text-center py-20 bg-white rounded-3xl shadow">
-        <i class="fas fa-sync fa-spin text-5xl text-blue-500 mb-4"></i>
-        <h2 class="text-blue-900 font-black">Abrindo painel...</h2>
-      </div>
+      <!-- Conteúdo do módulo atual -->
+      <section id="content" class="content">
+        <div class="loading-screen">
+          <i class="fas fa-sync fa-spin"></i>
+          <p>Carregando...</p>
+        </div>
+      </section>
+
+      <!-- Rodapé -->
+      <footer class="app-footer">
+        <span>PIBENS ADM &copy; <span id="footer-year"></span></span>
+        <span class="app-footer-version">v2.0</span>
+      </footer>
+
     </main>
 
-  </div><!-- fecha app-root -->
+  </div>
 
-  <script>
-    let currentSheet = "";
-    let currentData = [];
+  <!-- ============================================================
+       MODAL UNIVERSAL (usado por todos os módulos)
+       ============================================================ -->
+  <div id="modal" class="modal-overlay" style="display: none;">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 id="modal-title" class="modal-title">Título</h2>
+        <button class="modal-close" onclick="UI.closeModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="modal-body" class="modal-body">
+        <!-- Conteúdo dinâmico -->
+      </div>
+      <div id="modal-footer" class="modal-footer">
+        <!-- Botões dinâmicos -->
+      </div>
+    </div>
+  </div>
 
-    // ==================== DEFINIÇÃO DE CAMPOS ====================
-    const CAMPOS_POR_TABELA = {
-      Membros: [
-        { nome: 'Nome',              obrigatorio: true,  tipo: 'text' },
-        { nome: 'Nascimento',        obrigatorio: true,  tipo: 'date' },
-        { nome: 'CPF',               obrigatorio: true,  tipo: 'text' },
-        { nome: 'RG',                obrigatorio: false, tipo: 'text' },
-        { nome: 'Telefone',          obrigatorio: true,  tipo: 'text' },
-        { nome: 'Email',             obrigatorio: false, tipo: 'email' },
-        { nome: 'Endereço',          obrigatorio: false, tipo: 'text' },
-        { nome: 'Bairro',            obrigatorio: false, tipo: 'text' },
-        { nome: 'Cidade',            obrigatorio: false, tipo: 'text' },
-        { nome: 'Estado',            obrigatorio: false, tipo: 'text' },
-        { nome: 'CEP',               obrigatorio: false, tipo: 'text' },
-        { nome: 'Estado Civil',      obrigatorio: false, tipo: 'select', opcoes: ['Solteiro(a)', 'Casado(a)', 'Divorciado(a)', 'Viúvo(a)', 'Outro'] },
-        { nome: 'Profissão',         obrigatorio: true,  tipo: 'text' },
-        { nome: 'Talento',           obrigatorio: false, tipo: 'text' },
-        { nome: 'Data de Batismo',   obrigatorio: false, tipo: 'date' },
-        { nome: 'Data de Membro',    obrigatorio: false, tipo: 'date' },
-        { nome: 'Observações',       obrigatorio: false, tipo: 'textarea' }
-      ],
-      BancoTalentos: [
-        { nome: 'Nome',      obrigatorio: true,  tipo: 'text' },
-        { nome: 'Talento',   obrigatorio: true,  tipo: 'text' },
-        { nome: 'Telefone',  obrigatorio: false, tipo: 'text' },
-        { nome: 'Email',     obrigatorio: false, tipo: 'email' }
-      ],
-      Agenda: [
-        { nome: 'Data',      obrigatorio: true,  tipo: 'date' },
-        { nome: 'Evento',    obrigatorio: true,  tipo: 'text' },
-        { nome: 'Horario',   obrigatorio: false, tipo: 'text' },
-        { nome: 'Local',     obrigatorio: false, tipo: 'text' },
-        { nome: 'Descricao', obrigatorio: false, tipo: 'textarea' }
-      ]
-    };
+  <!-- ============================================================
+       TOAST (notificações)
+       ============================================================ -->
+  <div id="toast-container" class="toast-container"></div>
 
-    // Colunas que aparecem na tabela (compacta) por tabela
-    const COLUNAS_TABELA = {
-      Membros:       ['Nome', 'Telefone', 'Talento'],
-      BancoTalentos: ['Nome', 'Talento', 'Telefone'],
-      Agenda:        ['Data', 'Evento', 'Horario', 'Local']
-    };
+  <!-- ============================================================
+       SCRIPTS — carregados em ordem
+       ============================================================ -->
+  <script src="./js/config.js"></script>
+  <script src="./js/api.js"></script>
+  <script src="./js/ui.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/menu.js"></script>
+  <script src="./js/dashboard.js"></script>
+  <script src="./js/membros.js"></script>
+  <script src="./js/talentos.js"></script>
+  <script src="./js/agenda.js"></script>
+  <script src="./js/ia.js"></script>
 
-    function getCampos(tabela) {
-      return CAMPOS_POR_TABELA[tabela] || [];
-    }
+  <!-- Inicialização -->
+  <script src="./js/app.js"></script>
 
-    // ==================== AUTENTICAÇÃO ====================
-    const SESSAO_KEY = 'pibens_adm_sessao';
-    const SESSAO_DIAS = 7;
-
-    function temSessaoValida() {
-      const raw = localStorage.getItem(SESSAO_KEY);
-      if (!raw) return false;
-      try {
-        const s = JSON.parse(raw);
-        return s.expira && Date.now() < s.expira;
-      } catch (e) { return false; }
-    }
-
-    function salvarSessao() {
-      const expira = Date.now() + (SESSAO_DIAS * 24 * 60 * 60 * 1000);
-      localStorage.setItem(SESSAO_KEY, JSON.stringify({ expira: expira }));
-    }
-
-    function limparSessao() {
-      localStorage.removeItem(SESSAO_KEY);
-    }
-
-    async function fazerLogin(event) {
-      event.preventDefault();
-      const btn = document.getElementById('btn-entrar');
-      const erroEl = document.getElementById('login-erro');
-      const senha = document.getElementById('senha-input').value;
-
-      btn.disabled = true;
-      btn.textContent = 'VERIFICANDO...';
-      erroEl.textContent = '';
-
-      try {
-        await chamarAPI('login', [senha]);
-        salvarSessao();
-        liberarApp();
-      } catch (e) {
-        erroEl.textContent = e.message || 'Senha incorreta.';
-        document.getElementById('senha-input').value = '';
-        document.getElementById('senha-input').focus();
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'ENTRAR';
-      }
-    }
-
-    function liberarApp() {
-      document.getElementById('login-overlay').style.display = 'none';
-      document.getElementById('app-root').classList.add('visible');
-      loadBanners();
-      loadDashboard();
-    }
-
-    function fazerLogout() {
-      if (!confirm('Deseja sair do sistema?')) return;
-      limparSessao();
-      location.reload();
-    }
-
-    // ==================== API ====================
-    async function chamarAPI(funcao, args = []) {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 25000);
-      try {
-        const resp = await fetch(API_URL, {
-          method: 'POST',
-          cache: 'no-store',
-          redirect: 'follow',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ funcao: funcao, args: args }),
-          signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-        const txt = await resp.text();
-        let json;
-        try { json = JSON.parse(txt); }
-        catch (e) { throw new Error('Resposta inválida do servidor: ' + txt.substring(0, 200)); }
-        if (!json.ok) throw new Error(json.erro || 'Erro desconhecido');
-        return json.data;
-      } catch (e) {
-        clearTimeout(timeoutId);
-        if (e.name === 'AbortError') throw new Error('Tempo esgotado (25s). Verifique sua conexão.');
-        throw e;
-      }
-    }
-
-    // ==================== TOAST ====================
-    function showToast(msg, tipo = 'sucesso', ms = 3500) {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.className = 'toast ' + tipo;
-      t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), ms);
-    }
-
-    // ==================== BANNERS ====================
-    async function loadBanners() {
-      const wrap = document.getElementById('banners-container');
-      try {
-        const info = await chamarAPI('getHomeBanners');
-        if (info.todayStr) document.getElementById('live-date').innerHTML = '<i class="fas fa-calendar-alt mr-2"></i>Hoje: ' + info.todayStr;
-
-        const birthHtml = (info.birthdays && info.birthdays.length > 0)
-          ? `<div class="bg-gradient-to-r from-amber-400 to-orange-500 rounded-3xl p-6 flex items-center gap-4">
-               <div class="bg-white/30 p-3 rounded-2xl text-2xl text-white"><i class="fas fa-birthday-cake"></i></div>
-               <div>
-                 <h4 class="font-extrabold text-lg text-amber-950">ANIVERSARIANTE(S) DO DIA!</h4>
-                 <p class="font-bold text-white">${info.birthdays.join(', ')}</p>
-               </div>
-             </div>`
-          : `<div class="bg-white rounded-3xl p-6 flex items-center gap-4 border">
-               <div class="bg-slate-100 p-3 rounded-2xl text-2xl text-gray-400"><i class="fas fa-calendar-day"></i></div>
-               <div>
-                 <h4 class="font-bold text-gray-700">Aniversariantes de Hoje</h4>
-                 <p class="text-gray-500 text-sm">Nenhum membro faz aniversário hoje.</p>
-               </div>
-             </div>`;
-
-        const baptistHtml = `<div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-6 flex items-center gap-4">
-               <div class="bg-white/20 p-3 rounded-2xl text-2xl text-amber-400"><i class="fas fa-bookmark"></i></div>
-               <div>
-                 <h4 class="font-extrabold text-blue-100">CALENDÁRIO BATISTA CBB</h4>
-                 <p class="font-semibold text-white">${info.baptistDates || ''}</p>
-               </div>
-             </div>`;
-
-        wrap.innerHTML = birthHtml + baptistHtml;
-      } catch (e) {
-        wrap.innerHTML = `<div class="bg-red-100 text-red-800 rounded-2xl p-4 col-span-2">Erro ao carregar banners: ${e.message}</div>`;
-      }
-    }
-
-    // ==================== DASHBOARD ====================
-    function loadDashboard() {
-      document.getElementById('app-container').innerHTML = `
-        <div class="text-center mb-8">
-          <h2 class="text-gray-800 font-black text-3xl">Painel de Controle</h2>
-          <p class="text-gray-600">Selecione uma área para gerenciar.</p>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div onclick="loadSection('Membros')" class="menu-card bg-white border-2 border-emerald-400 shadow-lg p-6">
-            <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mb-4"><i class="fas fa-users text-2xl"></i></div>
-            <h3 class="text-emerald-900 font-bold text-xl mb-1">Membros</h3>
-            <p class="text-gray-500">Cadastro completo de membros.</p>
-          </div>
-          <div onclick="loadSection('BancoTalentos')" class="menu-card bg-white border-2 border-purple-400 shadow-lg p-6">
-            <div class="w-14 h-14 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mb-4"><i class="fas fa-star text-2xl"></i></div>
-            <h3 class="text-purple-900 font-bold text-xl mb-1">Talentos</h3>
-            <p class="text-gray-500">Ministérios, dons e profissões.</p>
-          </div>
-          <div onclick="loadSection('Agenda')" class="menu-card bg-white border-2 border-cyan-400 shadow-lg p-6">
-            <div class="w-14 h-14 bg-cyan-100 text-cyan-600 rounded-2xl flex items-center justify-center mb-4"><i class="fas fa-calendar-alt text-2xl"></i></div>
-            <h3 class="text-cyan-900 font-bold text-xl mb-1">Agenda</h3>
-            <p class="text-gray-500">Cultos e atividades.</p>
-          </div>
-          <div onclick="loadIA()" class="menu-card bg-white border-2 border-rose-400 shadow-lg p-6 md:col-span-3">
-            <div class="w-14 h-14 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mb-4"><i class="fas fa-robot text-2xl"></i></div>
-            <h3 class="text-rose-900 font-bold text-xl mb-1">Assistente IA (Gemini)</h3>
-            <p class="text-gray-500">Devocional, resumo de agenda, dúvidas bíblicas e relatório mensal.</p>
-          </div>
-        </div>`;
-    }
-
-    // ==================== CRUD ====================
-    async function loadSection(sheetName) {
-      currentSheet = sheetName;
-      document.getElementById('app-container').innerHTML = `
-        <div class="text-center py-20 bg-white rounded-3xl shadow">
-          <i class="fas fa-sync fa-spin text-5xl text-blue-500 mb-4"></i>
-          <h3 class="text-blue-900 font-bold">Carregando ${sheetName}...</h3>
-        </div>`;
-      try {
-        const data = await chamarAPI('listarRegistros', [sheetName]);
-        currentData = data || [];
-        renderTable(sheetName, currentData);
-      } catch (e) {
-        document.getElementById('app-container').innerHTML = `
-          <div class="bg-red-100 text-red-800 p-6 rounded-2xl">
-            <h3 class="font-black text-xl">Erro ao carregar</h3>
-            <p>${e.message}</p>
-            <button onclick="loadDashboard()" class="btn-huge bg-blue-600 text-white mt-4">Voltar</button>
-          </div>`;
-      }
-    }
-
-    function sortDataAlphabetically() {
-      if (!currentData || currentData.length <= 1) return;
-      currentData.sort((a, b) => {
-        const va = (a.Nome || '').toString().trim().toLowerCase();
-        const vb = (b.Nome || '').toString().trim().toLowerCase();
-        return va.localeCompare(vb, 'pt-BR', { sensitivity: 'base' });
-      });
-      renderTable(currentSheet, currentData);
-    }
-
-    function renderTable(sheetName, data) {
-      const c = document.getElementById('app-container');
-      const colunas = COLUNAS_TABELA[sheetName] || ['Nome'];
-
-      if (!data || data.length === 0) {
-        c.innerHTML = `
-          <div class="text-center bg-white p-10 rounded-3xl shadow">
-            <h2 class="font-bold text-gray-700">Nenhum registro em ${sheetName}</h2>
-            <button onclick="openForm()" class="btn-huge bg-blue-600 text-white mt-4">+ ADICIONAR PRIMEIRO</button>
-            <button onclick="loadDashboard()" class="btn-huge bg-amber-400 text-slate-900 mt-4 ml-2">Voltar</button>
-          </div>`;
-        return;
-      }
-
-      let html = `
-        <div class="bg-white rounded-3xl shadow-xl overflow-hidden">
-          <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 flex flex-col lg:flex-row justify-between items-center gap-4">
-            <div>
-              <h2 class="text-white font-black text-2xl">${sheetName}</h2>
-              <p class="text-blue-100">${data.length} registros</p>
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <button onclick="sortDataAlphabetically()" class="bg-sky-600 text-white font-bold px-4 py-2 rounded-xl"><i class="fas fa-sort-alpha-down mr-1"></i>A-Z</button>
-              <button onclick="openForm()" class="bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl"><i class="fas fa-plus mr-1"></i>Inserir</button>
-              <button onclick="loadDashboard()" class="bg-amber-400 text-slate-900 font-bold px-4 py-2 rounded-xl"><i class="fas fa-chevron-left mr-1"></i>Voltar</button>
-            </div>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full">
-              <thead class="bg-slate-800 text-white">
-                <tr>
-                  ${colunas.map(h => `<th class="p-4 text-left">${h}</th>`).join('')}
-                  <th class="p-4 text-center" style="min-width: 260px;">Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${data.map(row => {
-                  let cells = colunas.map(h => `<td class="p-4 border-b">${row[h] || '-'}</td>`).join('');
-
-                  // Botão "→ Talentos" só pra Membros com talento preenchido
-                  const botaoTalento = (sheetName === 'Membros' && row.Talento)
-                    ? `<button onclick="enviarParaTalentos(${row.sheetRowIndex})" class="btn-talento" title="Enviar para o Banco de Talentos"><i class="fas fa-star mr-1"></i>→ Talentos</button>`
-                    : '';
-
-                  cells += `<td class="p-4 border-b text-center">
-                    <div class="flex flex-wrap gap-1 justify-center items-center">
-                      <button onclick="verDetalhes(${row.sheetRowIndex})" class="bg-blue-500 text-white font-bold px-3 py-2 rounded-lg" title="Ver detalhes"><i class="fas fa-eye"></i></button>
-                      <button onclick="openForm(${row.sheetRowIndex})" class="bg-amber-500 text-white font-bold px-3 py-2 rounded-lg" title="Editar"><i class="fas fa-edit"></i></button>
-                      <button onclick="askDelete(${row.sheetRowIndex})" class="bg-rose-500 text-white font-bold px-3 py-2 rounded-lg" title="Remover"><i class="fas fa-trash"></i></button>
-                      ${botaoTalento}
-                    </div>
-                  </td>`;
-                  return `<tr class="hover:bg-blue-50">${cells}</tr>`;
-                }).join('')}
-              </tbody>
-            </table>
-          </div>
-        </div>`;
-      c.innerHTML = html;
-    }
-
-    // ==================== DETALHES ====================
-    function verDetalhes(rowIndex) {
-      const row = currentData.find(r => r.sheetRowIndex == rowIndex);
-      if (!row) return;
-      const campos = getCampos(currentSheet);
-      const titulo = row.Nome || row.Evento || 'Detalhes';
-
-      document.getElementById('detalhes-title').textContent = titulo;
-
-      const html = campos.map(campo => {
-        const valor = row[campo.nome];
-        let valorExibido = valor;
-        if (campo.tipo === 'date' && valor) {
-          // Converte YYYY-MM-DD pra DD/MM/YYYY
-          if (/^\d{4}-\d{2}-\d{2}$/.test(valor)) {
-            const p = valor.split('-');
-            valorExibido = `${p[2]}/${p[1]}/${p[0]}`;
-          }
-        }
-        return `<div class="campo-detalhe">
-          <div class="campo-label">${campo.nome}</div>
-          <div class="campo-valor">${valorExibido || '<span style="color:#cbd5e1">—</span>'}</div>
-        </div>`;
-      }).join('');
-
-      document.getElementById('detalhes-conteudo').innerHTML = html;
-      document.getElementById('modal-detalhes-overlay').style.display = 'flex';
-    }
-
-    function closeDetalhes() {
-      document.getElementById('modal-detalhes-overlay').style.display = 'none';
-    }
-
-    // ==================== ENVIAR PARA TALENTOS ====================
-    async function enviarParaTalentos(rowIndex) {
-      const row = currentData.find(r => r.sheetRowIndex == rowIndex);
-      if (!row) return;
-
-      if (!confirm(`Enviar "${row.Nome}" (Talento: ${row.Talento}) para o Banco de Talentos?`)) return;
-
-      try {
-        const dados = {
-          Nome: row.Nome || '',
-          Talento: row.Talento || '',
-          Telefone: row.Telefone || '',
-          Email: row.Email || ''
-        };
-        await chamarAPI('salvarRegistro', ['BancoTalentos', dados, null]);
-        showToast(`✅ ${row.Nome} enviado para o Banco de Talentos!`);
-      } catch (e) {
-        showToast('Erro: ' + e.message, 'erro');
-      }
-    }
-
-    // ==================== FORM ====================
-    function openForm(rowIndex = null) {
-      const modal = document.getElementById('modal-overlay');
-      const container = document.getElementById('form-fields-container');
-      document.getElementById('modal-title').innerText = rowIndex ? 'Editar Registro' : 'Novo em ' + currentSheet;
-      document.getElementById('form-row-index').value = rowIndex || '';
-      document.getElementById('form-sheet-name').value = currentSheet;
-
-      const campos = getCampos(currentSheet);
-      const activeRow = rowIndex ? currentData.find(r => r.sheetRowIndex == rowIndex) : {};
-
-      container.innerHTML = campos.map(campo => {
-        let val = activeRow[campo.nome] || '';
-
-        // Converte data YYYY-MM-DD pra formato de input date
-        if (campo.tipo === 'date' && val && val.includes('/')) {
-          const p = val.split('/');
-          if (p.length === 3) val = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
-        }
-
-        const labelClass = 'block font-bold text-gray-700 mt-4' + (campo.obrigatorio ? ' obrigatorio' : '');
-
-        if (campo.tipo === 'textarea') {
-          return `<div>
-            <label class="${labelClass}">${campo.nome}</label>
-            <textarea name="${campo.nome}" rows="3">${val}</textarea>
-          </div>`;
-        }
-        if (campo.tipo === 'select') {
-          const opcoes = campo.opcoes.map(o => `<option value="${o}" ${val === o ? 'selected' : ''}>${o}</option>`).join('');
-          return `<div>
-            <label class="${labelClass}">${campo.nome}</label>
-            <select name="${campo.nome}"><option value="">— Selecione —</option>${opcoes}</select>
-          </div>`;
-        }
-        return `<div>
-          <label class="${labelClass}">${campo.nome}</label>
-          <input type="${campo.tipo}" name="${campo.nome}" value="${val}" ${campo.obrigatorio ? 'required' : ''}>
-        </div>`;
-      }).join('');
-
-      modal.style.display = 'flex';
-    }
-
-    function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
-
-    async function handleFormSubmit(e) {
-      e.preventDefault();
-      const form = e.target;
-      const data = Object.fromEntries(new FormData(form).entries());
-      const rowIndex = document.getElementById('form-row-index').value;
-      const sheetName = document.getElementById('form-sheet-name').value;
-
-      // Validação extra dos obrigatórios
-      const campos = getCampos(sheetName);
-      for (const campo of campos) {
-        if (campo.obrigatorio && (!data[campo.nome] || !data[campo.nome].trim())) {
-          showToast(`Preencha o campo obrigatório: ${campo.nome}`, 'erro');
-          return;
-        }
-      }
-
-      const btn = document.getElementById('submit-btn');
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner mr-2"></span> SALVANDO...';
-
-      try {
-        const res = await chamarAPI('salvarRegistro', [sheetName, data, rowIndex ? parseInt(rowIndex) : null]);
-        showToast(res.message || 'Salvo!', 'sucesso');
-        closeModal();
-        loadBanners();
-        loadSection(sheetName);
-      } catch (err) {
-        showToast('Erro: ' + err.message, 'erro');
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-save mr-2"></i> SALVAR';
-      }
-    }
-
-    async function askDelete(rowIndex) {
-      if (!confirm('Confirma a remoção?')) return;
-      try {
-        const res = await chamarAPI('removerRegistro', [rowIndex]);
-        showToast(res.message || 'Removido!', 'sucesso');
-        loadBanners();
-        loadSection(currentSheet);
-      } catch (e) {
-        showToast('Erro: ' + e.message, 'erro');
-      }
-    }
-
-    // ==================== IA ====================
-    function loadIA() {
-      document.getElementById('app-container').innerHTML = `
-        <div class="text-center mb-8">
-          <h2 class="text-rose-900 font-black text-3xl"><i class="fas fa-robot mr-2"></i>Assistente IA</h2>
-          <p class="text-gray-600">Powered by Google Gemini</p>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="bg-white rounded-3xl shadow-lg p-6">
-            <h3 class="font-black text-rose-800 mb-2"><i class="fas fa-book-bible mr-2"></i>Devocional Diário</h3>
-            <button onclick="runIA('devocionalDiario', [])" class="btn-huge bg-rose-600 text-white w-full">Gerar</button>
-          </div>
-          <div class="bg-white rounded-3xl shadow-lg p-6">
-            <h3 class="font-black text-rose-800 mb-2"><i class="fas fa-calendar-check mr-2"></i>Resumir Agenda</h3>
-            <button onclick="runIA('resumirAgenda', [])" class="btn-huge bg-rose-600 text-white w-full">Gerar</button>
-          </div>
-          <div class="bg-white rounded-3xl shadow-lg p-6 md:col-span-2">
-            <h3 class="font-black text-rose-800 mb-2"><i class="fas fa-question-circle mr-2"></i>Dúvida Bíblica</h3>
-            <input id="duvida-input" placeholder="Ex: O que significa João 3:16?">
-            <button onclick="runIADuvida()" class="btn-huge bg-rose-600 text-white w-full mt-2">Perguntar</button>
-          </div>
-          <div class="bg-white rounded-3xl shadow-lg p-6 md:col-span-2">
-            <h3 class="font-black text-rose-800 mb-2"><i class="fas fa-chart-line mr-2"></i>Relatório Mensal</h3>
-            <button onclick="runIA('relatorioMensal', [])" class="btn-huge bg-rose-600 text-white w-full">Gerar Relatório</button>
-          </div>
-          <div id="ia-result" class="md:col-span-2 bg-white rounded-3xl shadow-lg p-6 hidden">
-            <h3 class="font-black text-rose-800 mb-2">Resposta</h3>
-            <div id="ia-output" class="whitespace-pre-wrap text-gray-800"></div>
-          </div>
-        </div>`;
-    }
-
-    async function runIA(funcao, args) {
-      const box = document.getElementById('ia-result');
-      const out = document.getElementById('ia-output');
-      box.classList.remove('hidden');
-      out.innerHTML = '<span class="spinner mr-2"></span> Consultando IA...';
-      try {
-        const res = await chamarAPI(funcao, args);
-        out.textContent = res.texto || JSON.stringify(res);
-      } catch (e) {
-        out.textContent = 'Erro: ' + e.message;
-      }
-    }
-
-    function runIADuvida() {
-      const q = document.getElementById('duvida-input').value.trim();
-      if (!q) return showToast('Digite a dúvida primeiro.', 'erro');
-      runIA('duvidaBiblica', [q]);
-    }
-
-    // ==================== SERVICE WORKER ====================
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').catch(() => {});
-    }
-
-    // ==================== INIT ====================
-    window.addEventListener('load', () => {
-      if (temSessaoValida()) {
-        liberarApp();
-      } else {
-        document.getElementById('login-overlay').style.display = 'flex';
-        document.getElementById('senha-input').focus();
-      }
-    });
-  </script>
 </body>
 </html>

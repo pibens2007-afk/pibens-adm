@@ -1,5 +1,5 @@
 /* ============================================================
-   PIBENS ADM — Menu / Navegação v2.4
+   PIBENS ADM — Menu / Navegação v2.5
    ============================================================ */
 
 const Menu = {
@@ -11,9 +11,7 @@ const Menu = {
     let html = '';
 
     CONFIG.MENU.forEach((grupo) => {
-      if (grupo.secao) {
-        html += `<div class="nav-section">${grupo.secao}</div>`;
-      }
+      if (grupo.secao) html += `<div class="nav-section">${grupo.secao}</div>`;
 
       grupo.itens.forEach((item) => {
         html += `
@@ -62,15 +60,16 @@ const Menu = {
     const modulo = item.modulo;
 
     switch (modulo) {
-      case 'Dashboard':     if (typeof Dashboard !== 'undefined') Dashboard.render(); break;
-      case 'Membros':       if (typeof Membros !== 'undefined') Membros.render(); break;
-      case 'BancoTalentos': if (typeof Talentos !== 'undefined') Talentos.render(); break;
-      case 'Agenda':        if (typeof Agenda !== 'undefined') Agenda.render(); break;
-      case 'Financeiro':    if (typeof Financeiro !== 'undefined') Financeiro.render(); break;
-      case 'Presenca':      if (typeof Presenca !== 'undefined') Presenca.render(); break;
-      case 'Escalas':       if (typeof Escalas !== 'undefined') Escalas.render(); break;
-      case 'Discipulado':   if (typeof Discipulado !== 'undefined') Discipulado.render(); break;
-      case 'IA':            if (typeof IA !== 'undefined') IA.render(); break;
+      case 'Dashboard':        if (typeof Dashboard !== 'undefined') Dashboard.render(); break;
+      case 'Aniversariantes':  if (typeof Aniversariantes !== 'undefined') Aniversariantes.render(); break;
+      case 'Membros':          if (typeof Membros !== 'undefined') Membros.render(); break;
+      case 'BancoTalentos':    if (typeof Talentos !== 'undefined') Talentos.render(); break;
+      case 'Agenda':           if (typeof Agenda !== 'undefined') Agenda.render(); break;
+      case 'Financeiro':       if (typeof Financeiro !== 'undefined') Financeiro.render(); break;
+      case 'Presenca':         if (typeof Presenca !== 'undefined') Presenca.render(); break;
+      case 'Escalas':          if (typeof Escalas !== 'undefined') Escalas.render(); break;
+      case 'Discipulado':      if (typeof Discipulado !== 'undefined') Discipulado.render(); break;
+      case 'IA':               if (typeof IA !== 'undefined') IA.render(); break;
       default:
         const c = document.getElementById('content');
         if (c) c.innerHTML = UI.emptyState(
@@ -102,4 +101,4 @@ const Menu = {
 
 };
 
-console.log('%c[Menu] Módulo carregado (v2.4 com Discipulado)', 'color:#64748b;font-size:11px;');
+console.log('%c[Menu] Módulo carregado (v2.5 com Aniversariantes)', 'color:#64748b;font-size:11px;');

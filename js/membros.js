@@ -1,11 +1,11 @@
 /* ============================================================
-   PIBENS ADM — Módulo Membros v2.6
+   PIBENS ADM — Módulo Membros v2.7
    ============================================================
    Novidades:
-   - 23 campos (17 originais + 6 novos)
-   - Faixa etária calculada
-   - Badges de Categoria/Situação na tabela
-   - Filtro por categoria e situação
+   - Campo "Ministérios" (multi-seleção com checkboxes)
+   - Filtro por ministério
+   - Badges coloridos dos ministérios na tabela
+   - Contador por ministério
    ============================================================ */
 
 const Membros = {
@@ -13,6 +13,7 @@ const Membros = {
   _dados: [],
   _filtroCategoria: '',
   _filtroSituacao: '',
+  _filtroMinisterio: '',
   _busca: '',
 
   /* ----------------------------------------------------------
@@ -44,7 +45,7 @@ const Membros = {
 
   _renderTudo() {
     const filtrados = this._filtrar();
-    this._renderTabela(filtrados);
+    this._renderTela(filtrados);
   },
 
   _filtrar() {
@@ -67,19 +68,63 @@ const Membros = {
       lista = lista.filter((m) => m.Situação === this._filtroSituacao);
     }
 
+    if (this._filtroMinisterio) {
+      lista = lista.filter((m) => {
+        const mins = this._parseMinisterios(m.Ministérios);
+        return mins.includes(this._filtroMinisterio);
+      });
+    }
+
     return lista;
   },
 
   /* ----------------------------------------------------------
-     TABELA
+     PARSER DE MINISTÉRIOS
      ---------------------------------------------------------- */
-  _renderTabela(dados) {
+  _parseMinisterios(v) {
+    if (!v) return [];
+    if (Array.isArray(v)) return v;
+    if (typeof v === 'string') {
+      try {
+        const arr = JSON.parse(v);
+        if (Array.isArray(arr)) return arr;
+      } catch (e) { /* não é JSON, tenta split */ }
+      return v.split(',').map((s) => s.trim()).filter(Boolean);
+    }
+    return [];
+  },
+
+  _corMinisterio(nome) {
+    const m = CONFIG.MINISTERIOS.find((x) => x.nome === nome);
+    return m ? m.cor : '#64748b';
+  },
+
+  _iconMinisterio(nome) {
+    const m = CONFIG.MINISTERIOS.find((x) => x.nome === nome);
+    return m ? m.icon : 'fa-users';
+  },
+
+  /* ----------------------------------------------------------
+     TELA PRINCIPAL
+     ---------------------------------------------------------- */
+  _renderTela(dados) {
     const c = document.getElementById('content');
 
     // Contadores
     const total = this._dados.length;
     const ativos = this._dados.filter((m) => m.Situação === 'Ativo').length;
-    const membros = this._dados.filter((m) => m.Categoria === 'Membro').length;
+
+    // Contagem por ministério
+    const contagemMin = {};
+    this._dados.forEach((m) => {
+      const mins = this._parseMinisterios(m.Ministérios);
+      mins.forEach((min) => {
+        contagemMin[min] = (contagemMin[min] || 0) + 1;
+      });
+    });
+
+    // Ministérios que têm pelo menos 1 membro
+    const ministeriosAtivos = CONFIG.MINISTERIOS.filter((min) => contagemMin[min.nome] > 0);
 
     c.innerHTML = `
       <div class="membros-stats">
@@ -98,13 +143,31 @@ const Membros = {
           </div>
         </div>
         <div class="membros-stat">
-          <i class="fas fa-id-card" style="color:#7c3aed;"></i>
+          <i class="fas fa-sitemap" style="color:#7c3aed;"></i>
           <div>
-            <span class="membros-stat-value">${membros}</span>
-            <span class="membros-stat-label">Membros</span>
+            <span class="membros-stat-value">${ministeriosAtivos.length}</span>
+            <span class="membros-stat-label">Ministérios ativos</span>
           </div>
         </div>
       </div>
+
+      ${ministeriosAtivos.length > 0 ? `
+        <div class="membros-ministerios-cards">
+          ${ministeriosAtivos.map((min) => `
+            <div class="membros-min-card ${this._filtroMinisterio === min.nome ? 'active' : ''}"
+                 style="border-left-color:${min.cor};"
+                 onclick="Membros._clicarMinisterio('${min.nome.replace(/'/g, "\\'")}')">
+              <div class="membros-min-icon" style="background:${min.cor}22;color:${min.cor};">
+                <i class="fas ${min.icon}"></i>
+              </div>
+              <div class="membros-min-info">
+                <span class="membros-min-count" style="color:${min.cor};">${contagemMin[min.nome]}</span>
+                <span class="membros-min-label">${min.nome}</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
 
       <div class="membros-toolbar">
         <div class="membros-busca">
@@ -123,15 +186,38 @@ const Membros = {
             <option value="Ativo" ${this._filtroSituacao === 'Ativo' ? 'selected' : ''}>Ativo</option>
             <option value="Inativo" ${this._filtroSituacao === 'Inativo' ? 'selected' : ''}>Inativo</option>
           </select>
+          <select class="form-select" onchange="Membros._filtrarMinisterio(this.value)">
+            <option value="">Todos os ministérios</option>
+            ${CONFIG.MINISTERIOS.map((m) => `
+              <option value="${UI.escapar(m.nome)}" ${this._filtroMinisterio === m.nome ? 'selected' : ''}>${m.nome}</option>
+            `).join('')}
+          </select>
           <button class="btn btn-success" onclick="Membros.novo()">
             <i class="fas fa-plus"></i> Novo
           </button>
         </div>
       </div>
 
+      ${(this._filtroMinisterio || this._busca || this._filtroCategoria || this._filtroSituacao) ? `
+        <div class="membros-filtro-ativo">
+          <span>
+            <i class="fas fa-filter"></i>
+            Filtrando por:
+            ${this._filtroMinisterio ? `<strong>${this._filtroMinisterio}</strong> ` : ''}
+            ${this._filtroCategoria ? `<strong>${this._filtroCategoria}</strong> ` : ''}
+            ${this._filtroSituacao ? `<strong>${this._filtroSituacao}</strong> ` : ''}
+            ${this._busca ? `<strong>"${UI.escapar(this._busca)}"</strong>` : ''}
+            — ${dados.length} resultado(s)
+          </span>
+          <button class="btn btn-sm btn-neutral" onclick="Membros._limparFiltros()">
+            <i class="fas fa-times"></i> Limpar
+          </button>
+        </div>
+      ` : ''}
+
       ${dados.length === 0 ? UI.emptyState(
         'Nenhum membro encontrado',
-        this._busca || this._filtroCategoria || this._filtroSituacao
+        (this._busca || this._filtroCategoria || this._filtroSituacao || this._filtroMinisterio)
           ? 'Tente ajustar os filtros.'
           : 'Cadastre o primeiro membro da igreja.',
         `<button class="btn btn-success btn-lg" onclick="Membros.novo()">
@@ -140,7 +226,6 @@ const Membros = {
       ) : this._renderDataCard(dados)}
     `;
 
-    // Foca no input se já estava buscando
     if (this._busca) {
       setTimeout(() => {
         const i = document.getElementById('membros-busca-input');
@@ -176,7 +261,7 @@ const Membros = {
               <tr>
                 <th>Nome</th>
                 <th>Telefone</th>
-                <th>Categoria</th>
+                <th>Ministérios</th>
                 <th>Situação</th>
                 <th>Ações</th>
               </tr>
@@ -189,16 +274,20 @@ const Membros = {
   },
 
   _renderLinha(m) {
-    const categoria = m.Categoria || '—';
     const situacao = m.Situação || '—';
-
-    const corCat = {
-      'Membro':       '#7c3aed',
-      'Frequentador': '#0891b2',
-      'Visitante':    '#f59e0b'
-    }[categoria] || '#64748b';
-
     const corSit = situacao === 'Ativo' ? '#059669' : '#dc2626';
+
+    const ministerios = this._parseMinisterios(m.Ministérios);
+
+    const badgesMin = ministerios.length > 0
+      ? ministerios.slice(0, 3).map((min) => {
+          const cor = this._corMinisterio(min);
+          const icon = this._iconMinisterio(min);
+          return `<span class="membros-badge-min" style="background:${cor}18;color:${cor};border:1px solid ${cor}40;" title="${UI.escapar(min)}">
+            <i class="fas ${icon}"></i> ${UI.escapar(this._abreviar(min))}
+          </span>`;
+        }).join('') + (ministerios.length > 3 ? `<span class="membros-badge-min" style="background:#f1f5f9;color:#64748b;">+${ministerios.length - 3}</span>` : '')
+      : '<span style="color:#cbd5e1;font-size:0.85rem;">—</span>';
 
     const botaoTalento = m.Talento
       ? `<button class="btn btn-purple btn-sm" onclick="Membros.enviarParaTalentos(${m.sheetRowIndex})" title="Enviar para Talentos">
@@ -210,7 +299,7 @@ const Membros = {
       <tr>
         <td><strong>${UI.escapar(m.Nome || '—')}</strong></td>
         <td>${UI.telefone(m.Telefone)}</td>
-        <td><span class="membros-badge" style="background:${corCat}22;color:${corCat};">${categoria}</span></td>
+        <td><div class="membros-badges-min">${badgesMin}</div></td>
         <td><span class="membros-badge" style="background:${corSit}22;color:${corSit};">${situacao}</span></td>
         <td class="col-actions">
           <button class="btn btn-primary btn-sm" onclick="Membros.ver(${m.sheetRowIndex})" title="Ver detalhes">
@@ -228,8 +317,18 @@ const Membros = {
     `;
   },
 
+  _abreviar(nome) {
+    // "Ministério de Homens" → "Homens"
+    // "Ministério de Jovens" → "Jovens"
+    return nome
+      .replace('Ministério de ', '')
+      .replace('Ministério ', '')
+      .replace('Ministerio de ', '')
+      .replace('Ministerio ', '');
+  },
+
   /* ----------------------------------------------------------
-     BUSCA E FILTROS
+     FILTROS E BUSCA
      ---------------------------------------------------------- */
   _buscar(valor) {
     this._busca = valor;
@@ -243,6 +342,24 @@ const Membros = {
 
   _filtrarSituacao(valor) {
     this._filtroSituacao = valor;
+    this._renderTudo();
+  },
+
+  _filtrarMinisterio(valor) {
+    this._filtroMinisterio = valor;
+    this._renderTudo();
+  },
+
+  _clicarMinisterio(nome) {
+    this._filtroMinisterio = (this._filtroMinisterio === nome) ? '' : nome;
+    this._renderTudo();
+  },
+
+  _limparFiltros() {
+    this._filtroCategoria = '';
+    this._filtroSituacao = '';
+    this._filtroMinisterio = '';
+    this._busca = '';
     this._renderTudo();
   },
 
@@ -265,8 +382,9 @@ const Membros = {
 
     const campos = CONFIG.CAMPOS.Membros;
     const faixa = UI.calcularFaixaEtaria(m.Nascimento);
+    const ministerios = this._parseMinisterios(m.Ministérios);
 
-    // Agrupa informações
+    // Seções
     const secoes = {
       'Dados Pessoais': ['Nome', 'Nascimento', 'CPF', 'RG', 'Estado Civil', 'Nome do Cônjuge', 'Parentesco', 'Profissão'],
       'Contato': ['Telefone', 'Email', 'Endereço', 'Bairro', 'Cidade', 'Estado', 'CEP'],
@@ -276,7 +394,7 @@ const Membros = {
 
     let html = '';
 
-    // Faixa etária no topo
+    // Faixa etária
     if (faixa) {
       const idade = UI.calcularIdade(m.Nascimento);
       html += `
@@ -290,6 +408,25 @@ const Membros = {
       `;
     }
 
+    // Ministérios
+    if (ministerios.length > 0) {
+      const chips = ministerios.map((min) => {
+        const cor = this._corMinisterio(min);
+        const icon = this._iconMinisterio(min);
+        return `<span class="membros-detalhe-chip" style="background:${cor}18;color:${cor};border:1px solid ${cor}40;">
+          <i class="fas ${icon}"></i> ${UI.escapar(min)}
+        </span>`;
+      }).join('');
+
+      html += `
+        <div class="membros-detalhe-secao">
+          <h3 class="membros-detalhe-secao-titulo">Ministérios (${ministerios.length})</h3>
+          <div class="membros-detalhe-chips">${chips}</div>
+        </div>
+      `;
+    }
+
+    // Seções normais
     for (const [secao, camposSecao] of Object.entries(secoes)) {
       const linhas = camposSecao.map((nomeCampo) => {
         const campo = campos.find((c) => c.nome === nomeCampo);
@@ -302,7 +439,6 @@ const Membros = {
         else if (nomeCampo === 'CPF') valor = UI.cpf(valor);
         else if (nomeCampo === 'CEP') valor = UI.cep(valor);
 
-        // Pula se vazio
         if (!valor || valor === '—') return '';
 
         return `
@@ -354,7 +490,9 @@ const Membros = {
     const ehEdicao = !!membro;
     const campos = CONFIG.CAMPOS.Membros;
 
-    // Agrupa campos por seção (visual)
+    const ministeriosSelecionados = membro ? this._parseMinisterios(membro.Ministérios) : [];
+
+    // Seções
     const secoes = {
       'Dados Pessoais': ['Nome', 'Nascimento', 'CPF', 'RG', 'Estado Civil', 'Nome do Cônjuge', 'Parentesco', 'Profissão'],
       'Contato': ['Telefone', 'Email', 'Endereço', 'Bairro', 'Cidade', 'Estado', 'CEP'],
@@ -409,6 +547,37 @@ const Membros = {
       `;
     }
 
+    // SEÇÃO MINISTÉRIOS (checkboxes)
+    const ministeriosHTML = CONFIG.MINISTERIOS.map((min) => {
+      const marcado = ministeriosSelecionados.includes(min.nome);
+      return `
+        <label class="min-checkbox ${marcado ? 'checked' : ''}" style="--min-cor: ${min.cor};">
+          <input type="checkbox" class="min-checkbox-input" value="${UI.escapar(min.nome)}" ${marcado ? 'checked' : ''} onchange="Membros._toggleMin(this)">
+          <div class="min-checkbox-content">
+            <div class="min-checkbox-icon" style="background:${min.cor}22;color:${min.cor};">
+              <i class="fas ${min.icon}"></i>
+            </div>
+            <span class="min-checkbox-label">${min.nome}</span>
+            <i class="fas fa-check-circle min-checkbox-check"></i>
+          </div>
+        </label>
+      `;
+    }).join('');
+
+    html += `
+      <div class="form-secao">
+        <h3 class="form-secao-titulo">
+          <i class="fas fa-sitemap"></i> Ministérios / Departamentos
+          <span class="form-secao-hint">(marque todos os que o membro participa)</span>
+        </h3>
+        <div class="min-grid">${ministeriosHTML}</div>
+        <div class="min-contador">
+          <i class="fas fa-check-circle"></i>
+          <span id="min-contador">0</span> ministério(s) selecionado(s)
+        </div>
+      </div>
+    `;
+
     const botoes = `
       <button class="btn btn-neutral" onclick="UI.closeModal()">
         <i class="fas fa-times"></i> Cancelar
@@ -431,21 +600,52 @@ const Membros = {
       inputId.id = 'membro-id';
       inputId.value = membro ? membro.sheetRowIndex : '';
       form.appendChild(inputId);
+
+      // Atualiza contador
+      this._atualizarContadorMin();
     }
   },
 
+  _toggleMin(input) {
+    const label = input.closest('.min-checkbox');
+    if (label) {
+      if (input.checked) label.classList.add('checked');
+      else label.classList.remove('checked');
+    }
+    this._atualizarContadorMin();
+  },
+
+  _atualizarContadorMin() {
+    const contador = document.getElementById('min-contador');
+    if (!contador) return;
+    const marcados = document.querySelectorAll('.min-checkbox-input:checked').length;
+    contador.textContent = marcados;
+  },
+
+  /* ----------------------------------------------------------
+     SALVAR
+     ---------------------------------------------------------- */
   async _salvar() {
     const form = document.getElementById('modal-body');
     if (!form) return;
 
     const id = form.querySelector('#membro-id')?.value || null;
 
+    // Coleta campos normais
     const dados = {};
     CONFIG.CAMPOS.Membros.forEach((campo) => {
       const input = form.querySelector(`[name="${campo.nome}"]`);
       dados[campo.nome] = input ? input.value.trim() : '';
     });
 
+    // Coleta ministérios (checkboxes)
+    const marcados = [];
+    form.querySelectorAll('.min-checkbox-input:checked').forEach((cb) => {
+      marcados.push(cb.value);
+    });
+    dados.Ministérios = JSON.stringify(marcados);
+
+    // Valida obrigatórios
     for (const campo of CONFIG.CAMPOS.Membros) {
       if (campo.obrigatorio && !dados[campo.nome]) {
         UI.toast(`Preencha o campo obrigatório: ${campo.nome}`, 'error');
@@ -513,4 +713,4 @@ const Membros = {
 
 };
 
-console.log('%c[Membros] Módulo carregado (v2.6)', 'color:#64748b;font-size:11px;');
+console.log('%c[Membros] Módulo carregado (v2.7 com Ministérios)', 'color:#64748b;font-size:11px;');

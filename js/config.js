@@ -1,5 +1,5 @@
 /* ============================================================
-   PIBENS ADM — Configurações globais v2.1
+   PIBENS ADM — Configurações globais v2.2
    ============================================================ */
 
 const CONFIG = {
@@ -16,14 +16,15 @@ const CONFIG = {
   APP_NAME: 'PIBENS ADM',
   APP_SHORT_NAME: 'PIBENS',
   APP_TAGLINE: 'Gestão eclesiástica com inteligência',
-  APP_VERSION: '2.1.0',
+  APP_VERSION: '2.2.0',
 
   /* ---------- TABELAS (Supabase) ---------- */
   TABELAS: {
     MEMBROS:     'Membros',
     TALENTOS:    'BancoTalentos',
     AGENDA:      'Agenda',
-    FINANCEIRO:  'Financeiro'
+    FINANCEIRO:  'Financeiro',
+    PRESENCAS:   'Presencas'
   },
 
   /* ---------- DEFINIÇÃO DE CAMPOS POR TABELA ---------- */
@@ -74,6 +75,27 @@ const CONFIG = {
           'Dinheiro', 'PIX', 'Cartão', 'Transferência', 'Cheque'
       ]},
       { nome: 'Observacoes',    obrigatorio: false, tipo: 'textarea' }
+    ],
+    Presencas: [
+      { nome: 'Data',             obrigatorio: true,  tipo: 'date' },
+      { nome: 'Tipo',             obrigatorio: true,  tipo: 'select', opcoes: [
+          'Culto de Domingo (manhã)',
+          'Culto de Domingo (noite)',
+          'Culto de Oração e família',
+          'EBD',
+          'Culto de Jovens',
+          'Culto de Mulheres',
+          'Culto de Homens',
+          'Santa Ceia',
+          'Outros'
+      ]},
+      { nome: 'Horario',          obrigatorio: false, tipo: 'text' },
+      { nome: 'Tema',             obrigatorio: false, tipo: 'text' },
+      { nome: 'Pregador',         obrigatorio: false, tipo: 'text' },
+      { nome: 'TotalPresentes',   obrigatorio: true,  tipo: 'number' },
+      { nome: 'MembrosPresentes', obrigatorio: false, tipo: 'text' },
+      { nome: 'Visitantes',       obrigatorio: false, tipo: 'number' },
+      { nome: 'Observacoes',      obrigatorio: false, tipo: 'textarea' }
     ]
   },
 
@@ -82,7 +104,8 @@ const CONFIG = {
     Membros:       ['Nome', 'Telefone', 'Talento'],
     BancoTalentos: ['Nome', 'Talento', 'Telefone'],
     Agenda:        ['Data', 'Evento', 'Horario', 'Local'],
-    Financeiro:    ['Data', 'Tipo', 'Valor', 'Categoria', 'Descricao']
+    Financeiro:    ['Data', 'Tipo', 'Valor', 'Categoria', 'Descricao'],
+    Presencas:     ['Data', 'Tipo', 'TotalPresentes', 'Visitantes', 'Pregador']
   },
 
   /* ---------- MENU LATERAL ---------- */
@@ -90,22 +113,28 @@ const CONFIG = {
     {
       secao: 'Principal',
       itens: [
-        { id: 'dashboard',  label: 'Início',        icon: 'fa-home',        modulo: 'Dashboard' },
-        { id: 'ia',         label: 'Assistente IA', icon: 'fa-robot',       modulo: 'IA' }
+        { id: 'dashboard',  label: 'Início',        icon: 'fa-home',         modulo: 'Dashboard' },
+        { id: 'ia',         label: 'Assistente IA', icon: 'fa-robot',        modulo: 'IA' }
       ]
     },
     {
       secao: 'Cadastros',
       itens: [
-        { id: 'membros',    label: 'Membros',       icon: 'fa-users',       modulo: 'Membros' },
-        { id: 'talentos',   label: 'Talentos',      icon: 'fa-star',        modulo: 'BancoTalentos' },
+        { id: 'membros',    label: 'Membros',       icon: 'fa-users',        modulo: 'Membros' },
+        { id: 'talentos',   label: 'Talentos',      icon: 'fa-star',         modulo: 'BancoTalentos' },
         { id: 'agenda',     label: 'Agenda',        icon: 'fa-calendar-alt', modulo: 'Agenda' }
+      ]
+    },
+    {
+      secao: 'Cultos',
+      itens: [
+        { id: 'presenca',   label: 'Presença',      icon: 'fa-clipboard-check', modulo: 'Presenca' }
       ]
     },
     {
       secao: 'Administração',
       itens: [
-        { id: 'financeiro', label: 'Financeiro',    icon: 'fa-dollar-sign', modulo: 'Financeiro' }
+        { id: 'financeiro', label: 'Financeiro',    icon: 'fa-dollar-sign',  modulo: 'Financeiro' }
       ]
     }
   ],
@@ -146,6 +175,24 @@ const CONFIG = {
       'Manutenção':        '#ef4444',
       'Outros':            '#64748b'
     }
+  },
+
+  /* ---------- PRESENÇA ---------- */
+  PRESENCA: {
+    // Semanas sem aparecer que definem "afastado"
+    SEMANAS_AFASTADO: 4,
+    // Cores dos tipos de culto
+    CORES_TIPO: {
+      'Culto de Domingo (manhã)':   '#2563eb',
+      'Culto de Domingo (noite)':   '#1d4ed8',
+      'Culto de Oração e família':  '#0891b2',
+      'EBD':                        '#7c3aed',
+      'Culto de Jovens':            '#f59e0b',
+      'Culto de Mulheres':          '#e11d48',
+      'Culto de Homens':            '#059669',
+      'Santa Ceia':                 '#8b5cf6',
+      'Outros':                     '#64748b'
+    }
   }
 
 };
@@ -161,6 +208,8 @@ Object.freeze(CONFIG.DIAS_SEMANA);
 Object.freeze(CONFIG.MESES);
 Object.freeze(CONFIG.FINANCEIRO);
 Object.freeze(CONFIG.FINANCEIRO.CORES_CATEGORIA);
+Object.freeze(CONFIG.PRESENCA);
+Object.freeze(CONFIG.PRESENCA.CORES_TIPO);
 
 console.log(`%c${CONFIG.APP_NAME} v${CONFIG.APP_VERSION}`, 'color:#2563eb;font-weight:bold;font-size:14px;');
-console.log('%cConfig carregado (v2.1)', 'color:#64748b;font-size:11px;');
+console.log('%cConfig carregado (v2.2)', 'color:#64748b;font-size:11px;');

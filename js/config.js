@@ -1,5 +1,5 @@
 /* ============================================================
-   PIBENS ADM — Configurações globais v2.6
+   PIBENS ADM — Configurações globais v2.7
    ============================================================ */
 
 const CONFIG = {
@@ -13,7 +13,7 @@ const CONFIG = {
   APP_NAME: 'PIBENS ADM',
   APP_SHORT_NAME: 'PIBENS',
   APP_TAGLINE: 'Gestão eclesiástica com inteligência',
-  APP_VERSION: '2.6.0',
+  APP_VERSION: '2.7.0',
 
   TABELAS: {
     MEMBROS:      'Membros',
@@ -24,6 +24,28 @@ const CONFIG = {
     ESCALAS:      'Escalas',
     DISCIPULADO:  'Discipulado'
   },
+
+  /* ============================================================
+     MINISTÉRIOS / DEPARTAMENTOS
+     ============================================================ */
+  MINISTERIOS: [
+    { nome: 'Ministério de Homens',         cor: '#2563eb', icon: 'fa-male' },
+    { nome: 'Ministério de Mulheres',       cor: '#e11d48', icon: 'fa-female' },
+    { nome: 'Ministério de Jovens',         cor: '#7c3aed', icon: 'fa-user-tie' },
+    { nome: 'Ministério de Adolescentes',   cor: '#0891b2', icon: 'fa-user-graduate' },
+    { nome: 'Ministério de Crianças',       cor: '#f59e0b', icon: 'fa-child' },
+    { nome: 'Ministério de Evangelismo',    cor: '#059669', icon: 'fa-bullhorn' },
+    { nome: 'Ministério de Levitas',        cor: '#8b5cf6', icon: 'fa-music' },
+    { nome: 'Ministério de Ação Social',    cor: '#f97316', icon: 'fa-hand-holding-heart' },
+    { nome: 'Ministério de Intercessão',    cor: '#dc2626', icon: 'fa-praying-hands' },
+    { nome: 'Ministério Infantil',          cor: '#ec4899', icon: 'fa-baby' },
+    { nome: 'Missões',                      cor: '#0891b2', icon: 'fa-globe' },
+    { nome: 'Diaconato',                    cor: '#6366f1', icon: 'fa-hand-holding' },
+    { nome: 'Pastoral',                     cor: '#7c2d12', icon: 'fa-bible' },
+    { nome: 'Liderança',                    cor: '#a16207', icon: 'fa-crown' },
+    { nome: 'Louvor',                       cor: '#be185d', icon: 'fa-guitar' },
+    { nome: 'Outros',                       cor: '#64748b', icon: 'fa-ellipsis-h' }
+  ],
 
   CAMPOS: {
     Membros: [
@@ -113,7 +135,7 @@ const CONFIG = {
       { nome: 'Observacoes',      obrigatorio: false, tipo: 'textarea' }
     ],
     Discipulado: [
-      { nome: 'Nome',          obrigatorio: true,  tipo: 'text' },
+      { nome: 'Nome',          obrigatorio: true,  tipo: 'date' },
       { nome: 'DataDecisao',   obrigatorio: true,  tipo: 'date' },
       { nome: 'Idade',         obrigatorio: false, tipo: 'number' },
       { nome: 'Telefone',      obrigatorio: false, tipo: 'text' },
@@ -128,7 +150,7 @@ const CONFIG = {
   },
 
   COLUNAS_TABELA: {
-    Membros:       ['Nome', 'Telefone', 'Categoria', 'Situação'],
+    Membros:       ['Nome', 'Telefone', 'Ministérios', 'Situação'],
     BancoTalentos: ['Nome', 'Talento', 'Telefone'],
     Agenda:        ['Data', 'Evento', 'Horario', 'Local'],
     Financeiro:    ['Data', 'Tipo', 'Valor', 'Categoria', 'Descricao'],
@@ -260,6 +282,7 @@ const CONFIG = {
 
 Object.freeze(CONFIG);
 Object.freeze(CONFIG.TABELAS);
+Object.freeze(CONFIG.MINISTERIOS);
 Object.freeze(CONFIG.CAMPOS);
 Object.freeze(CONFIG.COLUNAS_TABELA);
 Object.freeze(CONFIG.MSG);
@@ -279,4 +302,4 @@ Object.freeze(CONFIG.ANIVERSARIANTES.MENSAGENS_WHATS);
 Object.freeze(CONFIG.FAIXAS_ETARIAS);
 
 console.log(`%c${CONFIG.APP_NAME} v${CONFIG.APP_VERSION}`, 'color:#2563eb;font-weight:bold;font-size:14px;');
-console.log('%cConfig carregado (v2.6)', 'color:#64748b;font-size:11px;');
+console.log('%cConfig carregado (v2.7 com Ministérios)', 'color:#64748b;font-size:11px;');

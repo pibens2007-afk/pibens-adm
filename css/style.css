@@ -1,5 +1,5 @@
 /* ============================================================
-   PIBENS ADM — Design System v2.0
+   PIBENS ADM — Design System v2.1
    ============================================================ */
 
 /* ---------- RESET ---------- */
@@ -225,6 +225,113 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+}
+
+/* ============================================================
+   TELA DE OTP (código por email)
+   ============================================================ */
+
+/* Campo do código */
+.otp-field {
+  margin-bottom: 1rem;
+}
+
+.otp-input {
+  width: 100%;
+  padding: 1.25rem 1rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 2rem;
+  font-family: 'Outfit', monospace;
+  font-weight: 800;
+  text-align: center;
+  letter-spacing: 0.5em;
+  color: var(--primary);
+  background: #ffffff;
+  transition: var(--transition);
+}
+
+.otp-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.otp-input::placeholder {
+  color: #cbd5e1;
+  letter-spacing: 0.5em;
+}
+
+/* Ações (reenviar / voltar) */
+.otp-actions {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.otp-reenviar,
+.otp-voltar {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: inherit;
+}
+
+.otp-reenviar {
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+}
+
+.otp-reenviar:hover:not(:disabled) {
+  background: var(--primary-light);
+}
+
+.otp-reenviar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.otp-voltar {
+  background: transparent;
+  color: var(--text-soft);
+}
+
+.otp-voltar:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+/* Subtítulo da tela OTP (com destaque dos emails) */
+#otp-subtitle {
+  line-height: 1.5;
+}
+
+#otp-subtitle strong {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* Animação de entrada */
+@keyframes otpSlide {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+#otp-screen .login-box {
+  animation: otpSlide 0.4s ease;
 }
 
 /* ============================================================
@@ -1342,6 +1449,13 @@ body {
 
   .toast {
     max-width: 100%;
+  }
+
+  /* OTP no mobile */
+  .otp-input {
+    font-size: 1.75rem;
+    letter-spacing: 0.4em;
+    padding: 1rem 0.75rem;
   }
 }
 

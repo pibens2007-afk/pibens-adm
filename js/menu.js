@@ -1,5 +1,5 @@
 /* ============================================================
-   PIBENS ADM — Menu / Navegação v2.1
+   PIBENS ADM — Menu / Navegação v2.2
    ============================================================ */
 
 const Menu = {
@@ -86,6 +86,10 @@ const Menu = {
         if (typeof Financeiro !== 'undefined') Financeiro.render();
         break;
 
+      case 'Presenca':
+        if (typeof Presenca !== 'undefined') Presenca.render();
+        break;
+
       case 'IA':
         if (typeof IA !== 'undefined') IA.render();
         break;
@@ -127,4 +131,4 @@ const Menu = {
 
 };
 
-console.log('%c[Menu] Módulo carregado (v2.1 com Financeiro)', 'color:#64748b;font-size:11px;');
+console.log('%c[Menu] Módulo carregado (v2.2 com Presença)', 'color:#64748b;font-size:11px;');

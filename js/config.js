@@ -1,5 +1,5 @@
 /* ============================================================
-   PIBENS ADM — Configurações globais v2.4
+   PIBENS ADM — Configurações globais v2.5
    ============================================================ */
 
 const CONFIG = {
@@ -13,7 +13,7 @@ const CONFIG = {
   APP_NAME: 'PIBENS ADM',
   APP_SHORT_NAME: 'PIBENS',
   APP_TAGLINE: 'Gestão eclesiástica com inteligência',
-  APP_VERSION: '2.4.0',
+  APP_VERSION: '2.5.0',
 
   TABELAS: {
     MEMBROS:      'Membros',
@@ -76,15 +76,9 @@ const CONFIG = {
     Presencas: [
       { nome: 'Data',             obrigatorio: true,  tipo: 'date' },
       { nome: 'Tipo',             obrigatorio: true,  tipo: 'select', opcoes: [
-          'Culto de Domingo (manhã)',
-          'Culto de Domingo (noite)',
-          'Culto de Oração e família',
-          'EBD',
-          'Culto de Jovens',
-          'Culto de Mulheres',
-          'Culto de Homens',
-          'Santa Ceia',
-          'Outros'
+          'Culto de Domingo (manhã)', 'Culto de Domingo (noite)',
+          'Culto de Oração e família', 'EBD', 'Culto de Jovens',
+          'Culto de Mulheres', 'Culto de Homens', 'Santa Ceia', 'Outros'
       ]},
       { nome: 'Horario',          obrigatorio: false, tipo: 'text' },
       { nome: 'Tema',             obrigatorio: false, tipo: 'text' },
@@ -97,15 +91,9 @@ const CONFIG = {
     Escalas: [
       { nome: 'Data',             obrigatorio: true,  tipo: 'date' },
       { nome: 'Tipo',             obrigatorio: true,  tipo: 'select', opcoes: [
-          'Culto de Domingo (manhã)',
-          'Culto de Domingo (noite)',
-          'Culto de Oração e família',
-          'EBD',
-          'Culto de Jovens',
-          'Culto de Mulheres',
-          'Culto de Homens',
-          'Santa Ceia',
-          'Outros'
+          'Culto de Domingo (manhã)', 'Culto de Domingo (noite)',
+          'Culto de Oração e família', 'EBD', 'Culto de Jovens',
+          'Culto de Mulheres', 'Culto de Homens', 'Santa Ceia', 'Outros'
       ]},
       { nome: 'Horario',          obrigatorio: false, tipo: 'text' },
       { nome: 'Louvor',           obrigatorio: false, tipo: 'text' },
@@ -126,10 +114,7 @@ const CONFIG = {
       { nome: 'Endereco',      obrigatorio: false, tipo: 'text' },
       { nome: 'Discipulador',  obrigatorio: false, tipo: 'text' },
       { nome: 'Etapa',         obrigatorio: true,  tipo: 'select', opcoes: [
-          'Novo Convertido',
-          'Em Discipulado',
-          'Pronto para Batismo',
-          'Batizado'
+          'Novo Convertido', 'Em Discipulado', 'Pronto para Batismo', 'Batizado'
       ]},
       { nome: 'DataBatismo',   obrigatorio: false, tipo: 'date' },
       { nome: 'Observacoes',   obrigatorio: false, tipo: 'textarea' }
@@ -150,8 +135,9 @@ const CONFIG = {
     {
       secao: 'Principal',
       itens: [
-        { id: 'dashboard',  label: 'Início',        icon: 'fa-home',            modulo: 'Dashboard' },
-        { id: 'ia',         label: 'Assistente IA', icon: 'fa-robot',           modulo: 'IA' }
+        { id: 'dashboard',     label: 'Início',            icon: 'fa-home',            modulo: 'Dashboard' },
+        { id: 'aniversarios',  label: 'Aniversariantes',   icon: 'fa-birthday-cake',   modulo: 'Aniversariantes' },
+        { id: 'ia',            label: 'Assistente IA',     icon: 'fa-robot',           modulo: 'IA' }
       ]
     },
     {
@@ -196,6 +182,7 @@ const CONFIG = {
   },
 
   DIAS_SEMANA: ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'],
+  DIAS_SEMANA_ABREV: ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'],
 
   MESES: ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
           'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'],
@@ -244,6 +231,15 @@ const CONFIG = {
       { nome: 'Pronto para Batismo',  cor: '#f59e0b', icon: 'fa-check',     progresso: 75 },
       { nome: 'Batizado',             cor: '#059669', icon: 'fa-water',     progresso: 100 }
     ]
+  },
+
+  ANIVERSARIANTES: {
+    DIAS_SEMANA_DESTAQUE: 7, // "esta semana" = próximos 7 dias
+    MENSAGENS_WHATS: [
+      'Olá {nome}! 🎉 A liderança da igreja quer te desejar um feliz aniversário! Que Deus te abençoe ricamente neste novo ano de vida. Parabéns! 🎂🙏',
+      'Parabéns, {nome}! 🎉 Que este novo ano seja repleto de bênçãos, saúde e alegria. A igreja se alegra com você! 🎂✨',
+      'Feliz aniversário, {nome}! 🎂 Que o Senhor continue te guiando e abençoando. Um forte abraço de toda a igreja! 🙏🎉'
+    ]
   }
 
 };
@@ -255,6 +251,7 @@ Object.freeze(CONFIG.COLUNAS_TABELA);
 Object.freeze(CONFIG.MSG);
 Object.freeze(CONFIG.MENU);
 Object.freeze(CONFIG.DIAS_SEMANA);
+Object.freeze(CONFIG.DIAS_SEMANA_ABREV);
 Object.freeze(CONFIG.MESES);
 Object.freeze(CONFIG.FINANCEIRO);
 Object.freeze(CONFIG.PRESENCA);
@@ -263,6 +260,8 @@ Object.freeze(CONFIG.ESCALAS);
 Object.freeze(CONFIG.ESCALAS.FUNCOES);
 Object.freeze(CONFIG.DISCIPULADO);
 Object.freeze(CONFIG.DISCIPULADO.ETAPAS);
+Object.freeze(CONFIG.ANIVERSARIANTES);
+Object.freeze(CONFIG.ANIVERSARIANTES.MENSAGENS_WHATS);
 
 console.log(`%c${CONFIG.APP_NAME} v${CONFIG.APP_VERSION}`, 'color:#2563eb;font-weight:bold;font-size:14px;');
-console.log('%cConfig carregado (v2.4)', 'color:#64748b;font-size:11px;');
+console.log('%cConfig carregado (v2.5)', 'color:#64748b;font-size:11px;');

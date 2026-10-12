@@ -1,5 +1,5 @@
 /* ============================================================
-   PIBENS ADM — Configurações globais v2.5
+   PIBENS ADM — Configurações globais v2.6
    ============================================================ */
 
 const CONFIG = {
@@ -13,7 +13,7 @@ const CONFIG = {
   APP_NAME: 'PIBENS ADM',
   APP_SHORT_NAME: 'PIBENS',
   APP_TAGLINE: 'Gestão eclesiástica com inteligência',
-  APP_VERSION: '2.5.0',
+  APP_VERSION: '2.6.0',
 
   TABELAS: {
     MEMBROS:      'Membros',
@@ -27,23 +27,29 @@ const CONFIG = {
 
   CAMPOS: {
     Membros: [
-      { nome: 'Nome',              obrigatorio: true,  tipo: 'text' },
-      { nome: 'Nascimento',        obrigatorio: true,  tipo: 'date' },
-      { nome: 'CPF',               obrigatorio: true,  tipo: 'text' },
-      { nome: 'RG',                obrigatorio: false, tipo: 'text' },
-      { nome: 'Telefone',          obrigatorio: true,  tipo: 'text' },
-      { nome: 'Email',             obrigatorio: false, tipo: 'email' },
-      { nome: 'Endereço',          obrigatorio: false, tipo: 'text' },
-      { nome: 'Bairro',            obrigatorio: false, tipo: 'text' },
-      { nome: 'Cidade',            obrigatorio: false, tipo: 'text' },
-      { nome: 'Estado',            obrigatorio: false, tipo: 'text' },
-      { nome: 'CEP',               obrigatorio: false, tipo: 'text' },
-      { nome: 'Estado Civil',      obrigatorio: false, tipo: 'select', opcoes: ['Solteiro(a)', 'Casado(a)', 'Divorciado(a)', 'Viúvo(a)', 'Outro'] },
-      { nome: 'Profissão',         obrigatorio: true,  tipo: 'text' },
-      { nome: 'Talento',           obrigatorio: false, tipo: 'text' },
-      { nome: 'Data de Batismo',   obrigatorio: false, tipo: 'date' },
-      { nome: 'Data de Membro',    obrigatorio: false, tipo: 'date' },
-      { nome: 'Observações',       obrigatorio: false, tipo: 'textarea' }
+      { nome: 'Nome',                obrigatorio: true,  tipo: 'text' },
+      { nome: 'Nascimento',          obrigatorio: true,  tipo: 'date' },
+      { nome: 'CPF',                 obrigatorio: false, tipo: 'text' },
+      { nome: 'RG',                  obrigatorio: false, tipo: 'text' },
+      { nome: 'Telefone',            obrigatorio: true,  tipo: 'text' },
+      { nome: 'Email',               obrigatorio: false, tipo: 'email' },
+      { nome: 'Endereço',            obrigatorio: false, tipo: 'text' },
+      { nome: 'Bairro',              obrigatorio: false, tipo: 'text' },
+      { nome: 'Cidade',              obrigatorio: false, tipo: 'text' },
+      { nome: 'Estado',              obrigatorio: false, tipo: 'text' },
+      { nome: 'CEP',                 obrigatorio: false, tipo: 'text' },
+      { nome: 'Estado Civil',        obrigatorio: false, tipo: 'select', opcoes: ['Solteiro(a)', 'Casado(a)', 'Divorciado(a)', 'Viúvo(a)', 'Outro'] },
+      { nome: 'Nome do Cônjuge',     obrigatorio: false, tipo: 'text' },
+      { nome: 'Parentesco',          obrigatorio: false, tipo: 'text' },
+      { nome: 'Profissão',           obrigatorio: false, tipo: 'text' },
+      { nome: 'Já foi batizado?',    obrigatorio: false, tipo: 'select', opcoes: ['SIM', 'NÃO'] },
+      { nome: 'Data de Batismo',     obrigatorio: false, tipo: 'date' },
+      { nome: 'Situação',            obrigatorio: false, tipo: 'select', opcoes: ['Ativo', 'Inativo'] },
+      { nome: 'Categoria',           obrigatorio: false, tipo: 'select', opcoes: ['Membro', 'Frequentador', 'Visitante'] },
+      { nome: 'Função',              obrigatorio: false, tipo: 'text' },
+      { nome: 'Talento',             obrigatorio: false, tipo: 'text' },
+      { nome: 'Data de Membro',      obrigatorio: false, tipo: 'date' },
+      { nome: 'Observações',         obrigatorio: false, tipo: 'textarea' }
     ],
     BancoTalentos: [
       { nome: 'Nome',      obrigatorio: true,  tipo: 'text' },
@@ -122,7 +128,7 @@ const CONFIG = {
   },
 
   COLUNAS_TABELA: {
-    Membros:       ['Nome', 'Telefone', 'Talento'],
+    Membros:       ['Nome', 'Telefone', 'Categoria', 'Situação'],
     BancoTalentos: ['Nome', 'Talento', 'Telefone'],
     Agenda:        ['Data', 'Evento', 'Horario', 'Local'],
     Financeiro:    ['Data', 'Tipo', 'Valor', 'Categoria', 'Descricao'],
@@ -234,13 +240,21 @@ const CONFIG = {
   },
 
   ANIVERSARIANTES: {
-    DIAS_SEMANA_DESTAQUE: 7, // "esta semana" = próximos 7 dias
+    DIAS_SEMANA_DESTAQUE: 7,
     MENSAGENS_WHATS: [
       'Olá {nome}! 🎉 A liderança da igreja quer te desejar um feliz aniversário! Que Deus te abençoe ricamente neste novo ano de vida. Parabéns! 🎂🙏',
       'Parabéns, {nome}! 🎉 Que este novo ano seja repleto de bênçãos, saúde e alegria. A igreja se alegra com você! 🎂✨',
       'Feliz aniversário, {nome}! 🎂 Que o Senhor continue te guiando e abençoando. Um forte abraço de toda a igreja! 🙏🎉'
     ]
-  }
+  },
+
+  FAIXAS_ETARIAS: [
+    { nome: 'Criança',       min: 0,  max: 11, cor: '#0891b2', icon: 'fa-child' },
+    { nome: 'Adolescente',   min: 12, max: 17, cor: '#2563eb', icon: 'fa-user-graduate' },
+    { nome: 'Jovem',         min: 18, max: 21, cor: '#7c3aed', icon: 'fa-user-tie' },
+    { nome: 'Adulto',        min: 22, max: 59, cor: '#059669', icon: 'fa-user' },
+    { nome: 'Idoso',         min: 60, max: 200, cor: '#f59e0b', icon: 'fa-user-clock' }
+  ]
 
 };
 
@@ -262,6 +276,7 @@ Object.freeze(CONFIG.DISCIPULADO);
 Object.freeze(CONFIG.DISCIPULADO.ETAPAS);
 Object.freeze(CONFIG.ANIVERSARIANTES);
 Object.freeze(CONFIG.ANIVERSARIANTES.MENSAGENS_WHATS);
+Object.freeze(CONFIG.FAIXAS_ETARIAS);
 
 console.log(`%c${CONFIG.APP_NAME} v${CONFIG.APP_VERSION}`, 'color:#2563eb;font-weight:bold;font-size:14px;');
-console.log('%cConfig carregado (v2.5)', 'color:#64748b;font-size:11px;');
+console.log('%cConfig carregado (v2.6)', 'color:#64748b;font-size:11px;');

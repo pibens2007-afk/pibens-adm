@@ -1,11 +1,5 @@
 /* ============================================================
-   PIBENS ADM — UI (utilitários visuais)
-   ============================================================
-   Responsável por:
-   - Toasts (notificações)
-   - Modais (abrir/fechar/confirmar)
-   - Loading (tela de carregamento)
-   - Formatação de datas, telefone, CPF
+   PIBENS ADM — UI (utilitários visuais) v2.6
    ============================================================ */
 
 const UI = {
@@ -15,10 +9,7 @@ const UI = {
      ---------------------------------------------------------- */
   toast(mensagem, tipo = 'info', duracao = 3500) {
     const container = document.getElementById('toast-container');
-    if (!container) {
-      console.warn('[UI] Container de toast não encontrado.');
-      return;
-    }
+    if (!container) return;
 
     const icones = {
       success: 'fa-check-circle',
@@ -64,7 +55,6 @@ const UI = {
     if (overlay) overlay.style.display = 'none';
   },
 
-  /* Confirmação rápida (retorna Promise<boolean>) */
   confirmar(mensagem, titulo = 'Confirmação') {
     return new Promise((resolve) => {
       const botoes = `
@@ -95,9 +85,6 @@ const UI = {
     `;
   },
 
-  /* ----------------------------------------------------------
-     EMPTY STATE
-     ---------------------------------------------------------- */
   emptyState(titulo, texto, botaoHTML = '') {
     return `
       <div class="empty-state">
@@ -110,10 +97,8 @@ const UI = {
   },
 
   /* ----------------------------------------------------------
-     FORMATAÇÃO
+     FORMATAÇÃO DE DATA
      ---------------------------------------------------------- */
-
-  /* Data ISO (YYYY-MM-DD) → BR (DD/MM/YYYY) */
   dataBR(iso) {
     if (!iso) return '—';
     if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) {
@@ -124,7 +109,6 @@ const UI = {
     return iso;
   },
 
-  /* Data ISO → extenso (ex: "segunda-feira, 12 de outubro de 2026") */
   dataExtenso(iso) {
     if (!iso) return '';
     const d = iso instanceof Date ? iso : new Date(iso);
@@ -136,7 +120,6 @@ const UI = {
     return `${diaSemana}, ${dia} de ${mes} de ${ano}`;
   },
 
-  /* Data BR (DD/MM/YYYY) → input date (YYYY-MM-DD) */
   dataInput(br) {
     if (!br) return '';
     if (/^\d{4}-\d{2}-\d{2}$/.test(br)) return br;
@@ -147,7 +130,9 @@ const UI = {
     return '';
   },
 
-  /* Telefone: (11) 99999-0001 */
+  /* ----------------------------------------------------------
+     FORMATAÇÃO DE DOCUMENTOS
+     ---------------------------------------------------------- */
   telefone(v) {
     if (!v) return '—';
     const n = String(v).replace(/\D/g, '');
@@ -156,7 +141,6 @@ const UI = {
     return v;
   },
 
-  /* CPF: 000.000.000-00 */
   cpf(v) {
     if (!v) return '—';
     const n = String(v).replace(/\D/g, '');
@@ -164,7 +148,6 @@ const UI = {
     return v;
   },
 
-  /* CEP: 00000-000 */
   cep(v) {
     if (!v) return '—';
     const n = String(v).replace(/\D/g, '');
@@ -172,7 +155,9 @@ const UI = {
     return v;
   },
 
-  /* Iniciais de um nome (ex: "João Silva" → "JS") */
+  /* ----------------------------------------------------------
+     STRINGS
+     ---------------------------------------------------------- */
   iniciais(nome) {
     if (!nome) return '?';
     const partes = String(nome).trim().split(/\s+/);
@@ -180,13 +165,11 @@ const UI = {
     return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
   },
 
-  /* Primeira letra maiúscula */
   capitalizar(s) {
     if (!s) return '';
     return String(s).charAt(0).toUpperCase() + String(s).slice(1).toLowerCase();
   },
 
-  /* Escapa HTML (evita XSS) */
   escapar(str) {
     if (str === null || str === undefined) return '';
     return String(str)
@@ -197,7 +180,6 @@ const UI = {
       .replace(/'/g, '&#039;');
   },
 
-  /* Debounce (evita chamar várias vezes seguidas) */
   debounce(fn, delay = 300) {
     let t;
     return (...args) => {
@@ -207,7 +189,74 @@ const UI = {
   },
 
   /* ----------------------------------------------------------
-     ATUALIZAÇÃO DE TÍTULO DA TOPBAR
+     CÁLCULO DE IDADE E FAIXA ETÁRIA
+     ---------------------------------------------------------- */
+
+  /**
+   * Calcula a idade em anos a partir de uma data de nascimento
+   * Aceita: "1990-05-12", "12/05/1990", "mai. 2, 2026"
+   */
+  calcularIdade(nascimento) {
+    const data = this.parseDataNascimento(nascimento);
+    if (!data) return null;
+
+    const hoje = new Date();
+    let idade = hoje.getFullYear() - data.ano;
+    const mesAtual = hoje.getMonth() + 1;
+    const diaAtual = hoje.getDate();
+
+    if (mesAtual < data.mes || (mesAtual === data.mes && diaAtual < data.dia)) {
+      idade--;
+    }
+    return idade;
+  },
+
+  /**
+   * Retorna o objeto da faixa etária: { nome, cor, icon }
+   */
+  calcularFaixaEtaria(nascimento) {
+    const idade = this.calcularIdade(nascimento);
+    if (idade === null) return null;
+
+    for (const faixa of CONFIG.FAIXAS_ETARIAS) {
+      if (idade >= faixa.min && idade <= faixa.max) {
+        return faixa;
+      }
+    }
+    return null;
+  },
+
+  /**
+   * Parseia data de nascimento em formato conhecido
+   * Retorna { dia, mes, ano } ou null
+   */
+  parseDataNascimento(nasc) {
+    if (!nasc) return null;
+    nasc = String(nasc).trim();
+
+    // Formato ISO: "1990-05-12"
+    if (/^\d{4}-\d{2}-\d{2}$/.test(nasc)) {
+      const [a, m, d] = nasc.split('-').map(Number);
+      return { dia: d, mes: m, ano: a };
+    }
+
+    // Formato BR: "12/05/1990"
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(nasc)) {
+      const [d, m, a] = nasc.split('/').map(Number);
+      return { dia: d, mes: m, ano: a };
+    }
+
+    // Formato BR sem ano: "12/05"
+    if (/^\d{2}\/\d{2}$/.test(nasc)) {
+      const [d, m] = nasc.split('/').map(Number);
+      return { dia: d, mes: m, ano: null };
+    }
+
+    return null;
+  },
+
+  /* ----------------------------------------------------------
+     TOPBAR
      ---------------------------------------------------------- */
   setTituloTopbar(icone, texto) {
     const el = document.getElementById('topbar-title');
@@ -215,9 +264,6 @@ const UI = {
     el.innerHTML = `<i class="fas ${icone}"></i><span>${texto}</span>`;
   },
 
-  /* ----------------------------------------------------------
-     ATUALIZAÇÃO DA DATA NA TOPBAR
-     ---------------------------------------------------------- */
   setDataTopbar() {
     const el = document.getElementById('topbar-date');
     if (!el) return;
@@ -231,4 +277,4 @@ const UI = {
 
 };
 
-console.log('%c[UI] Módulo carregado', 'color:#64748b;font-size:11px;');
+console.log('%c[UI] Módulo carregado (v2.6 com faixa etária)', 'color:#64748b;font-size:11px;');

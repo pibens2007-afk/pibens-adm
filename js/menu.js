@@ -1,18 +1,9 @@
 /* ============================================================
-   PIBENS ADM — Menu / Navegação
-   ============================================================
-   Responsável por:
-   - Renderizar a sidebar a partir de CONFIG.MENU
-   - Marcar item ativo
-   - Abrir/fechar a gaveta no celular
-   - Navegar entre módulos
+   PIBENS ADM — Menu / Navegação v2.1
    ============================================================ */
 
 const Menu = {
 
-  /* ----------------------------------------------------------
-     Renderiza os itens da sidebar
-     ---------------------------------------------------------- */
   render() {
     const nav = document.getElementById('sidebar-nav');
     if (!nav) return;
@@ -20,7 +11,6 @@ const Menu = {
     let html = '';
 
     CONFIG.MENU.forEach((grupo) => {
-      // Título da seção (Principal, Cadastros, etc.)
       if (grupo.secao) {
         html += `<div class="nav-section">${grupo.secao}</div>`;
       }
@@ -38,9 +28,6 @@ const Menu = {
     nav.innerHTML = html;
   },
 
-  /* ----------------------------------------------------------
-     Marca o item ativo
-     ---------------------------------------------------------- */
   marcarAtivo(id) {
     const itens = document.querySelectorAll('#sidebar-nav .nav-item');
     itens.forEach((el) => {
@@ -52,9 +39,6 @@ const Menu = {
     });
   },
 
-  /* ----------------------------------------------------------
-     Abrir/fechar a gaveta (mobile)
-     ---------------------------------------------------------- */
   open() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');
@@ -71,28 +55,16 @@ const Menu = {
     document.body.style.overflow = '';
   },
 
-  /* ----------------------------------------------------------
-     Navegação entre módulos
-     ---------------------------------------------------------- */
   navegar(id) {
     const item = this._acharItem(id);
     if (!item) return;
 
-    // Marca o item ativo
     this.marcarAtivo(id);
-
-    // Fecha a gaveta no celular
     this.close();
-
-    // Atualiza o título da topbar
     UI.setTituloTopbar(item.icon, item.label);
 
-    // Chama o módulo correspondente
     const modulo = item.modulo;
-    const container = document.getElementById('content');
-    if (!container) return;
 
-    // Roteador: cada módulo tem um objeto com o método render()
     switch (modulo) {
       case 'Dashboard':
         if (typeof Dashboard !== 'undefined') Dashboard.render();
@@ -110,26 +82,27 @@ const Menu = {
         if (typeof Agenda !== 'undefined') Agenda.render();
         break;
 
+      case 'Financeiro':
+        if (typeof Financeiro !== 'undefined') Financeiro.render();
+        break;
+
       case 'IA':
         if (typeof IA !== 'undefined') IA.render();
         break;
 
       default:
-        container.innerHTML = UI.emptyState(
+        const c = document.getElementById('content');
+        if (c) c.innerHTML = UI.emptyState(
           'Módulo em construção',
           `O módulo "${modulo}" será implementado em breve.`
         );
     }
 
-    // Salva a última página acessada (pra reabrir nela depois)
     try {
       localStorage.setItem('pibens_adm_ultima_pagina', id);
     } catch (e) { /* ignora */ }
   },
 
-  /* ----------------------------------------------------------
-     Helpers internos
-     ---------------------------------------------------------- */
   _acharItem(id) {
     for (const grupo of CONFIG.MENU) {
       const item = grupo.itens.find((i) => i.id === id);
@@ -146,17 +119,12 @@ const Menu = {
     }
   },
 
-  /* ----------------------------------------------------------
-     Inicialização
-     ---------------------------------------------------------- */
   iniciar() {
     this.render();
-
-    // Navega pra última página usada (ou dashboard)
     const ultima = this._ultimaPagina();
     this.navegar(ultima);
   }
 
 };
 
-console.log('%c[Menu] Módulo carregado', 'color:#64748b;font-size:11px;');
+console.log('%c[Menu] Módulo carregado (v2.1 com Financeiro)', 'color:#64748b;font-size:11px;');

@@ -2733,3 +2733,532 @@ body {
   .rel-tabela { font-size: 0.75rem; }
   .rel-tabela th, .rel-tabela td { padding: 0.5rem 0.6rem; }
 }
+/* ============================================================
+   MURAL DE COMUNICADOS
+   ============================================================ */
+
+/* Header */
+.mural-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  border-radius: var(--radius-lg);
+  color: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.mural-titulo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.3rem;
+}
+
+.mural-subtitulo {
+  font-size: 0.95rem;
+  color: #dbeafe;
+  font-weight: 500;
+}
+
+/* Stats */
+.mural-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.mural-stat {
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.25rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.mural-stat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+
+.mural-stat-value {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--text);
+}
+
+.mural-stat-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.15rem;
+}
+
+/* Filtros */
+.mural-filtros {
+  display: flex;
+  gap: 0.5rem;
+  background: #ffffff;
+  padding: 0.5rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+}
+
+.mural-filtro {
+  padding: 0.6rem 1rem;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-soft);
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: inherit;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.mural-filtro:hover { background: var(--bg-hover); color: var(--text); }
+
+.mural-filtro.active {
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+}
+
+/* Lista */
+.mural-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Card */
+.mural-card {
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  border-left: 4px solid;
+  padding: 1.25rem 1.5rem;
+  transition: var(--transition);
+  position: relative;
+}
+
+.mural-card:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.mural-card-fixo {
+  background: linear-gradient(135deg, #fffbeb 0%, #ffffff 50%);
+  border: 2px solid #f59e0b;
+  border-left: 6px solid #f59e0b;
+}
+
+.mural-card-expirado {
+  opacity: 0.65;
+}
+
+.mural-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.mural-card-badges {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.mural-card-tipo {
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+.mural-card-prio {
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.mural-card-fixo-badge {
+  background: #f59e0b;
+  color: #ffffff;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  white-space: nowrap;
+}
+
+.mural-card-expirado-badge {
+  background: #64748b;
+  color: #ffffff;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.mural-card-acoes {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.mural-card-titulo {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+}
+
+.mural-card-mensagem {
+  font-size: 0.95rem;
+  color: var(--text-soft);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.mural-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-soft);
+}
+
+.mural-card-meta {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.mural-card-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.mural-card-meta i {
+  font-size: 0.75rem;
+}
+
+/* Formulário */
+.mural-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mural-form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.mural-form-linha {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.mural-form-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.3rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  line-height: 1.4;
+}
+
+.mural-form-hint i {
+  color: var(--primary);
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.mural-form label input[type="checkbox"] {
+  margin-right: 0.5rem;
+  width: auto;
+  transform: scale(1.2);
+  accent-color: var(--primary);
+}
+
+/* ============================================================
+   COMUNICADO EM DESTAQUE (no Dashboard)
+   ============================================================ */
+.dash-comunicado {
+  border-radius: var(--radius-lg);
+  border-left: 6px solid;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  animation: dashComFade 0.5s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.dash-comunicado::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
+  pointer-events: none;
+  animation: dashComShine 8s linear infinite;
+}
+
+@keyframes dashComShine {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes dashComFade {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dash-comunicado-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  position: relative;
+  z-index: 1;
+}
+
+.dash-comunicado-badges {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.dash-comunicado-tipo {
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+.dash-comunicado-prio {
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.dash-comunicado-fixo {
+  background: #f59e0b;
+  color: #ffffff;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  white-space: nowrap;
+}
+
+.dash-comunicado-btn {
+  background: rgba(255,255,255,0.9);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.dash-comunicado-btn:hover {
+  background: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.dash-comunicado-titulo {
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.01em;
+  position: relative;
+  z-index: 1;
+}
+
+.dash-comunicado-msg {
+  font-size: 1rem;
+  color: var(--text);
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  position: relative;
+  z-index: 1;
+}
+
+.dash-comunicado-meta {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  color: var(--text-soft);
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
+}
+
+.dash-comunicado-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.dash-comunicado-meta i {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   RESPONSIVO — MURAL
+   ============================================================ */
+@media (max-width: 768px) {
+  .mural-header {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1.25rem;
+  }
+
+  .mural-titulo { font-size: 1.25rem; }
+  .mural-header button { width: 100%; }
+
+  .mural-stats { grid-template-columns: 1fr 1fr; }
+
+  .mural-filtros { flex-wrap: nowrap; }
+
+  .mural-card {
+    padding: 1rem 1.15rem;
+  }
+
+  .mural-card-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mural-card-acoes {
+    justify-content: flex-start;
+  }
+
+  .mural-card-titulo { font-size: 1.05rem; }
+
+  .mural-card-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mural-card-footer button { width: 100%; }
+
+  .mural-form-linha {
+    grid-template-columns: 1fr;
+  }
+
+  .dash-comunicado {
+    padding: 1.15rem;
+  }
+
+  .dash-comunicado-titulo { font-size: 1.15rem; }
+  .dash-comunicado-msg { font-size: 0.95rem; }
+
+  .dash-comunicado-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .dash-comunicado-btn { align-self: flex-start; }
+}
+
+@media (max-width: 380px) {
+  .mural-stats { grid-template-columns: 1fr; }
+  .dash-comunicado-titulo { font-size: 1rem; }
+}

@@ -1,5 +1,5 @@
 /* ============================================================
-   PIBENS ADM — Configurações globais v2.7
+   PIBENS ADM — Configurações globais v2.8
    ============================================================ */
 
 const CONFIG = {
@@ -13,7 +13,7 @@ const CONFIG = {
   APP_NAME: 'PIBENS ADM',
   APP_SHORT_NAME: 'PIBENS',
   APP_TAGLINE: 'Gestão eclesiástica com inteligência',
-  APP_VERSION: '2.7.0',
+  APP_VERSION: '2.8.0',
 
   TABELAS: {
     MEMBROS:      'Membros',
@@ -25,9 +25,6 @@ const CONFIG = {
     DISCIPULADO:  'Discipulado'
   },
 
-  /* ============================================================
-     MINISTÉRIOS / DEPARTAMENTOS
-     ============================================================ */
   MINISTERIOS: [
     { nome: 'Ministério de Homens',         cor: '#2563eb', icon: 'fa-male' },
     { nome: 'Ministério de Mulheres',       cor: '#e11d48', icon: 'fa-female' },
@@ -135,7 +132,7 @@ const CONFIG = {
       { nome: 'Observacoes',      obrigatorio: false, tipo: 'textarea' }
     ],
     Discipulado: [
-      { nome: 'Nome',          obrigatorio: true,  tipo: 'date' },
+      { nome: 'Nome',          obrigatorio: true,  tipo: 'text' },
       { nome: 'DataDecisao',   obrigatorio: true,  tipo: 'date' },
       { nome: 'Idade',         obrigatorio: false, tipo: 'number' },
       { nome: 'Telefone',      obrigatorio: false, tipo: 'text' },
@@ -192,7 +189,8 @@ const CONFIG = {
     {
       secao: 'Administração',
       itens: [
-        { id: 'financeiro', label: 'Financeiro',    icon: 'fa-dollar-sign',     modulo: 'Financeiro' }
+        { id: 'financeiro',  label: 'Financeiro',  icon: 'fa-dollar-sign',     modulo: 'Financeiro' },
+        { id: 'relatorios',  label: 'Relatórios',  icon: 'fa-file-pdf',        modulo: 'Relatorios' }
       ]
     }
   ],
@@ -276,6 +274,15 @@ const CONFIG = {
     { nome: 'Jovem',         min: 18, max: 21, cor: '#7c3aed', icon: 'fa-user-tie' },
     { nome: 'Adulto',        min: 22, max: 59, cor: '#059669', icon: 'fa-user' },
     { nome: 'Idoso',         min: 60, max: 200, cor: '#f59e0b', icon: 'fa-user-clock' }
+  ],
+
+  RELATORIOS: [
+    { id: 'membros',      nome: 'Membros',           icon: 'fa-users',           cor: '#2563eb', desc: 'Total, ativos, categorias, ministérios, faixa etária' },
+    { id: 'financeiro',   nome: 'Financeiro',        icon: 'fa-dollar-sign',     cor: '#059669', desc: 'Entradas, saídas, saldo, top categorias' },
+    { id: 'presenca',     nome: 'Presença',          icon: 'fa-clipboard-check', cor: '#0891b2', desc: 'Cultos, média, top membros, afastados' },
+    { id: 'escalas',      nome: 'Escalas',           icon: 'fa-list-check',      cor: '#7c3aed', desc: 'Escalas futuras, vagas em aberto' },
+    { id: 'discipulado',  nome: 'Discipulado',       icon: 'fa-seedling',        cor: '#f59e0b', desc: 'Por etapa, prontos para batismo' },
+    { id: 'aniversarios', nome: 'Aniversariantes',   icon: 'fa-birthday-cake',   cor: '#e11d48', desc: 'Do mês, por dia' }
   ]
 
 };
@@ -300,6 +307,7 @@ Object.freeze(CONFIG.DISCIPULADO.ETAPAS);
 Object.freeze(CONFIG.ANIVERSARIANTES);
 Object.freeze(CONFIG.ANIVERSARIANTES.MENSAGENS_WHATS);
 Object.freeze(CONFIG.FAIXAS_ETARIAS);
+Object.freeze(CONFIG.RELATORIOS);
 
 console.log(`%c${CONFIG.APP_NAME} v${CONFIG.APP_VERSION}`, 'color:#2563eb;font-weight:bold;font-size:14px;');
-console.log('%cConfig carregado (v2.7 com Ministérios)', 'color:#64748b;font-size:11px;');
+console.log('%cConfig carregado (v2.8 com Relatórios)', 'color:#64748b;font-size:11px;');

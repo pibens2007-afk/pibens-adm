@@ -2048,3 +2048,465 @@ body {
   .main-content { margin-left: 0; width: 100%; }
   .data-card, .esc-card, .disc-card, .aniv-card { box-shadow: none; border: 1px solid #ddd; }
 }
+/* ============================================================
+   MÓDULO RELATÓRIOS
+   ============================================================ */
+
+/* Header da página */
+.rel-header {
+  margin-bottom: 1.5rem;
+}
+
+.rel-titulo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.3rem;
+}
+
+.rel-subtitulo {
+  font-size: 0.95rem;
+  color: var(--text-soft);
+}
+
+/* Grid dos cards de relatórios */
+.rel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1rem;
+}
+
+.rel-card {
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  border-left: 4px solid;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.rel-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.rel-card-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.rel-card-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.rel-card-nome {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 0.2rem;
+}
+
+.rel-card-desc {
+  font-size: 0.8rem;
+  color: var(--text-soft);
+  line-height: 1.3;
+}
+
+.rel-card-arrow {
+  color: var(--text-muted);
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+/* Ações no topo (Voltar, WhatsApp, PDF) */
+.rel-acoes-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.rel-acoes-botoes {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Filtro de período */
+.rel-filtro {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  background: #ffffff;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+}
+
+.rel-filtro label {
+  font-weight: 700;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.rel-filtro .form-select {
+  max-width: 250px;
+  margin: 0;
+}
+
+/* Documento (o que vai pro PDF) */
+.rel-documento {
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+}
+
+/* Cabeçalho do documento */
+.rel-doc-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 3px solid #2563eb;
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.rel-doc-logo {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.rel-doc-info h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1e3a8a;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.2rem;
+}
+
+.rel-doc-info p {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.rel-doc-subtitulo {
+  font-size: 0.7rem !important;
+  color: #94a3b8 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  margin-top: 0.2rem !important;
+}
+
+/* Título do relatório */
+.rel-doc-titulo {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.rel-doc-titulo h2 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+}
+
+.rel-doc-titulo p {
+  font-size: 0.85rem;
+  color: var(--text-soft);
+  margin: 0;
+}
+
+/* Cards de resumo no relatório */
+.rel-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.rel-card-info-simples {
+  background: #f8fafc;
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--border);
+  border-left: 4px solid;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.rel-card-info-simples i {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.rel-card-info-simples span {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.rel-card-info-simples small {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-soft);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-top: 0.15rem;
+}
+
+/* Blocos de conteúdo */
+.rel-bloco {
+  margin-bottom: 1.5rem;
+  background: #f8fafc;
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+}
+
+.rel-bloco h3 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Lista de itens */
+.rel-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.rel-lista-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.9rem;
+  background: #ffffff;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-soft);
+  flex-wrap: wrap;
+}
+
+.rel-lista-rank {
+  font-weight: 800;
+  font-size: 1rem;
+  min-width: 30px;
+  flex-shrink: 0;
+}
+
+.rel-lista-nome {
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+  word-break: break-word;
+}
+
+.rel-lista-valor {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-soft);
+  white-space: nowrap;
+}
+
+/* Tabela no relatório */
+.rel-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  background: #ffffff;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.rel-tabela thead {
+  background: #0f172a;
+  color: #ffffff;
+}
+
+.rel-tabela th {
+  padding: 0.7rem 0.9rem;
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.rel-tabela td {
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid var(--border-soft);
+  color: var(--text);
+}
+
+.rel-tabela tbody tr:last-child td { border-bottom: none; }
+.rel-tabela tbody tr:hover { background: #f8fafc; }
+
+/* ============================================================
+   IMPRESSÃO (PDF)
+   ============================================================ */
+@media print {
+  /* Esconde tudo que não é relatório */
+  .sidebar,
+  .topbar,
+  .sidebar-overlay,
+  .app-footer,
+  .banners-container,
+  .rel-acoes-topo,
+  .rel-filtro,
+  .rel-header,
+  .toast-container,
+  .modal-overlay {
+    display: none !important;
+  }
+
+  /* Reset de layout */
+  body {
+    background: #ffffff !important;
+    padding: 0 !important;
+    font-size: 11px !important;
+    color: #000000 !important;
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+    min-height: auto !important;
+  }
+
+  .content {
+    padding: 0 !important;
+  }
+
+  /* Documento */
+  .rel-documento {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    background: #ffffff !important;
+  }
+
+  /* Cabeçalho */
+  .rel-doc-header {
+    border-bottom: 3px solid #2563eb !important;
+    page-break-after: avoid;
+  }
+
+  .rel-doc-info h1 { color: #1e3a8a !important; }
+
+  /* Blocos */
+  .rel-bloco {
+    page-break-inside: avoid;
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+
+  /* Tabelas */
+  .rel-tabela {
+    page-break-inside: avoid;
+    font-size: 10px;
+  }
+
+  .rel-tabela thead {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Cards */
+  .rel-cards {
+    page-break-inside: avoid;
+  }
+
+  .rel-card-info-simples {
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+    page-break-inside: avoid;
+  }
+
+  /* Cores preservadas */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Página */
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+}
+
+/* ============================================================
+   RESPONSIVO — RELATÓRIOS
+   ============================================================ */
+@media (max-width: 768px) {
+  .rel-grid { grid-template-columns: 1fr; }
+
+  .rel-acoes-topo { flex-direction: column; align-items: stretch; }
+  .rel-acoes-botoes { width: 100%; }
+  .rel-acoes-botoes .btn { flex: 1; }
+
+  .rel-filtro { flex-direction: column; align-items: stretch; }
+  .rel-filtro .form-select { max-width: 100%; }
+
+  .rel-documento { padding: 1.25rem; }
+
+  .rel-cards { grid-template-columns: 1fr; }
+
+  .rel-card-info-simples span { font-size: 1.2rem; }
+
+  .rel-doc-header { flex-direction: column; align-items: flex-start; }
+  .rel-doc-logo { width: 50px; height: 50px; font-size: 1.4rem; }
+  .rel-doc-info h1 { font-size: 1.2rem; }
+
+  .rel-lista-item { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 380px) {
+  .rel-tabela { font-size: 0.75rem; }
+  .rel-tabela th, .rel-tabela td { padding: 0.5rem 0.6rem; }
+}

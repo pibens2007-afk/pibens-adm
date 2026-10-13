@@ -1,5 +1,5 @@
 /* ============================================================
-   PIBENS ADM — Menu / Navegação v2.9
+   PIBENS ADM — Menu / Navegação v3.0
    ============================================================ */
 
 const Menu = {
@@ -61,6 +61,7 @@ const Menu = {
 
     switch (modulo) {
       case 'Dashboard':        if (typeof Dashboard !== 'undefined') Dashboard.render(); break;
+      case 'Mural':            if (typeof Mural !== 'undefined') Mural.render(); break;
       case 'Aniversariantes':  if (typeof Aniversariantes !== 'undefined') Aniversariantes.render(); break;
       case 'Membros':          if (typeof Membros !== 'undefined') Membros.render(); break;
       case 'BancoTalentos':    if (typeof Talentos !== 'undefined') Talentos.render(); break;
@@ -103,4 +104,4 @@ const Menu = {
 
 };
 
-console.log('%c[Menu] Módulo carregado (v2.9 com Logs)', 'color:#64748b;font-size:11px;');
+console.log('%c[Menu] Módulo carregado (v3.0 com Mural)', 'color:#64748b;font-size:11px;');

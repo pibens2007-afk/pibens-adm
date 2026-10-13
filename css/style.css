@@ -2510,3 +2510,52 @@ body {
   .rel-tabela { font-size: 0.75rem; }
   .rel-tabela th, .rel-tabela td { padding: 0.5rem 0.6rem; }
 }
+/* ============================================================
+   LOGO OFICIAL — Ajustes de tamanho e estilo
+   ============================================================ */
+
+/* Logo grande da tela de login */
+.login-logo-oficial {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-logo-oficial img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(37, 99, 235, 0.2));
+}
+
+/* Logo pequena da sidebar */
+.sidebar-logo-oficial {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(37,99,235,0.4);
+  padding: 3px;
+}
+
+.sidebar-logo-oficial img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Ajuste mobile */
+@media (max-width: 768px) {
+  .login-logo-oficial {
+    width: 100px;
+    height: 100px;
+  }
+}

@@ -1,5 +1,5 @@
 /* ============================================================
-   PIBENS ADM — Configurações globais v2.9
+   PIBENS ADM — Configurações globais v3.0
    ============================================================ */
 
 const CONFIG = {
@@ -13,7 +13,7 @@ const CONFIG = {
   APP_NAME: 'PIBENS ADM',
   APP_SHORT_NAME: 'PIBENS',
   APP_TAGLINE: 'Gestão eclesiástica com inteligência',
-  APP_VERSION: '2.9.0',
+  APP_VERSION: '3.0.0',
 
   TABELAS: {
     MEMBROS:      'Membros',
@@ -23,7 +23,8 @@ const CONFIG = {
     PRESENCAS:    'Presencas',
     ESCALAS:      'Escalas',
     DISCIPULADO:  'Discipulado',
-    LOGS:         'Logs'
+    LOGS:         'Logs',
+    MURAL:        'Mural'
   },
 
   MINISTERIOS: [
@@ -144,6 +145,15 @@ const CONFIG = {
       ]},
       { nome: 'DataBatismo',   obrigatorio: false, tipo: 'date' },
       { nome: 'Observacoes',   obrigatorio: false, tipo: 'textarea' }
+    ],
+    Mural: [
+      { nome: 'Titulo',       obrigatorio: true,  tipo: 'text' },
+      { nome: 'Mensagem',     obrigatorio: true,  tipo: 'textarea' },
+      { nome: 'Tipo',         obrigatorio: true,  tipo: 'select', opcoes: ['Info', 'Importante', 'Urgente', 'Evento'] },
+      { nome: 'Prioridade',   obrigatorio: true,  tipo: 'select', opcoes: ['Normal', 'Importante', 'Urgente'] },
+      { nome: 'Autor',        obrigatorio: false, tipo: 'text' },
+      { nome: 'Fixo',         obrigatorio: false, tipo: 'select', opcoes: ['Sim', 'Não'] },
+      { nome: 'DataExpira',   obrigatorio: false, tipo: 'date' }
     ]
   },
 
@@ -154,7 +164,8 @@ const CONFIG = {
     Financeiro:    ['Data', 'Tipo', 'Valor', 'Categoria', 'Descricao'],
     Presencas:     ['Data', 'Tipo', 'TotalPresentes', 'Visitantes', 'Pregador'],
     Escalas:       ['Data', 'Tipo', 'Louvor', 'Som', 'Projecao'],
-    Discipulado:   ['Nome', 'Etapa', 'Discipulador', 'DataDecisao']
+    Discipulado:   ['Nome', 'Etapa', 'Discipulador', 'DataDecisao'],
+    Mural:         ['Titulo', 'Tipo', 'Autor']
   },
 
   MENU: [
@@ -162,6 +173,7 @@ const CONFIG = {
       secao: 'Principal',
       itens: [
         { id: 'dashboard',     label: 'Início',            icon: 'fa-home',            modulo: 'Dashboard' },
+        { id: 'mural',         label: 'Mural',             icon: 'fa-bullhorn',        modulo: 'Mural' },
         { id: 'aniversarios',  label: 'Aniversariantes',   icon: 'fa-birthday-cake',   modulo: 'Aniversariantes' },
         { id: 'ia',            label: 'Assistente IA',     icon: 'fa-robot',           modulo: 'IA' }
       ]
@@ -297,6 +309,20 @@ const CONFIG = {
       { id: 'logout',   nome: 'Logout',        icon: 'fa-sign-out-alt',   cor: '#64748b' }
     ],
     RETENCAO_DIAS: 365
+  },
+
+  MURAL: {
+    TIPOS: [
+      { id: 'Info',        nome: 'Informativo',  cor: '#2563eb', icon: 'fa-info-circle',    bg: '#eff6ff' },
+      { id: 'Importante',  nome: 'Importante',   cor: '#f59e0b', icon: 'fa-exclamation-circle', bg: '#fef3c7' },
+      { id: 'Urgente',     nome: 'Urgente',      cor: '#dc2626', icon: 'fa-bell',           bg: '#fee2e2' },
+      { id: 'Evento',      nome: 'Evento',       cor: '#7c3aed', icon: 'fa-calendar-star',  bg: '#ede9fe' }
+    ],
+    PRIORIDADES: [
+      { id: 'Normal',      cor: '#64748b', ordem: 1 },
+      { id: 'Importante',  cor: '#f59e0b', ordem: 2 },
+      { id: 'Urgente',     cor: '#dc2626', ordem: 3 }
+    ]
   }
 
 };
@@ -324,6 +350,9 @@ Object.freeze(CONFIG.FAIXAS_ETARIAS);
 Object.freeze(CONFIG.RELATORIOS);
 Object.freeze(CONFIG.LOGS);
 Object.freeze(CONFIG.LOGS.TIPOS);
+Object.freeze(CONFIG.MURAL);
+Object.freeze(CONFIG.MURAL.TIPOS);
+Object.freeze(CONFIG.MURAL.PRIORIDADES);
 
 console.log(`%c${CONFIG.APP_NAME} v${CONFIG.APP_VERSION}`, 'color:#2563eb;font-weight:bold;font-size:14px;');
-console.log('%cConfig carregado (v2.9 com Logs)', 'color:#64748b;font-size:11px;');
+console.log('%cConfig carregado (v3.0 com Mural)', 'color:#64748b;font-size:11px;');

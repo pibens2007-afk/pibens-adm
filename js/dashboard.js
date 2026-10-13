@@ -1,10 +1,8 @@
 /* ============================================================
-   PIBENS ADM — Módulo Dashboard
+   PIBENS ADM — Módulo Dashboard v3.0
    ============================================================
-   Responsável por:
-   - Cards com estatísticas (membros, talentos, agenda, aniversariantes)
-   - Banners (aniversariantes + calendário CBB)
-   - Atalhos rápidos
+   Novidades:
+   - Comunicado do Mural em destaque (banner colorido no topo)
    ============================================================ */
 
 const Dashboard = {
@@ -16,37 +14,42 @@ const Dashboard = {
     const container = document.getElementById('content');
     if (!container) return;
 
-    // 1) Mostra loading
     container.innerHTML = UI.loading('Carregando painel...');
 
-    // 2) Busca dados em paralelo
+    // Busca dados em paralelo
     let membros = [], talentos = [], agenda = [];
     let banners = { birthdays: [], baptistDates: '', todayStr: '' };
+    let comunicado = null;
 
     try {
-      const [rMembros, rTalentos, rAgenda, rBanners] = await Promise.all([
+      const [rMembros, rTalentos, rAgenda, rBanners, rComunicado] = await Promise.all([
         API.listar(CONFIG.TABELAS.MEMBROS).catch(() => []),
         API.listar(CONFIG.TABELAS.TALENTOS).catch(() => []),
         API.listar(CONFIG.TABELAS.AGENDA).catch(() => []),
-        API.banners().catch(() => banners)
+        API.banners().catch(() => banners),
+        (typeof Mural !== 'undefined' ? Mural.obterDestaque() : Promise.resolve(null)).catch(() => null)
       ]);
-      membros  = rMembros  || [];
-      talentos = rTalentos || [];
-      agenda   = rAgenda   || [];
-      banners  = rBanners  || banners;
+
+      membros    = rMembros    || [];
+      talentos   = rTalentos   || [];
+      agenda     = rAgenda     || [];
+      banners    = rBanners    || banners;
+      comunicado = rComunicado || null;
     } catch (e) {
       console.error('[Dashboard] Erro ao carregar dados:', e);
     }
 
-    // 3) Calcula estatísticas
+    // Estatísticas
     const totalMembros        = membros.length;
     const totalTalentos       = talentos.length;
     const totalEventos        = agenda.length;
     const aniversariantesHoje = banners.birthdays ? banners.birthdays.length : 0;
     const aniversariantesMes  = this._contarAniversariantesMes(membros);
 
-    // 4) Monta HTML
+    // HTML
     const html = `
+      ${comunicado ? this._renderComunicado(comunicado) : ''}
+
       <div class="dashboard-grid">
         ${this._card('emerald', 'fa-users',       totalMembros,               'Membros cadastrados',       'membros')}
         ${this._card('purple',  'fa-star',        totalTalentos,              'Talentos registrados',      'talentos')}
@@ -62,13 +65,79 @@ const Dashboard = {
     `;
 
     container.innerHTML = html;
-
-    // 5) Atualiza banners da home (no topo)
     this._renderBanners(banners);
   },
 
   /* ----------------------------------------------------------
-     Renderiza um card
+     COMUNICADO EM DESTAQUE
+     ---------------------------------------------------------- */
+  _renderComunicado(m) {
+    const tipo = CONFIG.MURAL.TIPOS.find((t) => t.id === m.Tipo) || CONFIG.MURAL.TIPOS[0];
+
+    const prio = CONFIG.MURAL.PRIORIDADES.find((p) => p.id === m.Prioridade) || CONFIG.MURAL.PRIORIDADES[0];
+
+    const data = m.DataCriacao ? new Date(m.DataCriacao) : null;
+    const tempo = data ? this._tempoRelativo(data) : '—';
+
+    const fixado = m.Fixo === 'Sim';
+
+    // Estilo por prioridade
+    const corFundo = tipo.bg;
+    const corBorda = tipo.cor;
+
+    return `
+      <div class="dash-comunicado" style="background:${corFundo};border-left-color:${corBorda};">
+        <div class="dash-comunicado-header">
+          <div class="dash-comunicado-badges">
+            <span class="dash-comunicado-tipo" style="background:${tipo.cor};color:#fff;">
+              <i class="fas ${tipo.icon}"></i> ${tipo.nome}
+            </span>
+            ${m.Prioridade && m.Prioridade !== 'Normal' ? `
+              <span class="dash-comunicado-prio" style="background:${prio.cor};color:#fff;">
+                ${m.Prioridade}
+              </span>
+            ` : ''}
+            ${fixado ? `
+              <span class="dash-comunicado-fixo">
+                <i class="fas fa-thumbtack"></i> FIXADO
+              </span>
+            ` : ''}
+          </div>
+          <button class="dash-comunicado-btn" onclick="Mural.render()">
+            <i class="fas fa-external-link-alt"></i> Ver todos
+          </button>
+        </div>
+        <h2 class="dash-comunicado-titulo" style="color:${tipo.cor};">
+          ${UI.escapar(m.Titulo || 'Comunicado')}
+        </h2>
+        <p class="dash-comunicado-msg">${UI.escapar(m.Mensagem || '')}</p>
+        <div class="dash-comunicado-meta">
+          ${m.Autor ? `<span><i class="fas fa-user"></i> ${UI.escapar(m.Autor)}</span>` : ''}
+          <span><i class="fas fa-clock"></i> ${tempo}</span>
+        </div>
+      </div>
+    `;
+  },
+
+  _tempoRelativo(data) {
+    const agora = new Date();
+    const diff = agora - data;
+    const min = Math.floor(diff / 60000);
+    const horas = Math.floor(diff / 3600000);
+    const dias = Math.floor(diff / 86400000);
+
+    if (min < 1) return 'Agora mesmo';
+    if (min < 60) return `${min} min atrás`;
+    if (horas < 24) return `${horas}h atrás`;
+    if (dias < 7) return `${dias} dia(s) atrás`;
+
+    const dia = String(data.getDate()).padStart(2, '0');
+    const mes = String(data.getMonth() + 1).padStart(2, '0');
+    return `${dia}/${mes}`;
+  },
+
+  /* ----------------------------------------------------------
+     Cards
      ---------------------------------------------------------- */
   _card(cor, icone, valor, label, acao) {
     const onclickAttr = acao ? `onclick="Menu.navegar('${acao}')"` : '';
@@ -86,7 +155,7 @@ const Dashboard = {
   },
 
   /* ----------------------------------------------------------
-     Atalhos rápidos
+     Atalhos
      ---------------------------------------------------------- */
   _atalhos() {
     return `
@@ -103,13 +172,13 @@ const Dashboard = {
           <button class="btn btn-success btn-lg" onclick="Membros.novo()">
             <i class="fas fa-user-plus"></i> Novo membro
           </button>
-          <button class="btn btn-primary btn-lg" onclick="Agenda.novo()">
+          <button class="btn btn-primary btn-lg" onclick="Mural.novo()">
+            <i class="fas fa-bullhorn"></i> Novo comunicado
+          </button>
+          <button class="btn btn-warning btn-lg" onclick="Agenda.novo()">
             <i class="fas fa-calendar-plus"></i> Novo evento
           </button>
-          <button class="btn btn-purple btn-lg" onclick="Talentos.novo()">
-            <i class="fas fa-star"></i> Novo talento
-          </button>
-          <button class="btn btn-danger btn-lg" onclick="Menu.navegar('ia')">
+          <button class="btn btn-purple btn-lg" onclick="Menu.navegar('ia')">
             <i class="fas fa-robot"></i> Perguntar à IA
           </button>
         </div>
@@ -184,4 +253,4 @@ const Dashboard = {
 
 };
 
-console.log('%c[Dashboard] Módulo carregado', 'color:#64748b;font-size:11px;');
+console.log('%c[Dashboard] Módulo carregado (v3.0 com Mural)', 'color:#64748b;font-size:11px;');

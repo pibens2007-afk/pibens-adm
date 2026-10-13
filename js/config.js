@@ -1,5 +1,5 @@
 /* ============================================================
-   PIBENS ADM — Configurações globais v2.8
+   PIBENS ADM — Configurações globais v2.9
    ============================================================ */
 
 const CONFIG = {
@@ -13,7 +13,7 @@ const CONFIG = {
   APP_NAME: 'PIBENS ADM',
   APP_SHORT_NAME: 'PIBENS',
   APP_TAGLINE: 'Gestão eclesiástica com inteligência',
-  APP_VERSION: '2.8.0',
+  APP_VERSION: '2.9.0',
 
   TABELAS: {
     MEMBROS:      'Membros',
@@ -22,7 +22,8 @@ const CONFIG = {
     FINANCEIRO:   'Financeiro',
     PRESENCAS:    'Presencas',
     ESCALAS:      'Escalas',
-    DISCIPULADO:  'Discipulado'
+    DISCIPULADO:  'Discipulado',
+    LOGS:         'Logs'
   },
 
   MINISTERIOS: [
@@ -190,7 +191,8 @@ const CONFIG = {
       secao: 'Administração',
       itens: [
         { id: 'financeiro',  label: 'Financeiro',  icon: 'fa-dollar-sign',     modulo: 'Financeiro' },
-        { id: 'relatorios',  label: 'Relatórios',  icon: 'fa-file-pdf',        modulo: 'Relatorios' }
+        { id: 'relatorios',  label: 'Relatórios',  icon: 'fa-file-pdf',        modulo: 'Relatorios' },
+        { id: 'logs',        label: 'Log de Atividades', icon: 'fa-history',   modulo: 'Logs' }
       ]
     }
   ],
@@ -283,7 +285,19 @@ const CONFIG = {
     { id: 'escalas',      nome: 'Escalas',           icon: 'fa-list-check',      cor: '#7c3aed', desc: 'Escalas futuras, vagas em aberto' },
     { id: 'discipulado',  nome: 'Discipulado',       icon: 'fa-seedling',        cor: '#f59e0b', desc: 'Por etapa, prontos para batismo' },
     { id: 'aniversarios', nome: 'Aniversariantes',   icon: 'fa-birthday-cake',   cor: '#e11d48', desc: 'Do mês, por dia' }
-  ]
+  ],
+
+  LOGS: {
+    TIPOS: [
+      { id: 'login',    nome: 'Login',         icon: 'fa-sign-in-alt',    cor: '#2563eb' },
+      { id: 'criar',    nome: 'Criar',         icon: 'fa-plus-circle',    cor: '#059669' },
+      { id: 'editar',   nome: 'Editar',        icon: 'fa-edit',           cor: '#f59e0b' },
+      { id: 'remover',  nome: 'Remover',       icon: 'fa-trash',          cor: '#dc2626' },
+      { id: 'ia',       nome: 'IA',            icon: 'fa-robot',          cor: '#7c3aed' },
+      { id: 'logout',   nome: 'Logout',        icon: 'fa-sign-out-alt',   cor: '#64748b' }
+    ],
+    RETENCAO_DIAS: 365
+  }
 
 };
 
@@ -308,6 +322,8 @@ Object.freeze(CONFIG.ANIVERSARIANTES);
 Object.freeze(CONFIG.ANIVERSARIANTES.MENSAGENS_WHATS);
 Object.freeze(CONFIG.FAIXAS_ETARIAS);
 Object.freeze(CONFIG.RELATORIOS);
+Object.freeze(CONFIG.LOGS);
+Object.freeze(CONFIG.LOGS.TIPOS);
 
 console.log(`%c${CONFIG.APP_NAME} v${CONFIG.APP_VERSION}`, 'color:#2563eb;font-weight:bold;font-size:14px;');
-console.log('%cConfig carregado (v2.8 com Relatórios)', 'color:#64748b;font-size:11px;');
+console.log('%cConfig carregado (v2.9 com Logs)', 'color:#64748b;font-size:11px;');

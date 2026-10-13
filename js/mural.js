@@ -29,19 +29,22 @@ const Mural = {
 
       // Ordena: fixo primeiro, depois prioridade, depois data
       this._dados.sort((a, b) => {
-        const fixoA = a.Fixo === 'Sim' ? 1 : 0;
-        const fixoB = b.Fixo === 'Sim' ? 1 : 0;
+        const fixoA = (a && a.Fixo === 'Sim') ? 1 : 0;
+        const fixoB = (b && b.Fixo === 'Sim') ? 1 : 0;
         if (fixoA !== fixoB) return fixoB - fixoA;
 
-        const ordemA = this._ordemPrioridade(a.Prioridade);
-        const ordemB = this._ordemPrioridade(b.Prioridade);
+        const ordemA = this._ordemPrioridade(a ? a.Prioridade : '');
+        const ordemB = this._ordemPrioridade(b ? b.Prioridade : '');
         if (ordemA !== ordemB) return ordemB - ordemA;
 
-        return (b.sheetRowIndex || 0) - (a.sheetRowIndex || 0);
+        const idA = (a && a.sheetRowIndex) ? Number(a.sheetRowIndex) : 0;
+        const idB = (b && b.sheetRowIndex) ? Number(b.sheetRowIndex) : 0;
+        return idB - idA;
       });
 
       this._renderTudo();
     } catch (e) {
+      console.error('[Mural] Erro:', e);
       c.innerHTML = `
         <div class="empty-state">
           <div class="empty-state-icon" style="color:#dc2626;"><i class="fas fa-exclamation-triangle"></i></div>
@@ -60,11 +63,15 @@ const Mural = {
     return found ? found.ordem : 0;
   },
 
+  /* ==========================================================
+     RENDER DA TELA COMPLETA
+     ========================================================== */
   _renderTudo() {
     const c = document.getElementById('content');
     if (!c) return;
 
-    const filtrados = this._filtrar();
+    // ✅ CORREÇÃO: usa _filtrarLista() em vez de _filtrar()
+    const filtrados = this._filtrarLista();
 
     // Stats
     const total = this._dados.length;
@@ -126,11 +133,11 @@ const Mural = {
       </div>
 
       <div class="mural-filtros">
-        <button class="mural-filtro ${this._filtroTipo === '' ? 'active' : ''}" onclick="Mural._filtrar('')">
+        <button class="mural-filtro ${this._filtroTipo === '' ? 'active' : ''}" onclick="Mural._trocarFiltro('')">
           <i class="fas fa-list"></i> Todos
         </button>
         ${CONFIG.MURAL.TIPOS.map((t) => `
-          <button class="mural-filtro ${this._filtroTipo === t.id ? 'active' : ''}" onclick="Mural._filtrar('${t.id}')" style="${this._filtroTipo === t.id ? 'background:' + t.cor + ';color:#fff;' : ''}">
+          <button class="mural-filtro ${this._filtroTipo === t.id ? 'active' : ''}" onclick="Mural._trocarFiltro('${t.id}')" style="${this._filtroTipo === t.id ? 'background:' + t.cor + ';color:#fff;' : ''}">
             <i class="fas ${t.icon}"></i> ${t.nome}
           </button>
         `).join('')}
@@ -146,11 +153,17 @@ const Mural = {
     `;
   },
 
-  _filtrar(tipo) {
-    this._filtroTipo = tipo;
+  /* ==========================================================
+     TROCAR FILTRO (ação do usuário)
+     ========================================================== */
+  _trocarFiltro(tipo) {
+    this._filtroTipo = tipo || '';
     this._renderTudo();
   },
 
+  /* ==========================================================
+     FILTRAR LISTA (retorna array filtrado — NÃO re-renderiza)
+     ========================================================== */
   _filtrarLista() {
     if (!this._filtroTipo) return this._dados;
     return this._dados.filter((m) => m.Tipo === this._filtroTipo);
@@ -493,4 +506,4 @@ const Mural = {
 
 };
 
-console.log('%c[Mural] Módulo carregado', 'color:#64748b;font-size:11px;');
+console.log('%c[Mural] Módulo carregado (v3.0 corrigido)', 'color:#64748b;font-size:11px;');

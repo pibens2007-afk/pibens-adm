@@ -1,11 +1,16 @@
 /* ============================================================
    PIBENS ADM — Módulo Enquetes v1.0
+   ============================================================
+   © 2026 Fabio Silva dos Anjos — Todos os direitos reservados
    ============================================================ */
 
 const Enquetes = {
 
   _dados: [],
 
+  /* ----------------------------------------------------------
+     RENDER PRINCIPAL
+     ---------------------------------------------------------- */
   async render() {
     const c = document.getElementById('content');
     if (!c) return;
@@ -129,6 +134,9 @@ const Enquetes = {
     `;
   },
 
+  /* ----------------------------------------------------------
+     CRIAR NOVA ENQUETE
+     ---------------------------------------------------------- */
   nova() {
     const html = `
       <div class="form-secao">
@@ -166,7 +174,7 @@ const Enquetes = {
   _addOpcao() {
     const div = document.getElementById('enq-opcoes');
     const total = div.querySelectorAll('input').length;
-    if (total >= 6) return alert('Máximo 6 opções');
+    if (total >= 6) return UI.toast('Máximo 6 opções', 'error');
 
     const input = document.createElement('input');
     input.className = 'form-input';
@@ -199,6 +207,9 @@ const Enquetes = {
     }
   },
 
+  /* ----------------------------------------------------------
+     AÇÕES
+     ---------------------------------------------------------- */
   async encerrar(id) {
     const ok = await UI.confirmar('Encerrar esta enquete? Membros não poderão mais votar.', 'Encerrar');
     if (!ok) return;
@@ -227,4 +238,4 @@ const Enquetes = {
 
 };
 
-console.log('%c[Enquetes] Módulo carregado', 'color:#64748b;font-size:11px;');
+console.log('%c[Enquetes] Módulo carregado v1.0', 'color:#64748b;font-size:11px;');

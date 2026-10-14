@@ -30,12 +30,10 @@ const _AUTORIA_PIBENS_ADM_ = Object.freeze({
   versao:   'Autoria v1.0'
 });
 
-// Função canário — nunca é chamada, mas prova autoria se copiada
 function _assinaturaAutoralPibensAdm2026_Fabio() {
   return 'PIBENS ADM © 2026 Fabio Silva dos Anjos — Hash: a7f3e9b2';
 }
 
-// Aviso público no console
 console.log(
   '%c⚠️ CÓDIGO PROTEGIDO',
   'color:#dc2626;font-size:22px;font-weight:900;text-shadow:1px 1px 3px rgba(0,0,0,0.3);'
@@ -67,7 +65,7 @@ const CONFIG = {
   APP_NAME: 'PIBENS ADM',
   APP_SHORT_NAME: 'PIBENS',
   APP_TAGLINE: 'Gestão eclesiástica com inteligência',
-  APP_VERSION: '3.1.0',
+  APP_VERSION: '3.3.0',
 
   TABELAS: {
     MEMBROS:      'Membros',
@@ -264,7 +262,9 @@ const CONFIG = {
     {
       secao: 'Integrações',
       itens: [
-        { id: 'portal-membro', label: 'Portal do Membro', icon: 'fa-mobile-alt', modulo: 'PortalMembro' }
+        { id: 'portal-membro', label: 'Portal do Membro', icon: 'fa-mobile-alt', modulo: 'PortalMembro' },
+        { id: 'enquetes',      label: 'Enquetes',         icon: 'fa-poll',       modulo: 'Enquetes' },
+        { id: 'testemunhos',   label: 'Testemunhos',      icon: 'fa-microphone', modulo: 'Testemunhos' }
       ]
     }
   ],

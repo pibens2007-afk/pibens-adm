@@ -260,6 +260,12 @@ const CONFIG = {
         { id: 'relatorios',  label: 'Relatórios',  icon: 'fa-file-pdf',        modulo: 'Relatorios' },
         { id: 'logs',        label: 'Log de Atividades', icon: 'fa-history',   modulo: 'Logs' }
       ]
+    },
+    {
+      secao: 'Integrações',
+      itens: [
+        { id: 'portal-membro', label: 'Portal do Membro', icon: 'fa-mobile-alt', modulo: 'PortalMembro' }
+      ]
     }
   ],
 

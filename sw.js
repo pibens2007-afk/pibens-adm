@@ -1,6 +1,6 @@
 // PIBENS ADM — Service Worker
-// v1 — 2026-09-28
-const VERSION = 'v99';
+// v4 — 14/10/2026
+const VERSION = 'v4';
 
 self.addEventListener('install', (e) => {
   self.skipWaiting();

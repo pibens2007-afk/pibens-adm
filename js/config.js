@@ -1,6 +1,60 @@
 /* ============================================================
-   PIBENS ADM — Configurações globais v3.0
+   PIBENS ADM — Configurações Globais
+   ============================================================
+   
+   © 2026 PIBENS ADM — Todos os direitos reservados
+   
+   Autor: Fabio Silva dos Anjos
+   Contato: fabio110386@gmail.com
+   Hash de autoria: a7f3e9b2c4d5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1
+   Data de criação: 14 de outubro de 2026
+   
+   ⚠️ AVISO LEGAL
+   Este código-fonte é propriedade intelectual protegida.
+   O uso, cópia, modificação ou distribuição não autorizada
+   é expressamente proibida e sujeita às penalidades da
+   Lei nº 9.609/98 (Lei do Software) e Lei nº 9.610/98
+   (Lei de Direitos Autorais).
+   
    ============================================================ */
+
+// ═══════════════════════════════════════════════════════════
+// MARCA DE AUTORIA — NÃO REMOVER
+// ═══════════════════════════════════════════════════════════
+const _AUTORIA_PIBENS_ADM_ = Object.freeze({
+  autor:    'Fabio Silva dos Anjos',
+  email:    'fabio110386@gmail.com',
+  projeto:  'PIBENS ADM',
+  ano:      2026,
+  hash:     'a7f3e9b2c4d5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1',
+  versao:   'Autoria v1.0'
+});
+
+// Função canário — nunca é chamada, mas prova autoria se copiada
+function _assinaturaAutoralPibensAdm2026_Fabio() {
+  return 'PIBENS ADM © 2026 Fabio Silva dos Anjos — Hash: a7f3e9b2';
+}
+
+// Aviso público no console
+console.log(
+  '%c⚠️ CÓDIGO PROTEGIDO',
+  'color:#dc2626;font-size:22px;font-weight:900;text-shadow:1px 1px 3px rgba(0,0,0,0.3);'
+);
+console.log(
+  '%c' +
+  '© 2026 PIBENS ADM — Todos os direitos reservados\n' +
+  'Desenvolvido por: Fabio Silva dos Anjos\n' +
+  'Contato: fabio110386@gmail.com\n' +
+  'Hash de autoria: a7f3e9b2c4d5f6a7...\n' +
+  '\n' +
+  'Este código é propriedade intelectual protegida.\n' +
+  'O uso não autorizado é proibido por lei.',
+  'color:#475569;font-size:13px;line-height:1.7;font-family:monospace;'
+);
+
+// ═══════════════════════════════════════════════════════════
+// CONFIGURAÇÕES DO APP
+// ═══════════════════════════════════════════════════════════
 
 const CONFIG = {
 
@@ -13,7 +67,7 @@ const CONFIG = {
   APP_NAME: 'PIBENS ADM',
   APP_SHORT_NAME: 'PIBENS',
   APP_TAGLINE: 'Gestão eclesiástica com inteligência',
-  APP_VERSION: '3.0.0',
+  APP_VERSION: '3.1.0',
 
   TABELAS: {
     MEMBROS:      'Membros',
@@ -313,10 +367,10 @@ const CONFIG = {
 
   MURAL: {
     TIPOS: [
-      { id: 'Info',        nome: 'Informativo',  cor: '#2563eb', icon: 'fa-info-circle',    bg: '#eff6ff' },
+      { id: 'Info',        nome: 'Informativo',  cor: '#2563eb', icon: 'fa-info-circle',      bg: '#eff6ff' },
       { id: 'Importante',  nome: 'Importante',   cor: '#f59e0b', icon: 'fa-exclamation-circle', bg: '#fef3c7' },
-      { id: 'Urgente',     nome: 'Urgente',      cor: '#dc2626', icon: 'fa-bell',           bg: '#fee2e2' },
-      { id: 'Evento',      nome: 'Evento',       cor: '#7c3aed', icon: 'fa-calendar-star',  bg: '#ede9fe' }
+      { id: 'Urgente',     nome: 'Urgente',      cor: '#dc2626', icon: 'fa-bell',             bg: '#fee2e2' },
+      { id: 'Evento',      nome: 'Evento',       cor: '#7c3aed', icon: 'fa-calendar-star',    bg: '#ede9fe' }
     ],
     PRIORIDADES: [
       { id: 'Normal',      cor: '#64748b', ordem: 1 },
@@ -355,4 +409,4 @@ Object.freeze(CONFIG.MURAL.TIPOS);
 Object.freeze(CONFIG.MURAL.PRIORIDADES);
 
 console.log(`%c${CONFIG.APP_NAME} v${CONFIG.APP_VERSION}`, 'color:#2563eb;font-weight:bold;font-size:14px;');
-console.log('%cConfig carregado (v3.0 com Mural)', 'color:#64748b;font-size:11px;');
+console.log('%c© 2026 Fabio Silva dos Anjos — Uso não autorizado é proibido.', 'color:#dc2626;font-size:11px;');

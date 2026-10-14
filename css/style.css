@@ -3262,3 +3262,36 @@ body {
   .mural-stats { grid-template-columns: 1fr; }
   .dash-comunicado-titulo { font-size: 1rem; }
 }
+/* ============================================================
+   MARCA DE AUTORIA — NÃO REMOVER
+   ============================================================
+   © 2026 Fabio Silva dos Anjos — Todos os direitos reservados
+   Hash: a7f3e9b2c4d5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1
+   Contato: fabio110386@gmail.com
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  /* Marca d'água CSS — autor: Fabio Silva dos Anjos — 2026 */
+  --pibens-autor-fabio-2026: #a7f3e9b2;
+  --pibens-hash-autoria: 'a7f3e9b2c4d5f6a7';
+}
+
+/* Seletor canário — nunca usado, mas prova autoria */
+.pibens-adm-author-marker-fabio-silva-anjos-2026::after {
+  content: 'PIBENS ADM © 2026 Fabio Silva dos Anjos';
+  display: none;
+}
+
+/* Rodapé fixo (aparece no print) */
+@media print {
+  body::after {
+    content: '© 2026 Fabio Silva dos Anjos — PIBENS ADM — Todos os direitos reservados';
+    position: fixed;
+    bottom: 5px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 9px;
+    color: #94a3b8;
+  }
+}

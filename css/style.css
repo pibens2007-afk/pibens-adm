@@ -3295,3 +3295,49 @@ body {
     color: #94a3b8;
   }
 }
+/* ═══════════════════════════════════════════════════════════
+   ENQUETES — ADMIN (adicionado em v3.3)
+   ═══════════════════════════════════════════════════════════ */
+
+.enquete-admin-opcao{
+  position:relative;
+  padding:12px 16px;
+  background:#F8FAFC;
+  border-radius:8px;
+  margin-bottom:6px;
+  overflow:hidden;
+  border:1px solid #E2E8F0;
+}
+
+.enquete-admin-bar{
+  position:absolute;
+  top:0;
+  left:0;
+  bottom:0;
+  background:linear-gradient(90deg, rgba(139,92,246,0.18), rgba(236,72,153,0.18), rgba(251,146,60,0.18));
+  transition:width 0.4s ease;
+}
+
+.enquete-admin-info{
+  position:relative;
+  z-index:1;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:13px;
+  color:#374151;
+  gap:12px;
+}
+
+.enquete-admin-info span:first-child{
+  flex:1;
+  min-width:0;
+  word-break:break-word;
+}
+
+.enquete-admin-info span:last-child{
+  font-size:12px;
+  color:#64748b;
+  white-space:nowrap;
+  flex-shrink:0;
+}

@@ -1,8 +1,9 @@
 /* ============================================================
-   PIBENS ADM — Módulo Dashboard v3.0
+   PIBENS ADM — Módulo Dashboard v3.1
    ============================================================
-   Novidades:
-   - Comunicado do Mural em destaque (banner colorido no topo)
+   Novidades desta versão:
+   - Cards de aniversariantes agora são CLICÁVEIS
+   - Comunicado do Mural em destaque
    ============================================================ */
 
 const Dashboard = {
@@ -51,12 +52,12 @@ const Dashboard = {
       ${comunicado ? this._renderComunicado(comunicado) : ''}
 
       <div class="dashboard-grid">
-        ${this._card('emerald', 'fa-users',       totalMembros,               'Membros cadastrados',       'membros')}
-        ${this._card('purple',  'fa-star',        totalTalentos,              'Talentos registrados',      'talentos')}
-        ${this._card('cyan',    'fa-calendar-alt', totalEventos,              'Eventos na agenda',         'agenda')}
-        ${this._card('amber',   'fa-birthday-cake', aniversariantesHoje,      'Aniversariantes hoje',      null)}
-        ${this._card('rose',    'fa-gift',         aniversariantesMes,        'Aniversariantes do mês',    null)}
-        ${this._card('blue',    'fa-robot',        '∞',                       'Assistente IA',             'ia')}
+        ${this._card('emerald', 'fa-users',        totalMembros,          'Membros cadastrados',    'membros')}
+        ${this._card('purple',  'fa-star',         totalTalentos,         'Talentos registrados',   'talentos')}
+        ${this._card('cyan',    'fa-calendar-alt', totalEventos,          'Eventos na agenda',      'agenda')}
+        ${this._card('amber',   'fa-birthday-cake', aniversariantesHoje,  'Aniversariantes hoje',   'aniversarios')}
+        ${this._card('rose',    'fa-gift',         aniversariantesMes,    'Aniversariantes do mês', 'aniversarios')}
+        ${this._card('blue',    'fa-robot',        '∞',                   'Assistente IA',          'ia')}
       </div>
 
       <div style="margin-top:1.5rem;">
@@ -73,7 +74,6 @@ const Dashboard = {
      ---------------------------------------------------------- */
   _renderComunicado(m) {
     const tipo = CONFIG.MURAL.TIPOS.find((t) => t.id === m.Tipo) || CONFIG.MURAL.TIPOS[0];
-
     const prio = CONFIG.MURAL.PRIORIDADES.find((p) => p.id === m.Prioridade) || CONFIG.MURAL.PRIORIDADES[0];
 
     const data = m.DataCriacao ? new Date(m.DataCriacao) : null;
@@ -81,12 +81,8 @@ const Dashboard = {
 
     const fixado = m.Fixo === 'Sim';
 
-    // Estilo por prioridade
-    const corFundo = tipo.bg;
-    const corBorda = tipo.cor;
-
     return `
-      <div class="dash-comunicado" style="background:${corFundo};border-left-color:${corBorda};">
+      <div class="dash-comunicado" style="background:${tipo.bg};border-left-color:${tipo.cor};">
         <div class="dash-comunicado-header">
           <div class="dash-comunicado-badges">
             <span class="dash-comunicado-tipo" style="background:${tipo.cor};color:#fff;">
@@ -137,12 +133,13 @@ const Dashboard = {
   },
 
   /* ----------------------------------------------------------
-     Cards
+     Cards (clicáveis)
      ---------------------------------------------------------- */
   _card(cor, icone, valor, label, acao) {
     const onclickAttr = acao ? `onclick="Menu.navegar('${acao}')"` : '';
+    const cursorStyle = acao ? 'cursor:pointer;' : 'cursor:default;';
     return `
-      <div class="stat-card stat-${cor}" ${onclickAttr}>
+      <div class="stat-card stat-${cor}" ${onclickAttr} style="${cursorStyle}">
         <div class="stat-card-icon">
           <i class="fas ${icone}"></i>
         </div>
@@ -253,4 +250,4 @@ const Dashboard = {
 
 };
 
-console.log('%c[Dashboard] Módulo carregado (v3.0 com Mural)', 'color:#64748b;font-size:11px;');
+console.log('%c[Dashboard] Módulo carregado (v3.1 com cards clicáveis)', 'color:#64748b;font-size:11px;');

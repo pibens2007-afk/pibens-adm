@@ -1,5 +1,7 @@
 /* ============================================================
    PIBENS ADM — Módulo Testemunhos v1.0
+   ============================================================
+   © 2026 Fabio Silva dos Anjos — Todos os direitos reservados
    ============================================================ */
 
 const Testemunhos = {
@@ -7,6 +9,9 @@ const Testemunhos = {
   _dados: [],
   _filtro: 'todos', // todos | pendente | aprovado | rejeitado
 
+  /* ----------------------------------------------------------
+     RENDER PRINCIPAL
+     ---------------------------------------------------------- */
   async render() {
     const c = document.getElementById('content');
     if (!c) return;
@@ -140,6 +145,9 @@ const Testemunhos = {
     `;
   },
 
+  /* ----------------------------------------------------------
+     AÇÕES
+     ---------------------------------------------------------- */
   _filtrar(v) {
     this._filtro = v;
     this._renderTudo();
@@ -161,7 +169,7 @@ const Testemunhos = {
 
     try {
       await API.call('adminTestemunhoRejeitar', [id]);
-      UI.toast('Testemunho rejeitado', 'success');
+      UI.toast('Testemunho movido para pendente', 'success');
       this.render();
     } catch (e) {
       UI.toast('Erro: ' + e.message, 'error');
@@ -193,4 +201,4 @@ const Testemunhos = {
 
 };
 
-console.log('%c[Testemunhos] Módulo carregado', 'color:#64748b;font-size:11px;');
+console.log('%c[Testemunhos] Módulo carregado v1.0', 'color:#64748b;font-size:11px;');

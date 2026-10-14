@@ -1,7 +1,11 @@
 /* ============================================================
-   PIBENS ADM — Módulo Portal do Membro
+   PIBENS ADM — Módulo Portal do Membro v1.0
    ============================================================
-   Gerencia os acessos ao Portal do Membro
+   Gerencia os acessos ao Portal do Membro:
+   - Ver quem tem acesso
+   - Resetar senha (volta pra pibens@2026)
+   - Bloquear/desbloquear acesso
+   - Remover acesso
    ============================================================ */
 
 const PortalMembro = {
@@ -10,6 +14,9 @@ const PortalMembro = {
   _busca: '',
   _filtro: 'todos', // 'todos' | 'ativos' | 'bloqueados'
 
+  /* ----------------------------------------------------------
+     RENDER PRINCIPAL
+     ---------------------------------------------------------- */
   async render() {
     const c = document.getElementById('content');
     if (!c) return;
@@ -171,44 +178,38 @@ const PortalMembro = {
       } catch (e) {}
     }
 
-    const botaoReset = `
-      <button class="btn btn-warning btn-sm" onclick="PortalMembro.resetarSenha('${a.membro_id}')" title="Resetar senha pra pibens@2026">
-        <i class="fas fa-key"></i>
-      </button>
-    `;
-
-    const botaoBloquear = ativo
-      ? `<button class="btn btn-danger btn-sm" onclick="PortalMembro.alternarAtivo('${a.membro_id}', false)" title="Bloquear acesso">
-           <i class="fas fa-ban"></i>
-         </button>`
-      : `<button class="btn btn-success btn-sm" onclick="PortalMembro.alternarAtivo('${a.membro_id}', true)" title="Desbloquear acesso">
-           <i class="fas fa-unlock"></i>
-         </button>`;
-
-    const botaoRemover = `
-      <button class="btn btn-danger btn-sm" onclick="PortalMembro.remover('${a.membro_id}')" title="Remover acesso">
-        <i class="fas fa-trash"></i>
-      </button>
-    `;
-
     return `
       <tr>
         <td>
           <strong>${UI.escapar(a.nome || '—')}</strong>
-          <br><small style="color:#94a3b8;font-size:0.75rem;">ID: ${a.membro_id}</small>
+          <br><small style="color:#94a3b8;font-size:0.75rem;">ID: ${UI.escapar(a.membro_id)}</small>
         </td>
         <td><code style="font-size:0.85rem;">${UI.escapar(a.email || '—')}</code></td>
         <td><span class="membros-badge" style="background:${corStatus}22;color:${corStatus};">${labelStatus}</span></td>
         <td style="font-size:0.85rem;color:#64748b;">${ultimoLogin}</td>
         <td class="col-actions">
-          ${botaoReset}
-          ${botaoBloquear}
-          ${botaoRemover}
+          <button class="btn btn-warning btn-sm" onclick="PortalMembro.resetarSenha('${a.membro_id}')" title="Resetar senha pra pibens@2026">
+            <i class="fas fa-key"></i>
+          </button>
+          ${ativo
+            ? `<button class="btn btn-danger btn-sm" onclick="PortalMembro.alternarAtivo('${a.membro_id}', false)" title="Bloquear acesso">
+                 <i class="fas fa-ban"></i>
+               </button>`
+            : `<button class="btn btn-success btn-sm" onclick="PortalMembro.alternarAtivo('${a.membro_id}', true)" title="Desbloquear acesso">
+                 <i class="fas fa-unlock"></i>
+               </button>`
+          }
+          <button class="btn btn-danger btn-sm" onclick="PortalMembro.remover('${a.membro_id}')" title="Remover acesso">
+            <i class="fas fa-trash"></i>
+          </button>
         </td>
       </tr>
     `;
   },
 
+  /* ----------------------------------------------------------
+     FILTROS
+     ---------------------------------------------------------- */
   _buscar(valor) {
     this._busca = valor;
     this._renderTudo();
@@ -219,6 +220,9 @@ const PortalMembro = {
     this._renderTudo();
   },
 
+  /* ----------------------------------------------------------
+     AÇÕES
+     ---------------------------------------------------------- */
   async resetarSenha(membroId) {
     const ok = await UI.confirmar(
       'Resetar a senha deste membro para "pibens@2026"?',

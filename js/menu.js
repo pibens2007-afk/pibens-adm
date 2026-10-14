@@ -1,8 +1,8 @@
 /* ============================================================
-   PIBENS ADM — Menu / Navegação v3.1
+   PIBENS ADM — Menu / Navegação v3.3
    ============================================================
-   Novidades v3.1:
-   - Adicionado módulo Portal do Membro (Integrações)
+   Novidades v3.3:
+   - Adicionado Enquetes e Testemunhos
    ============================================================ */
 
 const Menu = {
@@ -77,6 +77,8 @@ const Menu = {
       case 'Logs':             if (typeof Logs !== 'undefined') Logs.render(); break;
       case 'IA':               if (typeof IA !== 'undefined') IA.render(); break;
       case 'PortalMembro':     if (typeof PortalMembro !== 'undefined') PortalMembro.render(); break;
+      case 'Enquetes':         if (typeof Enquetes !== 'undefined') Enquetes.render(); break;
+      case 'Testemunhos':      if (typeof Testemunhos !== 'undefined') Testemunhos.render(); break;
       default:
         const c = document.getElementById('content');
         if (c) c.innerHTML = UI.emptyState(
@@ -108,4 +110,4 @@ const Menu = {
 
 };
 
-console.log('%c[Menu] Módulo carregado (v3.1 com Portal do Membro)', 'color:#64748b;font-size:11px;');
+console.log('%c[Menu] Módulo carregado (v3.3 com Enquetes e Testemunhos)', 'color:#64748b;font-size:11px;');

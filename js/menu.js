@@ -1,5 +1,8 @@
 /* ============================================================
-   PIBENS ADM — Menu / Navegação v3.0
+   PIBENS ADM — Menu / Navegação v3.1
+   ============================================================
+   Novidades v3.1:
+   - Adicionado módulo Portal do Membro (Integrações)
    ============================================================ */
 
 const Menu = {
@@ -73,6 +76,7 @@ const Menu = {
       case 'Relatorios':       if (typeof Relatorios !== 'undefined') Relatorios.render(); break;
       case 'Logs':             if (typeof Logs !== 'undefined') Logs.render(); break;
       case 'IA':               if (typeof IA !== 'undefined') IA.render(); break;
+      case 'PortalMembro':     if (typeof PortalMembro !== 'undefined') PortalMembro.render(); break;
       default:
         const c = document.getElementById('content');
         if (c) c.innerHTML = UI.emptyState(
@@ -104,4 +108,4 @@ const Menu = {
 
 };
 
-console.log('%c[Menu] Módulo carregado (v3.0 com Mural)', 'color:#64748b;font-size:11px;');
+console.log('%c[Menu] Módulo carregado (v3.1 com Portal do Membro)', 'color:#64748b;font-size:11px;');

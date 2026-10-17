@@ -1,26 +1,7 @@
 /* ============================================================
    PIBENS ADM — Configurações Globais
-   ============================================================
-   
-   © 2026 PIBENS ADM — Todos os direitos reservados
-   
-   Autor: Fabio Silva dos Anjos
-   Contato: fabio110386@gmail.com
-   Hash de autoria: a7f3e9b2c4d5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1
-   Data de criação: 14 de outubro de 2026
-   
-   ⚠️ AVISO LEGAL
-   Este código-fonte é propriedade intelectual protegida.
-   O uso, cópia, modificação ou distribuição não autorizada
-   é expressamente proibida e sujeita às penalidades da
-   Lei nº 9.609/98 (Lei do Software) e Lei nº 9.610/98
-   (Lei de Direitos Autorais).
-   
    ============================================================ */
 
-// ═══════════════════════════════════════════════════════════
-// MARCA DE AUTORIA — NÃO REMOVER
-// ═══════════════════════════════════════════════════════════
 const _AUTORIA_PIBENS_ADM_ = Object.freeze({
   autor:    'Fabio Silva dos Anjos',
   email:    'fabio110386@gmail.com',
@@ -34,25 +15,8 @@ function _assinaturaAutoralPibensAdm2026_Fabio() {
   return 'PIBENS ADM © 2026 Fabio Silva dos Anjos — Hash: a7f3e9b2';
 }
 
-console.log(
-  '%c⚠️ CÓDIGO PROTEGIDO',
-  'color:#dc2626;font-size:22px;font-weight:900;text-shadow:1px 1px 3px rgba(0,0,0,0.3);'
-);
-console.log(
-  '%c' +
-  '© 2026 PIBENS ADM — Todos os direitos reservados\n' +
-  'Desenvolvido por: Fabio Silva dos Anjos\n' +
-  'Contato: fabio110386@gmail.com\n' +
-  'Hash de autoria: a7f3e9b2c4d5f6a7...\n' +
-  '\n' +
-  'Este código é propriedade intelectual protegida.\n' +
-  'O uso não autorizado é proibido por lei.',
-  'color:#475569;font-size:13px;line-height:1.7;font-family:monospace;'
-);
-
-// ═══════════════════════════════════════════════════════════
-// CONFIGURAÇÕES DO APP
-// ═══════════════════════════════════════════════════════════
+console.log('%c⚠️ CÓDIGO PROTEGIDO', 'color:#dc2626;font-size:22px;font-weight:900;text-shadow:1px 1px 3px rgba(0,0,0,0.3);');
+console.log('%c© 2026 PIBENS ADM — Todos os direitos reservados\nDesenvolvido por: Fabio Silva dos Anjos\nContato: fabio110386@gmail.com\nHash de autoria: a7f3e9b2c4d5f6a7...\n\nEste código é propriedade intelectual protegida.\nO uso não autorizado é proibido por lei.', 'color:#475569;font-size:13px;line-height:1.7;font-family:monospace;');
 
 const CONFIG = {
 
@@ -65,7 +29,7 @@ const CONFIG = {
   APP_NAME: 'PIBENS ADM',
   APP_SHORT_NAME: 'PIBENS',
   APP_TAGLINE: 'Gestão eclesiástica com inteligência',
-  APP_VERSION: '3.3.0',
+  APP_VERSION: '3.6.0',
 
   TABELAS: {
     MEMBROS:      'Membros',
@@ -248,7 +212,8 @@ const CONFIG = {
     {
       secao: 'Pastoral',
       itens: [
-        { id: 'discipulado', label: 'Discipulado',  icon: 'fa-seedling',        modulo: 'Discipulado' }
+        { id: 'discipulado',    label: 'Discipulado',       icon: 'fa-seedling',      modulo: 'Discipulado' },
+        { id: 'pedidos-oracao', label: 'Pedidos de Oração', icon: 'fa-praying-hands', modulo: 'PedidosOracao' }
       ]
     },
     {
@@ -284,8 +249,7 @@ const CONFIG = {
   DIAS_SEMANA: ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'],
   DIAS_SEMANA_ABREV: ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'],
 
-  MESES: ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
-          'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'],
+  MESES: ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'],
 
   FINANCEIRO: {
     CORES_CATEGORIA: {

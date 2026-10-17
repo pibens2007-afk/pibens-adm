@@ -1,8 +1,5 @@
 /* ============================================================
-   PIBENS ADM — Menu / Navegação v3.3
-   ============================================================
-   Novidades v3.3:
-   - Adicionado Enquetes e Testemunhos
+   PIBENS ADM — Menu / Navegação v3.4
    ============================================================ */
 
 const Menu = {
@@ -73,6 +70,7 @@ const Menu = {
       case 'Presenca':         if (typeof Presenca !== 'undefined') Presenca.render(); break;
       case 'Escalas':          if (typeof Escalas !== 'undefined') Escalas.render(); break;
       case 'Discipulado':      if (typeof Discipulado !== 'undefined') Discipulado.render(); break;
+      case 'PedidosOracao':    if (typeof PedidosOracao !== 'undefined') PedidosOracao.render(); break;
       case 'Relatorios':       if (typeof Relatorios !== 'undefined') Relatorios.render(); break;
       case 'Logs':             if (typeof Logs !== 'undefined') Logs.render(); break;
       case 'IA':               if (typeof IA !== 'undefined') IA.render(); break;
@@ -110,4 +108,4 @@ const Menu = {
 
 };
 
-console.log('%c[Menu] Módulo carregado (v3.3 com Enquetes e Testemunhos)', 'color:#64748b;font-size:11px;');
+console.log('%c[Menu] Módulo carregado v3.4', 'color:#64748b;font-size:11px;');

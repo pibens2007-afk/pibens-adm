@@ -3341,3 +3341,14 @@ body {
   white-space:nowrap;
   flex-shrink:0;
 }
+/* ============================================================
+   Efeito hover nos banners do Dashboard
+   ============================================================ */
+.banner[onclick] {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.banner[onclick]:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}

@@ -1,8 +1,9 @@
 /* ============================================================
-   PIBENS ADM — Módulo Dashboard v3.1
+   PIBENS ADM — Módulo Dashboard v3.2
    ============================================================
-   Novidades desta versão:
-   - Cards de aniversariantes agora são CLICÁVEIS
+   Novidades:
+   - Cards de aniversariantes clicáveis
+   - Banners do topo clicáveis (Aniversariantes e CBB)
    - Comunicado do Mural em destaque
    ============================================================ */
 
@@ -207,7 +208,7 @@ const Dashboard = {
   },
 
   /* ----------------------------------------------------------
-     Banners (topo do app)
+     Banners (topo do app) — AGORA CLICÁVEIS
      ---------------------------------------------------------- */
   _renderBanners(info) {
     const wrap = document.getElementById('banners');
@@ -215,9 +216,10 @@ const Dashboard = {
 
     const temAniversariante = info.birthdays && info.birthdays.length > 0;
 
+    // Banner de Aniversariantes (clica e vai pra tela de aniversariantes)
     const birthHtml = temAniversariante
       ? `
-        <div class="banner banner-warning">
+        <div class="banner banner-warning" onclick="Menu.navegar('aniversarios')" style="cursor:pointer;" title="Ver todos os aniversariantes">
           <div class="banner-icon"><i class="fas fa-birthday-cake"></i></div>
           <div class="banner-content">
             <div class="banner-title">ANIVERSARIANTE(S) DO DIA</div>
@@ -226,7 +228,7 @@ const Dashboard = {
         </div>
       `
       : `
-        <div class="banner banner-neutral">
+        <div class="banner banner-neutral" onclick="Menu.navegar('aniversarios')" style="cursor:pointer;" title="Ver aniversariantes">
           <div class="banner-icon"><i class="fas fa-calendar-day"></i></div>
           <div class="banner-content">
             <div class="banner-title">ANIVERSARIANTES DE HOJE</div>
@@ -235,8 +237,9 @@ const Dashboard = {
         </div>
       `;
 
+    // Banner do Calendário CBB (clica e vai pra Agenda)
     const baptistHtml = `
-      <div class="banner banner-primary">
+      <div class="banner banner-primary" onclick="Menu.navegar('agenda')" style="cursor:pointer;" title="Ver agenda da igreja">
         <div class="banner-icon"><i class="fas fa-bookmark"></i></div>
         <div class="banner-content">
           <div class="banner-title">CALENDÁRIO BATISTA CBB</div>
@@ -250,4 +253,4 @@ const Dashboard = {
 
 };
 
-console.log('%c[Dashboard] Módulo carregado (v3.1 com cards clicáveis)', 'color:#64748b;font-size:11px;');
+console.log('%c[Dashboard] Módulo carregado (v3.2 com banners clicáveis)', 'color:#64748b;font-size:11px;');

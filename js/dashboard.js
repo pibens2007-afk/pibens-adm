@@ -1,5 +1,9 @@
 /* ============================================================
-   PIBENS ADM — Módulo Dashboard / Início v3.0
+   PIBENS ADM — Módulo Dashboard / Início v3.1
+   ============================================================
+   - Cards espaçados com CSS Grid
+   - Cards clicáveis (levam aos módulos)
+   - Aniversariantes do mês corrigidos
    ============================================================ */
 
 const Dashboard = {
@@ -11,12 +15,12 @@ const Dashboard = {
     c.innerHTML = UI.loading('Carregando painel...');
 
     try {
-      // 1. Busca todos os dados necessários de uma vez
+      // 1. Busca todos os dados necessários
       const [membros, talentos, agenda, aniversariantes] = await Promise.all([
         API.listar(CONFIG.TABELAS.MEMBROS),
         API.listar(CONFIG.TABELAS.TALENTOS),
         API.listar(CONFIG.TABELAS.AGENDA),
-        API.banners() // Puxa os aniversariantes do dia
+        API.banners() 
       ]);
 
       // 2. Calcula os totais
@@ -24,11 +28,11 @@ const Dashboard = {
       const totalTalentos = (talentos || []).length;
       const totalEventos = (agenda || []).length;
 
-      // 3. Verifica se tem aniversariante hoje
+      // 3. Aniversariantes de hoje
       const temAniversariante = aniversariantes.birthdays && aniversariantes.birthdays.length > 0;
       const nomesAniversariantes = temAniversariante ? aniversariantes.birthdays.join(', ') : 'Nenhum membro faz aniversário hoje';
 
-      // 4. Conta aniversariantes do mês
+      // 4. Aniversariantes do mês
       const mesAtual = new Date().getMonth() + 1;
       let totalAniversariantesMes = 0;
       (membros || []).forEach(m => {
@@ -41,88 +45,135 @@ const Dashboard = {
         }
       });
 
-      // 5. Renderiza a tela
+      // 5. Renderiza a tela com CSS Grid (flexível) e botões clicáveis
       c.innerHTML = `
+        <style>
+          .dash-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+          }
+          .dash-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            border: 1px solid #E2E8F0;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+          }
+          .dash-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+          }
+          .dash-card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 16px;
+          }
+          .dash-card-number {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1e293b;
+            line-height: 1;
+            margin-bottom: 8px;
+          }
+          .dash-card-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            margin-top: auto;
+          }
+        </style>
+
+        <!-- BANNERS DO TOPO -->
         <div style="display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap;">
           
-          <!-- Card de Aniversariantes de Hoje -->
           <div class="data-card" style="flex: 1; min-width: 300px; display: flex; align-items: center; gap: 16px; padding: 20px;">
             <div style="width: 48px; height: 48px; border-radius: 12px; background: ${temAniversariante ? '#fee2e2' : '#f1f5f9'}; display: flex; align-items: center; justify-content: center; font-size: 20px; color: ${temAniversariante ? '#dc2626' : '#94a3b8'};">
               <i class="fas fa-birthday-cake"></i>
             </div>
             <div>
-              <h3 style="font-size: 13px; font-weight: 800; color: #64748b; margin: 0 0 4px 0; text-transform: uppercase;">Aniversariantes de Hoje</h3>
+              <h3 style="font-size: 12px; font-weight: 800; color: #64748b; margin: 0 0 4px 0; text-transform: uppercase;">Aniversariantes de Hoje</h3>
               <p style="font-size: 15px; font-weight: 600; color: #1e293b; margin: 0;">${nomesAniversariantes}</p>
             </div>
           </div>
 
-          <!-- Card do Calendário Batista -->
           <div style="flex: 1; min-width: 300px; background: linear-gradient(135deg, #2563eb, #7c3aed); border-radius: 16px; padding: 20px; color: white; display: flex; align-items: center; gap: 16px;">
             <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 20px;">
               <i class="fas fa-bookmark"></i>
             </div>
             <div>
-              <h3 style="font-size: 13px; font-weight: 800; color: rgba(255,255,255,0.8); margin: 0 0 4px 0; text-transform: uppercase;">Calendário Batista CBB</h3>
+              <h3 style="font-size: 12px; font-weight: 800; color: rgba(255,255,255,0.8); margin: 0 0 4px 0; text-transform: uppercase;">Calendário Batista CBB</h3>
               <p style="font-size: 15px; font-weight: 600; margin: 0;">${aniversariantes.baptistDates || 'Disponível'}</p>
             </div>
           </div>
 
         </div>
 
-        <div class="membros-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <!-- GRID DE CARDS -->
+        <div class="dash-grid">
           
           <!-- Membros -->
-          <div class="membros-stat" style="padding: 24px;">
-            <div style="width: 44px; height: 44px; border-radius: 12px; background: #e0e7ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 12px;">
+          <div class="dash-card" onclick="Menu.navegar('membros')">
+            <div class="dash-card-icon" style="background: #e0e7ff; color: #4f46e5;">
               <i class="fas fa-users"></i>
             </div>
-            <span class="membros-stat-value" style="font-size: 32px; font-weight: 800; color: #1e293b; display: block; line-height: 1;">${totalMembros}</span>
-            <span class="membros-stat-label" style="font-size: 13px; color: #64748b; font-weight: 600; margin-top: 4px; display: block;">Membros cadastrados</span>
+            <div class="dash-card-number">${totalMembros}</div>
+            <div class="dash-card-label">Membros cadastrados</div>
           </div>
 
           <!-- Talentos -->
-          <div class="membros-stat" style="padding: 24px;">
-            <div style="width: 44px; height: 44px; border-radius: 12px; background: #ede9fe; color: #7c3aed; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 12px;">
+          <div class="dash-card" onclick="Menu.navegar('talentos')">
+            <div class="dash-card-icon" style="background: #ede9fe; color: #7c3aed;">
               <i class="fas fa-star"></i>
             </div>
-            <span class="membros-stat-value" style="font-size: 32px; font-weight: 800; color: #1e293b; display: block; line-height: 1;">${totalTalentos}</span>
-            <span class="membros-stat-label" style="font-size: 13px; color: #64748b; font-weight: 600; margin-top: 4px; display: block;">Talentos registrados</span>
+            <div class="dash-card-number">${totalTalentos}</div>
+            <div class="dash-card-label">Talentos registrados</div>
           </div>
 
           <!-- Agenda -->
-          <div class="membros-stat" style="padding: 24px;">
-            <div style="width: 44px; height: 44px; border-radius: 12px; background: #cffafe; color: #0891b2; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 12px;">
+          <div class="dash-card" onclick="Menu.navegar('agenda')">
+            <div class="dash-card-icon" style="background: #cffafe; color: #0891b2;">
               <i class="fas fa-calendar-alt"></i>
             </div>
-            <span class="membros-stat-value" style="font-size: 32px; font-weight: 800; color: #1e293b; display: block; line-height: 1;">${totalEventos}</span>
-            <span class="membros-stat-label" style="font-size: 13px; color: #64748b; font-weight: 600; margin-top: 4px; display: block;">Eventos na agenda</span>
+            <div class="dash-card-number">${totalEventos}</div>
+            <div class="dash-card-label">Eventos na agenda</div>
           </div>
 
           <!-- Aniversariantes Hoje -->
-          <div class="membros-stat" style="padding: 24px;">
-            <div style="width: 44px; height: 44px; border-radius: 12px; background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 12px;">
+          <div class="dash-card" onclick="Menu.navegar('aniversarios')">
+            <div class="dash-card-icon" style="background: #fef3c7; color: #d97706;">
               <i class="fas fa-birthday-cake"></i>
             </div>
-            <span class="membros-stat-value" style="font-size: 32px; font-weight: 800; color: #1e293b; display: block; line-height: 1;">${temAniversariante ? aniversariantes.birthdays.length : 0}</span>
-            <span class="membros-stat-label" style="font-size: 13px; color: #64748b; font-weight: 600; margin-top: 4px; display: block;">Aniversariantes hoje</span>
+            <div class="dash-card-number">${temAniversariante ? aniversariantes.birthdays.length : 0}</div>
+            <div class="dash-card-label">Aniversariantes hoje</div>
           </div>
 
           <!-- Aniversariantes do Mês -->
-          <div class="membros-stat" style="padding: 24px;">
-            <div style="width: 44px; height: 44px; border-radius: 12px; background: #ffe4e6; color: #e11d48; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 12px;">
+          <div class="dash-card" onclick="Menu.navegar('aniversarios')">
+            <div class="dash-card-icon" style="background: #ffe4e6; color: #e11d48;">
               <i class="fas fa-gift"></i>
             </div>
-            <span class="membros-stat-value" style="font-size: 32px; font-weight: 800; color: #1e293b; display: block; line-height: 1;">${totalAniversariantesMes}</span>
-            <span class="membros-stat-label" style="font-size: 13px; color: #64748b; font-weight: 600; margin-top: 4px; display: block;">Aniversariantes do mês</span>
+            <div class="dash-card-number">${totalAniversariantesMes}</div>
+            <div class="dash-card-label">Aniversariantes do mês</div>
           </div>
 
-          <!-- IA -->
-          <div class="membros-stat" style="padding: 24px;">
-            <div style="width: 44px; height: 44px; border-radius: 12px; background: #dbeafe; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 12px;">
+          <!-- Assistente IA -->
+          <div class="dash-card" onclick="Menu.navegar('ia')">
+            <div class="dash-card-icon" style="background: #dbeafe; color: #2563eb;">
               <i class="fas fa-robot"></i>
             </div>
-            <span class="membros-stat-value" style="font-size: 32px; font-weight: 800; color: #1e293b; display: block; line-height: 1;">∞</span>
-            <span class="membros-stat-label" style="font-size: 13px; color: #64748b; font-weight: 600; margin-top: 4px; display: block;">Assistente IA</span>
+            <div class="dash-card-number">∞</div>
+            <div class="dash-card-label">Assistente IA</div>
           </div>
 
         </div>
@@ -144,4 +195,4 @@ const Dashboard = {
 
 };
 
-console.log('%c[Dashboard] Módulo carregado v3.0', 'color:#64748b;font-size:11px;');
+console.log('%c[Dashboard] Módulo carregado v3.1', 'color:#64748b;font-size:11px;');

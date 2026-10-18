@@ -1,5 +1,5 @@
 /* ============================================================
-   PIBENS ADM — Menu / Navegação v3.4
+   PIBENS ADM — Menu / Navegação v3.5
    ============================================================ */
 
 const Menu = {
@@ -62,6 +62,7 @@ const Menu = {
     switch (modulo) {
       case 'Dashboard':        if (typeof Dashboard !== 'undefined') Dashboard.render(); break;
       case 'Mural':            if (typeof Mural !== 'undefined') Mural.render(); break;
+      case 'Calendario':       if (typeof Calendario !== 'undefined') Calendario.render(); break;
       case 'Aniversariantes':  if (typeof Aniversariantes !== 'undefined') Aniversariantes.render(); break;
       case 'Membros':          if (typeof Membros !== 'undefined') Membros.render(); break;
       case 'BancoTalentos':    if (typeof Talentos !== 'undefined') Talentos.render(); break;
@@ -79,10 +80,7 @@ const Menu = {
       case 'Testemunhos':      if (typeof Testemunhos !== 'undefined') Testemunhos.render(); break;
       default:
         const c = document.getElementById('content');
-        if (c) c.innerHTML = UI.emptyState(
-          'Módulo em construção',
-          `O módulo "${modulo}" será implementado em breve.`
-        );
+        if (c) c.innerHTML = UI.emptyState('Módulo em construção', `O módulo "${modulo}" será implementado em breve.`);
     }
 
     try { localStorage.setItem('pibens_adm_ultima_pagina', id); } catch (e) {}
@@ -108,4 +106,4 @@ const Menu = {
 
 };
 
-console.log('%c[Menu] Módulo carregado v3.4', 'color:#64748b;font-size:11px;');
+console.log('%c[Menu] Módulo carregado v3.5', 'color:#64748b;font-size:11px;');

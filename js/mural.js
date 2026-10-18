@@ -1,22 +1,12 @@
 /* ============================================================
-   PIBENS ADM — Módulo Mural de Comunicados
-   ============================================================
-   Funcionalidades:
-   - Criar comunicado (título, mensagem, tipo, prioridade)
-   - Fixar 1 comunicado no topo
-   - Editar, remover
-   - Visualização com cores por tipo
-   - Aparece em destaque no Dashboard
+   PIBENS ADM — Módulo Mural v3.0
    ============================================================ */
 
 const Mural = {
 
   _dados: [],
-  _filtroTipo: '',
+  _filtroTipo: 'todos',
 
-  /* ==========================================================
-     RENDER PRINCIPAL
-     ========================================================== */
   async render() {
     const c = document.getElementById('content');
     if (!c) return;
@@ -26,25 +16,8 @@ const Mural = {
     try {
       const dados = await API.listar(CONFIG.TABELAS.MURAL);
       this._dados = dados || [];
-
-      // Ordena: fixo primeiro, depois prioridade, depois data
-      this._dados.sort((a, b) => {
-        const fixoA = (a && a.Fixo === 'Sim') ? 1 : 0;
-        const fixoB = (b && b.Fixo === 'Sim') ? 1 : 0;
-        if (fixoA !== fixoB) return fixoB - fixoA;
-
-        const ordemA = this._ordemPrioridade(a ? a.Prioridade : '');
-        const ordemB = this._ordemPrioridade(b ? b.Prioridade : '');
-        if (ordemA !== ordemB) return ordemB - ordemA;
-
-        const idA = (a && a.sheetRowIndex) ? Number(a.sheetRowIndex) : 0;
-        const idB = (b && b.sheetRowIndex) ? Number(b.sheetRowIndex) : 0;
-        return idB - idA;
-      });
-
       this._renderTudo();
     } catch (e) {
-      console.error('[Mural] Erro:', e);
       c.innerHTML = `
         <div class="empty-state">
           <div class="empty-state-icon" style="color:#dc2626;"><i class="fas fa-exclamation-triangle"></i></div>
@@ -58,346 +31,217 @@ const Mural = {
     }
   },
 
-  _ordemPrioridade(p) {
-    const found = CONFIG.MURAL.PRIORIDADES.find((x) => x.id === p);
-    return found ? found.ordem : 0;
-  },
-
-  /* ==========================================================
-     RENDER DA TELA COMPLETA
-     ========================================================== */
   _renderTudo() {
     const c = document.getElementById('content');
-    if (!c) return;
 
-    // ✅ CORREÇÃO: usa _filtrarLista() em vez de _filtrar()
-    const filtrados = this._filtrarLista();
+    let lista = [...this._dados];
+    if (this._filtroTipo !== 'todos') {
+      lista = lista.filter(a => a.Tipo === this._filtroTipo);
+    }
 
-    // Stats
     const total = this._dados.length;
-    const urgentes = this._dados.filter((m) => m.Prioridade === 'Urgente').length;
-    const fixos = this._dados.filter((m) => m.Fixo === 'Sim').length;
-    const hoje = this._dados.filter((m) => {
-      if (!m.DataCriacao) return false;
-      return m.DataCriacao.substring(0, 10) === new Date().toISOString().substring(0, 10);
-    }).length;
+    const fixados = this._dados.filter(a => a.Fixo === 'Sim').length;
+    
+    // Conta os de hoje
+    const hojeStr = new Date().toISOString().split('T')[0];
+    const hoje = this._dados.filter(a => (a.criado_em || '').startsWith(hojeStr)).length;
 
     c.innerHTML = `
-      <div class="mural-header">
-        <div class="mural-header-info">
-          <h1 class="mural-titulo">📢 Mural de Comunicados</h1>
-          <p class="mural-subtitulo">Escreva uma mensagem que todos os membros vão ver</p>
-        </div>
-        <button class="btn btn-primary btn-lg" onclick="Mural.novo()">
-          <i class="fas fa-plus"></i> Novo Comunicado
-        </button>
-      </div>
-
-      <div class="mural-stats">
-        <div class="mural-stat">
-          <div class="mural-stat-icon" style="background:#2563eb22;color:#2563eb;">
-            <i class="fas fa-bullhorn"></i>
-          </div>
+      <div class="membros-stats">
+        <div class="membros-stat">
+          <i class="fas fa-bullhorn" style="color:#2563eb;"></i>
           <div>
-            <span class="mural-stat-value">${total}</span>
-            <span class="mural-stat-label">Comunicados</span>
+            <span class="membros-stat-value">${total}</span>
+            <span class="membros-stat-label">Comunicados</span>
           </div>
         </div>
-        <div class="mural-stat">
-          <div class="mural-stat-icon" style="background:#dc262222;color:#dc2626;">
-            <i class="fas fa-bell"></i>
-          </div>
+        <div class="membros-stat">
+          <i class="fas fa-exclamation-circle" style="color:#dc2626;"></i>
           <div>
-            <span class="mural-stat-value">${urgentes}</span>
-            <span class="mural-stat-label">Urgentes</span>
+            <span class="membros-stat-value">${this._dados.filter(a => a.Tipo === 'Urgente').length}</span>
+            <span class="membros-stat-label">Urgentes</span>
           </div>
         </div>
-        <div class="mural-stat">
-          <div class="mural-stat-icon" style="background:#f59e0b22;color:#f59e0b;">
-            <i class="fas fa-thumbtack"></i>
-          </div>
+        <div class="membros-stat">
+          <i class="fas fa-thumbtack" style="color:#F59E0B;"></i>
           <div>
-            <span class="mural-stat-value">${fixos}</span>
-            <span class="mural-stat-label">Fixado(s)</span>
+            <span class="membros-stat-value">${fixados}</span>
+            <span class="membros-stat-label">Fixado(s)</span>
           </div>
         </div>
-        <div class="mural-stat">
-          <div class="mural-stat-icon" style="background:#05966922;color:#059669;">
-            <i class="fas fa-calendar-day"></i>
-          </div>
+        <div class="membros-stat">
+          <i class="fas fa-calendar-check" style="color:#059669;"></i>
           <div>
-            <span class="mural-stat-value">${hoje}</span>
-            <span class="mural-stat-label">Hoje</span>
+            <span class="membros-stat-value">${hoje}</span>
+            <span class="membros-stat-label">Hoje</span>
           </div>
         </div>
       </div>
 
-      <div class="mural-filtros">
-        <button class="mural-filtro ${this._filtroTipo === '' ? 'active' : ''}" onclick="Mural._trocarFiltro('')">
-          <i class="fas fa-list"></i> Todos
-        </button>
-        ${CONFIG.MURAL.TIPOS.map((t) => `
-          <button class="mural-filtro ${this._filtroTipo === t.id ? 'active' : ''}" onclick="Mural._trocarFiltro('${t.id}')" style="${this._filtroTipo === t.id ? 'background:' + t.cor + ';color:#fff;' : ''}">
-            <i class="fas ${t.icon}"></i> ${t.nome}
+      <div class="membros-toolbar">
+        <div style="flex:1;"></div>
+        <div class="membros-filtros">
+          <button class="btn btn-success" onclick="Mural.novo()">
+            <i class="fas fa-plus"></i> Novo Comunicado
           </button>
-        `).join('')}
+        </div>
       </div>
 
-      ${filtrados.length === 0 ? UI.emptyState(
+      ${lista.length === 0 ? UI.emptyState(
         'Nenhum comunicado',
-        this._filtroTipo ? 'Nenhum comunicado deste tipo.' : 'Escreva o primeiro comunicado para a igreja.',
-        `<button class="btn btn-primary btn-lg" onclick="Mural.novo()">
-           <i class="fas fa-plus"></i> Novo comunicado
-         </button>`
-      ) : this._renderLista(filtrados)}
+        'Crie o primeiro aviso para a igreja.',
+        `<button class="btn btn-success btn-lg" onclick="Mural.novo()"><i class="fas fa-plus"></i> Criar aviso</button>`
+      ) : lista.map(a => this._renderCard(a)).join('')}
     `;
   },
 
-  /* ==========================================================
-     TROCAR FILTRO (ação do usuário)
-     ========================================================== */
-  _trocarFiltro(tipo) {
-    this._filtroTipo = tipo || '';
-    this._renderTudo();
-  },
-
-  /* ==========================================================
-     FILTRAR LISTA (retorna array filtrado — NÃO re-renderiza)
-     ========================================================== */
-  _filtrarLista() {
-    if (!this._filtroTipo) return this._dados;
-    return this._dados.filter((m) => m.Tipo === this._filtroTipo);
-  },
-
-  /* ==========================================================
-     LISTA DE COMUNICADOS
-     ========================================================== */
-  _renderLista(dados) {
-    const cards = dados.map((m) => this._renderCard(m)).join('');
-    return `<div class="mural-lista">${cards}</div>`;
-  },
-
-  _renderCard(m) {
-    const tipo = CONFIG.MURAL.TIPOS.find((t) => t.id === m.Tipo) || CONFIG.MURAL.TIPOS[0];
-    const prio = CONFIG.MURAL.PRIORIDADES.find((p) => p.id === m.Prioridade) || CONFIG.MURAL.PRIORIDADES[0];
-
-    const fixo = m.Fixo === 'Sim';
-    const data = m.DataCriacao ? new Date(m.DataCriacao) : null;
-    const dataTexto = data ? this._tempoRelativo(data) : '—';
-
-    const expirado = m.DataExpira && new Date(m.DataExpira) < new Date();
+  _renderCard(a) {
+    const tipos = CONFIG.MURAL.TIPOS;
+    const cfg = tipos.find(t => t.id === a.Tipo) || tipos[0];
+    const fixado = a.Fixo === 'Sim';
+    
+    const dataFormatada = a.criado_em ? new Date(a.criado_em).toLocaleDateString('pt-BR', {day: '2-digit', month: 'short'}) : '--';
+    
+    // O linkify local para a tabela do ADM
+    const mensagemFormatada = a.Mensagem.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color:#2563eb;text-decoration:underline;word-break:break-all;">$1</a>');
 
     return `
-      <div class="mural-card ${fixo ? 'mural-card-fixo' : ''} ${expirado ? 'mural-card-expirado' : ''}" style="border-left-color:${tipo.cor};">
-        <div class="mural-card-header">
-          <div class="mural-card-badges">
-            <span class="mural-card-tipo" style="background:${tipo.bg};color:${tipo.cor};">
-              <i class="fas ${tipo.icon}"></i> ${tipo.nome}
+      <div class="data-card" style="padding:16px;margin-bottom:12px;border-left:4px solid ${cfg.cor}; background:${fixado ? cfg.bg : '#fff'}">
+        
+        <div style="display:flex;gap:6px;margin-bottom:12px;">
+          <span style="background:${cfg.cor};color:#fff;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:800;">
+            ${cfg.icon} ${cfg.nome.toUpperCase()}
+          </span>
+          ${fixado ? `
+            <span style="background:#fff;color:${cfg.cor};border:1.5px solid ${cfg.cor};padding:4px 10px;border-radius:20px;font-size:10px;font-weight:800;">
+              📌 FIXADO
             </span>
-            ${m.Prioridade && m.Prioridade !== 'Normal' ? `
-              <span class="mural-card-prio" style="background:${prio.cor}22;color:${prio.cor};">
-                ${m.Prioridade}
-              </span>
-            ` : ''}
-            ${fixo ? `
-              <span class="mural-card-fixo-badge">
-                <i class="fas fa-thumbtack"></i> FIXADO
-              </span>
-            ` : ''}
-            ${expirado ? `
-              <span class="mural-card-expirado-badge">
-                <i class="fas fa-clock"></i> Expirado
-              </span>
-            ` : ''}
-          </div>
-          <div class="mural-card-acoes">
-            <button class="btn btn-sm btn-warning" onclick="Mural.editar(${m.sheetRowIndex})" title="Editar">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button class="btn btn-sm btn-danger" onclick="Mural.remover(${m.sheetRowIndex})" title="Remover">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
+          ` : ''}
         </div>
 
-        <h3 class="mural-card-titulo">${UI.escapar(m.Titulo || 'Sem título')}</h3>
-        <div class="mural-card-mensagem">${UI.escapar(m.Mensagem || '')}</div>
+        <h3 style="color:${fixado ? cfg.cor : '#1F2937'}; margin:0 0 8px 0; font-size:16px;">${UI.escapar(a.Titulo)}</h3>
+        
+        <p style="color:#4B5563;font-size:14px;line-height:1.6;margin-bottom:16px;">
+          ${mensagemFormatada}
+        </p>
 
-        <div class="mural-card-footer">
-          <div class="mural-card-meta">
-            ${m.Autor ? `<span><i class="fas fa-user"></i> ${UI.escapar(m.Autor)}</span>` : ''}
-            <span><i class="fas fa-clock"></i> ${dataTexto}</span>
-            ${m.DataExpira ? `<span><i class="fas fa-hourglass-end"></i> Expira: ${UI.dataBR(m.DataExpira)}</span>` : ''}
+        <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #E5E7EB;padding-top:12px;">
+          <div style="display:flex;gap:12px;color:#9CA3AF;font-size:12px;">
+            <span><i class="fas fa-user"></i> ${UI.escapar(a.Autor || 'Liderança')}</span>
+            <span><i class="fas fa-clock"></i> ${dataFormatada}</span>
           </div>
-          <button class="btn btn-sm btn-neutral" onclick="Mural.toggleFixo(${m.sheetRowIndex})">
-            <i class="fas fa-thumbtack"></i> ${fixo ? 'Desafixar' : 'Fixar'}
-          </button>
+          
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-warning btn-sm" onclick="Mural.editar('${a.sheetRowIndex}')" title="Editar">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-danger btn-sm" onclick="Mural.remover('${a.sheetRowIndex}')" title="Apagar">
+              <i class="fas fa-trash"></i>
+            </button>
+            ${fixado ? `
+              <button class="btn btn-neutral btn-sm" onclick="Mural.desafixar('${a.sheetRowIndex}')" style="margin-left:8px; font-size:11px;">
+                <i class="fas fa-thumbtack"></i> Desafixar
+              </button>
+            ` : ''}
+          </div>
         </div>
       </div>
     `;
   },
 
-  _tempoRelativo(data) {
-    const agora = new Date();
-    const diff = agora - data;
-    const min = Math.floor(diff / 60000);
-    const horas = Math.floor(diff / 3600000);
-    const dias = Math.floor(diff / 86400000);
-
-    if (min < 1) return 'Agora mesmo';
-    if (min < 60) return `${min} min atrás`;
-    if (horas < 24) return `${horas}h atrás`;
-    if (dias < 7) return `${dias} dia(s) atrás`;
-
-    const dia = String(data.getDate()).padStart(2, '0');
-    const mes = String(data.getMonth() + 1).padStart(2, '0');
-    const ano = data.getFullYear();
-    return `${dia}/${mes}/${ano}`;
-  },
-
-  /* ==========================================================
-     NOVO / EDITAR
-     ========================================================== */
-  novo() {
-    this._abrirForm(null);
-  },
-
+  novo() { this._abrirForm(null); },
+  
   editar(id) {
-    const m = this._dados.find((x) => x.sheetRowIndex == id);
-    if (m) this._abrirForm(m);
+    const aviso = this._dados.find(a => a.sheetRowIndex == id);
+    if (aviso) this._abrirForm(aviso);
   },
 
-  _abrirForm(item) {
-    const ehEdicao = !!item;
-
-    // Pega nome do usuário logado pra preencher Autor
-    let autorPadrao = '';
+  async desafixar(id) {
+    const aviso = this._dados.find(a => a.sheetRowIndex == id);
+    if(!aviso) return;
+    
+    // Atualiza o Fixo para Não
+    aviso.Fixo = 'Não';
     try {
-      const u = localStorage.getItem('pibens_adm_usuario');
-      if (u) autorPadrao = JSON.parse(u).nome || '';
-    } catch (e) { /* ignora */ }
+      await API.salvar(CONFIG.TABELAS.MURAL, aviso, id);
+      UI.toast('Aviso desafixado', 'success');
+      this.render();
+    } catch (e) {
+      UI.toast('Erro: ' + e.message, 'error');
+    }
+  },
 
-    const valor = (campo, padrao = '') => item ? (item[campo] || '') : padrao;
-    const isDate = (v) => v ? UI.dataInput(v) : '';
-
+  _abrirForm(aviso) {
+    const ehEdicao = !!aviso;
+    const tipos = CONFIG.MURAL.TIPOS.map(t => `<option value="${t.id}" ${aviso?.Tipo === t.id ? 'selected' : ''}>${t.nome}</option>`).join('');
+    
     const html = `
-      <div class="mural-form">
-        <div class="mural-form-group">
+      <div class="form-secao">
+        <div class="form-group">
           <label class="form-label form-label-required">Título</label>
-          <input type="text" id="mural-titulo" class="form-input" 
-                 value="${UI.escapar(valor('Titulo'))}" 
-                 placeholder="Ex: Culto de Missões neste domingo" maxlength="100">
+          <input class="form-input" id="mur-titulo" value="${aviso?.Titulo || ''}" placeholder="Ex: Culto de Natal">
         </div>
-
-        <div class="mural-form-group">
+        
+        <div class="form-group">
           <label class="form-label form-label-required">Mensagem</label>
-          <textarea id="mural-mensagem" class="form-textarea" rows="5" 
-                    placeholder="Escreva aqui o comunicado para os membros...">${UI.escapar(valor('Mensagem'))}</textarea>
+          <textarea class="form-textarea" id="mur-mensagem" rows="4" placeholder="Escreva os detalhes do aviso...">${aviso?.Mensagem || ''}</textarea>
         </div>
 
-        <div class="mural-form-linha">
-          <div class="mural-form-group">
-            <label class="form-label form-label-required">Tipo</label>
-            <select id="mural-tipo" class="form-select">
-              ${CONFIG.MURAL.TIPOS.map((t) => `
-                <option value="${t.id}" ${valor('Tipo', 'Info') === t.id ? 'selected' : ''}>${t.nome}</option>
-              `).join('')}
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Tipo de Aviso</label>
+            <select class="form-select" id="mur-tipo">
+              ${tipos}
             </select>
           </div>
-          <div class="mural-form-group">
-            <label class="form-label form-label-required">Prioridade</label>
-            <select id="mural-prioridade" class="form-select">
-              ${CONFIG.MURAL.PRIORIDADES.map((p) => `
-                <option value="${p.id}" ${valor('Prioridade', 'Normal') === p.id ? 'selected' : ''}>${p.id}</option>
-              `).join('')}
-            </select>
-          </div>
-        </div>
-
-        <div class="mural-form-linha">
-          <div class="mural-form-group">
+          
+          <div class="form-group">
             <label class="form-label">Autor</label>
-            <input type="text" id="mural-autor" class="form-input" 
-                   value="${UI.escapar(valor('Autor', autorPadrao))}" 
-                   placeholder="Ex: Pastor Alexsandro">
-          </div>
-          <div class="mural-form-group">
-            <label class="form-label">Data de Expiração (opcional)</label>
-            <input type="date" id="mural-expiracao" class="form-input" 
-                   value="${isDate(valor('DataExpira'))}">
+            <input class="form-input" id="mur-autor" value="${aviso?.Autor || 'Liderança'}">
           </div>
         </div>
 
-        <div class="mural-form-group">
-          <label class="form-label">
-            <input type="checkbox" id="mural-fixo" ${valor('Fixo') === 'Sim' ? 'checked' : ''}>
-            Fixar este comunicado no topo
+        <div class="form-group" style="margin-top:16px;">
+          <label class="form-checkbox" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+            <input type="checkbox" id="mur-fixo" ${aviso?.Fixo === 'Sim' ? 'checked' : ''} style="width:auto;">
+            <span style="font-weight:600; font-size:14px;">📌 Fixar este aviso no topo</span>
           </label>
-          <span class="mural-form-hint">
-            <i class="fas fa-info-circle"></i> 
-            Se marcar, este comunicado aparece em destaque no Dashboard de todos os líderes e no app dos membros.
-            Apenas 1 comunicado pode ser fixado por vez.
-          </span>
+          <p style="font-size:12px; color:#64748b; margin-top:4px;">O aviso fixado aparece em destaque na tela inicial do membro.</p>
         </div>
       </div>
     `;
 
     const botoes = `
-      <button class="btn btn-neutral" onclick="UI.closeModal()">
-        <i class="fas fa-times"></i> Cancelar
-      </button>
-      <button class="btn btn-primary" onclick="Mural._salvar(${item ? item.sheetRowIndex : 'null'})">
-        <i class="fas fa-paper-plane"></i> ${ehEdicao ? 'Salvar' : 'Publicar'}
+      <button class="btn btn-neutral" onclick="UI.closeModal()">Cancelar</button>
+      <button class="btn btn-success" onclick="Mural._salvar('${aviso?.sheetRowIndex || ''}')">
+        <i class="fas fa-save"></i> ${ehEdicao ? 'Salvar alterações' : 'Publicar aviso'}
       </button>
     `;
 
-    UI.openModal(
-      ehEdicao ? '✏️ Editar Comunicado' : '📢 Novo Comunicado',
-      html,
-      botoes
-    );
+    UI.openModal(ehEdicao ? '✏️ Editar Comunicado' : '📢 Novo Comunicado', html, botoes);
   },
 
   async _salvar(id) {
-    const titulo = document.getElementById('mural-titulo')?.value.trim();
-    const mensagem = document.getElementById('mural-mensagem')?.value.trim();
-    const tipo = document.getElementById('mural-tipo')?.value;
-    const prioridade = document.getElementById('mural-prioridade')?.value;
-    const autor = document.getElementById('mural-autor')?.value.trim();
-    const expiracao = document.getElementById('mural-expiracao')?.value;
-    const fixo = document.getElementById('mural-fixo')?.checked;
+    const titulo = document.getElementById('mur-titulo').value.trim();
+    const mensagem = document.getElementById('mur-mensagem').value.trim();
+    const tipo = document.getElementById('mur-tipo').value;
+    const autor = document.getElementById('mur-autor').value.trim();
+    const fixo = document.getElementById('mur-fixo').checked;
 
-    // Validação
-    if (!titulo) { UI.toast('Preencha o título.', 'error'); return; }
-    if (!mensagem) { UI.toast('Preencha a mensagem.', 'error'); return; }
-
-    // Se está fixando, remove fixo dos outros
-    if (fixo) {
-      const fixados = this._dados.filter((m) => m.Fixo === 'Sim' && m.sheetRowIndex != id);
-      for (const f of fixados) {
-        try {
-          const dadosAtualizados = Object.assign({}, f);
-          delete dadosAtualizados.sheetRowIndex;
-          dadosAtualizados.Fixo = 'Não';
-          await API.salvar(CONFIG.TABELAS.MURAL, dadosAtualizados, f.sheetRowIndex);
-        } catch (e) { /* ignora */ }
-      }
-    }
+    if (!titulo) return UI.toast('Preencha o título', 'error');
+    if (!mensagem) return UI.toast('Preencha a mensagem', 'error');
 
     const dados = {
       Titulo: titulo,
       Mensagem: mensagem,
       Tipo: tipo,
-      Prioridade: prioridade,
       Autor: autor,
-      Fixo: fixo ? 'Sim' : 'Não',
-      DataExpira: expiracao || '',
-      DataCriacao: new Date().toISOString()
+      Fixo: fixo ? 'Sim' : 'Não'
     };
 
     try {
-      await API.salvar(CONFIG.TABELAS.MURAL, dados, id);
-      UI.toast(id ? '✅ Comunicado atualizado!' : '✅ Comunicado publicado!', 'success');
+      await API.salvar(CONFIG.TABELAS.MURAL, dados, id ? parseInt(id) : null);
+      UI.toast('Aviso salvo!', 'success');
       UI.closeModal();
       this.render();
     } catch (e) {
@@ -405,105 +249,21 @@ const Mural = {
     }
   },
 
-  /* ==========================================================
-     FIXAR / DESAFIXAR
-     ========================================================== */
-  async toggleFixo(id) {
-    const m = this._dados.find((x) => x.sheetRowIndex == id);
-    if (!m) return;
-
-    const vaiFixar = m.Fixo !== 'Sim';
-
-    // Se vai fixar, tira dos outros
-    if (vaiFixar) {
-      const fixados = this._dados.filter((x) => x.Fixo === 'Sim' && x.sheetRowIndex != id);
-      for (const f of fixados) {
-        try {
-          const dados = Object.assign({}, f);
-          delete dados.sheetRowIndex;
-          dados.Fixo = 'Não';
-          await API.salvar(CONFIG.TABELAS.MURAL, dados, f.sheetRowIndex);
-        } catch (e) { /* ignora */ }
-      }
-    }
-
-    const dados = Object.assign({}, m);
-    delete dados.sheetRowIndex;
-    dados.Fixo = vaiFixar ? 'Sim' : 'Não';
-
-    try {
-      await API.salvar(CONFIG.TABELAS.MURAL, dados, id);
-      UI.toast(vaiFixar ? '📌 Comunicado fixado!' : 'Comunicado desafixado.', 'success');
-      this.render();
-    } catch (e) {
-      UI.toast('Erro: ' + e.message, 'error');
-    }
-  },
-
-  /* ==========================================================
-     REMOVER
-     ========================================================== */
+  // ⚠️ AQUI ESTÁ A CORREÇÃO DO BOTÃO APAGAR (Passando 'Mural')
   async remover(id) {
-    const m = this._dados.find((x) => x.sheetRowIndex == id);
-    if (!m) return;
-
-    const ok = await UI.confirmar(
-      `Remover o comunicado "${m.Titulo}"?`,
-      'Remover comunicado'
-    );
+    const ok = await UI.confirmar(`Remover este aviso permanentemente?`, 'Remover aviso');
     if (!ok) return;
 
     try {
-      const r = await API.remover(id, CONFIG.TABELAS.MURAL, m.Titulo);
-      UI.toast(r.message || 'Comunicado removido!', 'success');
+      // Passa 'Mural' como segundo parâmetro para o backend saber qual tabela apagar
+      const r = await API.remover(id, 'Mural'); 
+      UI.toast(r.message || 'Aviso removido com sucesso!', 'success');
       this.render();
     } catch (e) {
       UI.toast('Erro: ' + e.message, 'error');
-    }
-  },
-
-  /* ==========================================================
-     HELPERS PÚBLICOS (usados pelo Dashboard)
-     ========================================================== */
-
-  /**
-   * Retorna o comunicado fixado (se houver)
-   * ou o comunicado mais recente/urgente
-   */
-  async obterDestaque() {
-    try {
-      const lista = await API.listar(CONFIG.TABELAS.MURAL);
-      if (!lista || lista.length === 0) return null;
-
-      // Filtra expirados
-      const hoje = new Date().toISOString().substring(0, 10);
-      const validos = lista.filter((m) => {
-        if (!m.DataExpira) return true;
-        return m.DataExpira >= hoje;
-      });
-
-      if (validos.length === 0) return null;
-
-      // 1º prioridade: fixado
-      const fixado = validos.find((m) => m.Fixo === 'Sim');
-      if (fixado) return fixado;
-
-      // 2º prioridade: Urgente
-      const urgente = validos.find((m) => m.Prioridade === 'Urgente');
-      if (urgente) return urgente;
-
-      // 3º prioridade: Importante
-      const importante = validos.find((m) => m.Prioridade === 'Importante');
-      if (importante) return importante;
-
-      // 4º: mais recente
-      return validos[0];
-    } catch (e) {
-      console.warn('[Mural] Erro ao obter destaque:', e.message);
-      return null;
     }
   }
 
 };
 
-console.log('%c[Mural] Módulo carregado (v3.0 corrigido)', 'color:#64748b;font-size:11px;');
+console.log('%c[Mural] Módulo carregado v3.0', 'color:#64748b;font-size:11px;');

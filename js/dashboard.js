@@ -1,7 +1,8 @@
 /* ============================================================
-   PIBENS ADM — Módulo Dashboard / Início v3.2
+   PIBENS ADM — Módulo Dashboard / Início v3.3
    ============================================================
-   - Banners do topo agora clicáveis
+   - Banners do topo clicáveis
+   - Banner do Calendário aponta para a tela Calendário
    ============================================================ */
 
 const Dashboard = {
@@ -13,7 +14,6 @@ const Dashboard = {
     c.innerHTML = UI.loading('Carregando painel...');
 
     try {
-      // 1. Busca todos os dados necessários
       const [membros, talentos, agenda, aniversariantes] = await Promise.all([
         API.listar(CONFIG.TABELAS.MEMBROS),
         API.listar(CONFIG.TABELAS.TALENTOS),
@@ -21,16 +21,13 @@ const Dashboard = {
         API.banners() 
       ]);
 
-      // 2. Calcula os totais
       const totalMembros = (membros || []).length;
       const totalTalentos = (talentos || []).length;
       const totalEventos = (agenda || []).length;
 
-      // 3. Aniversariantes de hoje
       const temAniversariante = aniversariantes.birthdays && aniversariantes.birthdays.length > 0;
       const nomesAniversariantes = temAniversariante ? aniversariantes.birthdays.join(', ') : 'Nenhum membro faz aniversário hoje';
 
-      // 4. Aniversariantes do mês
       const mesAtual = new Date().getMonth() + 1;
       let totalAniversariantesMes = 0;
       (membros || []).forEach(m => {
@@ -43,7 +40,6 @@ const Dashboard = {
         }
       });
 
-      // 5. Renderiza a tela com CSS Grid e banners clicáveis
       c.innerHTML = `
         <style>
           .dash-grid {
@@ -91,7 +87,6 @@ const Dashboard = {
             margin-top: auto;
           }
           
-          /* Estilo para os banners do topo */
           .dash-banner {
             flex: 1;
             min-width: 300px;
@@ -107,10 +102,8 @@ const Dashboard = {
           }
         </style>
 
-        <!-- BANNERS DO TOPO (CLICÁVEIS) -->
         <div style="display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap;">
           
-          <!-- Banner Aniversariantes de Hoje -->
           <div class="data-card dash-banner" onclick="Menu.navegar('aniversarios')">
             <div style="width: 48px; height: 48px; border-radius: 12px; background: ${temAniversariante ? '#fee2e2' : '#f1f5f9'}; display: flex; align-items: center; justify-content: center; font-size: 20px; color: ${temAniversariante ? '#dc2626' : '#94a3b8'};">
               <i class="fas fa-birthday-cake"></i>
@@ -121,8 +114,7 @@ const Dashboard = {
             </div>
           </div>
 
-          <!-- Banner Calendário Batista -->
-          <div class="dash-banner" style="background: linear-gradient(135deg, #2563eb, #7c3aed); border-radius: 16px; color: white;" onclick="Menu.navegar('aniversarios')">
+          <div class="dash-banner" style="background: linear-gradient(135deg, #2563eb, #7c3aed); border-radius: 16px; color: white;" onclick="Menu.navegar('calendario')">
             <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 20px;">
               <i class="fas fa-bookmark"></i>
             </div>
@@ -134,7 +126,6 @@ const Dashboard = {
 
         </div>
 
-        <!-- GRID DE CARDS (JÁ CLICÁVEIS) -->
         <div class="dash-grid">
           
           <div class="dash-card" onclick="Menu.navegar('membros')">
@@ -204,4 +195,4 @@ const Dashboard = {
 
 };
 
-console.log('%c[Dashboard] Módulo carregado v3.2', 'color:#64748b;font-size:11px;');
+console.log('%c[Dashboard] Módulo carregado v3.3', 'color:#64748b;font-size:11px;');

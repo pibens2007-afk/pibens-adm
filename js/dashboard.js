@@ -1,9 +1,7 @@
 /* ============================================================
-   PIBENS ADM — Módulo Dashboard / Início v3.1
+   PIBENS ADM — Módulo Dashboard / Início v3.2
    ============================================================
-   - Cards espaçados com CSS Grid
-   - Cards clicáveis (levam aos módulos)
-   - Aniversariantes do mês corrigidos
+   - Banners do topo agora clicáveis
    ============================================================ */
 
 const Dashboard = {
@@ -45,7 +43,7 @@ const Dashboard = {
         }
       });
 
-      // 5. Renderiza a tela com CSS Grid (flexível) e botões clicáveis
+      // 5. Renderiza a tela com CSS Grid e banners clicáveis
       c.innerHTML = `
         <style>
           .dash-grid {
@@ -92,12 +90,28 @@ const Dashboard = {
             color: #64748b;
             margin-top: auto;
           }
+          
+          /* Estilo para os banners do topo */
+          .dash-banner {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            cursor: pointer;
+            transition: transform 0.2s;
+          }
+          .dash-banner:hover {
+            transform: translateY(-2px);
+          }
         </style>
 
-        <!-- BANNERS DO TOPO -->
+        <!-- BANNERS DO TOPO (CLICÁVEIS) -->
         <div style="display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap;">
           
-          <div class="data-card" style="flex: 1; min-width: 300px; display: flex; align-items: center; gap: 16px; padding: 20px;">
+          <!-- Banner Aniversariantes de Hoje -->
+          <div class="data-card dash-banner" onclick="Menu.navegar('aniversarios')">
             <div style="width: 48px; height: 48px; border-radius: 12px; background: ${temAniversariante ? '#fee2e2' : '#f1f5f9'}; display: flex; align-items: center; justify-content: center; font-size: 20px; color: ${temAniversariante ? '#dc2626' : '#94a3b8'};">
               <i class="fas fa-birthday-cake"></i>
             </div>
@@ -107,7 +121,8 @@ const Dashboard = {
             </div>
           </div>
 
-          <div style="flex: 1; min-width: 300px; background: linear-gradient(135deg, #2563eb, #7c3aed); border-radius: 16px; padding: 20px; color: white; display: flex; align-items: center; gap: 16px;">
+          <!-- Banner Calendário Batista -->
+          <div class="dash-banner" style="background: linear-gradient(135deg, #2563eb, #7c3aed); border-radius: 16px; color: white;" onclick="Menu.navegar('aniversarios')">
             <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 20px;">
               <i class="fas fa-bookmark"></i>
             </div>
@@ -119,10 +134,9 @@ const Dashboard = {
 
         </div>
 
-        <!-- GRID DE CARDS -->
+        <!-- GRID DE CARDS (JÁ CLICÁVEIS) -->
         <div class="dash-grid">
           
-          <!-- Membros -->
           <div class="dash-card" onclick="Menu.navegar('membros')">
             <div class="dash-card-icon" style="background: #e0e7ff; color: #4f46e5;">
               <i class="fas fa-users"></i>
@@ -131,7 +145,6 @@ const Dashboard = {
             <div class="dash-card-label">Membros cadastrados</div>
           </div>
 
-          <!-- Talentos -->
           <div class="dash-card" onclick="Menu.navegar('talentos')">
             <div class="dash-card-icon" style="background: #ede9fe; color: #7c3aed;">
               <i class="fas fa-star"></i>
@@ -140,7 +153,6 @@ const Dashboard = {
             <div class="dash-card-label">Talentos registrados</div>
           </div>
 
-          <!-- Agenda -->
           <div class="dash-card" onclick="Menu.navegar('agenda')">
             <div class="dash-card-icon" style="background: #cffafe; color: #0891b2;">
               <i class="fas fa-calendar-alt"></i>
@@ -149,7 +161,6 @@ const Dashboard = {
             <div class="dash-card-label">Eventos na agenda</div>
           </div>
 
-          <!-- Aniversariantes Hoje -->
           <div class="dash-card" onclick="Menu.navegar('aniversarios')">
             <div class="dash-card-icon" style="background: #fef3c7; color: #d97706;">
               <i class="fas fa-birthday-cake"></i>
@@ -158,7 +169,6 @@ const Dashboard = {
             <div class="dash-card-label">Aniversariantes hoje</div>
           </div>
 
-          <!-- Aniversariantes do Mês -->
           <div class="dash-card" onclick="Menu.navegar('aniversarios')">
             <div class="dash-card-icon" style="background: #ffe4e6; color: #e11d48;">
               <i class="fas fa-gift"></i>
@@ -167,7 +177,6 @@ const Dashboard = {
             <div class="dash-card-label">Aniversariantes do mês</div>
           </div>
 
-          <!-- Assistente IA -->
           <div class="dash-card" onclick="Menu.navegar('ia')">
             <div class="dash-card-icon" style="background: #dbeafe; color: #2563eb;">
               <i class="fas fa-robot"></i>
@@ -195,4 +204,4 @@ const Dashboard = {
 
 };
 
-console.log('%c[Dashboard] Módulo carregado v3.1', 'color:#64748b;font-size:11px;');
+console.log('%c[Dashboard] Módulo carregado v3.2', 'color:#64748b;font-size:11px;');

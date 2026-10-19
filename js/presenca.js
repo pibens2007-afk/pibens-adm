@@ -1,5 +1,5 @@
 /* ============================================================
-   PIBENS ADM — Módulo Presença v2.0
+   PIBENS ADM — Módulo Presença v2.1
    ============================================================ */
 
 const Presenca = {
@@ -32,8 +32,6 @@ const Presenca = {
 
   _renderTudo() {
     const c = document.getElementById('content');
-    
-    // Ordena pelos mais recentes
     const lista = [...this._dados].sort((a, b) => new Date(b.Data) - new Date(a.Data));
 
     c.innerHTML = `
@@ -74,7 +72,6 @@ const Presenca = {
   },
 
   _renderLinha(p) {
-    // Taxa de presença (simulada para dar um visual)
     const total = parseInt(p.TotalPresentes) || 0;
     const taxa = total > 0 ? Math.min(Math.round((total / 60) * 100), 100) : 0;
     const corTaxa = taxa >= 70 ? '#10b981' : taxa >= 50 ? '#f59e0b' : '#dc2626';
@@ -133,23 +130,28 @@ const Presenca = {
     const ehEdicao = !!registro;
     const campos = CONFIG.CAMPOS.Presencas;
 
-    // Transforma o campo Visitantes em Textarea no formulário
     const camposHTML = campos.map(campo => {
       let valor = registro ? (registro[campo.nome] || '') : '';
       if (campo.tipo === 'date' && valor) valor = UI.dataInput(valor);
 
+      // Define textos de ajuda diferentes para cada campo
+      let placeholder = '';
+      if (campo.nome === 'Visitantes') placeholder = 'Ex: Maria Silva, João Pedro (2)';
+      else if (campo.nome === 'Observacoes') placeholder = 'Alguma observação sobre o culto...';
+      else if (campo.nome === 'Tema') placeholder = 'Ex: O amor de Deus';
+      else if (campo.nome === 'Pregador') placeholder = 'Ex: Pastor Alexandro';
+      else placeholder = campo.nome;
+
       let input = '';
-      // AQUI A MÁGICA: Se for o campo Visitantes ou Observações, usa textarea
       if (campo.nome === 'Visitantes' || campo.tipo === 'textarea') {
-        input = `<textarea class="form-textarea" name="${campo.nome}" rows="3" placeholder="Digite o nome dos visitantes...">${UI.escapar(valor)}</textarea>`;
+        input = `<textarea class="form-textarea" name="${campo.nome}" rows="3" placeholder="${placeholder}">${UI.escapar(valor)}</textarea>`;
       } else if (campo.tipo === 'select') {
         const opts = (campo.opcoes || []).map(o => `<option value="${o}" ${valor === o ? 'selected' : ''}>${o}</option>`).join('');
         input = `<select class="form-select" name="${campo.nome}"><option value="">— Selecione —</option>${opts}</select>`;
       } else {
-        input = `<input class="form-input" type="${campo.tipo}" name="${campo.nome}" value="${UI.escapar(valor)}">`;
+        input = `<input class="form-input" type="${campo.tipo}" name="${campo.nome}" value="${UI.escapar(valor)}" placeholder="${placeholder}">`;
       }
 
-      // Organiza o grid
       const isFull = (campo.nome === 'Visitantes' || campo.tipo === 'textarea' || campo.nome === 'Tema');
       const classeGrid = isFull ? 'form-grid-full' : '';
 
@@ -182,7 +184,6 @@ const Presenca = {
       if (input) dados[campo.nome] = input.value.trim();
     });
 
-    // Validações básicas
     if (!dados.Data || !dados.Tipo) return UI.toast('Data e Tipo são obrigatórios', 'error');
 
     try {
@@ -200,7 +201,7 @@ const Presenca = {
     if (!ok) return;
 
     try {
-      await API.remover(id, 'Presencas'); // Passa a tabela certa
+      await API.remover(id, 'Presencas'); 
       UI.toast('Culto removido!', 'success');
       this.render();
     } catch (e) {
@@ -210,4 +211,4 @@ const Presenca = {
 
 };
 
-console.log('%c[Presenca] Módulo carregado v2.0', 'color:#64748b;font-size:11px;');
+console.log('%c[Presenca] Módulo carregado v2.1', 'color:#64748b;font-size:11px;');

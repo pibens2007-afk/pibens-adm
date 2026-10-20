@@ -1,5 +1,7 @@
 /* ============================================================
-   PIBENS ADM — Módulo Presença v2.1
+   PIBENS ADM — Módulo Presença v2.2
+   ============================================================
+   - Inclui Check-in de Membros na tela de "Ver Detalhes"
    ============================================================ */
 
 const Presenca = {
@@ -84,11 +86,11 @@ const Presenca = {
         <td>${UI.escapar(p.Pregador || '—')}</td>
         <td style="font-weight:700;">${total}</td>
         <td style="color:${corTaxa}; font-weight:700;">${taxa}%</td>
-        <td class="col-actions">
+        <td class="col-actions" style="display:flex; gap:6px;">
           <button class="btn btn-success btn-sm" onclick="Presenca.editar('${p.sheetRowIndex}')" title="Editar">
             <i class="fas fa-edit"></i>
           </button>
-          <button class="btn btn-primary btn-sm" onclick="Presenca.ver('${p.sheetRowIndex}')" title="Ver detalhes">
+          <button class="btn btn-primary btn-sm" onclick="Presenca.ver('${p.sheetRowIndex}')" title="Fazer Check-in / Ver Detalhes">
             <i class="fas fa-eye"></i>
           </button>
           <button class="btn btn-danger btn-sm" onclick="Presenca.remover('${p.sheetRowIndex}')" title="Remover">
@@ -106,24 +108,106 @@ const Presenca = {
     if (registro) this._abrirForm(registro);
   },
 
-  ver(id) {
+  // ⚠️ AQUI ESTÁ A TELA DE CHECK-IN
+  async ver(id) {
     const p = this._dados.find(x => x.sheetRowIndex == id);
     if (!p) return;
 
-    const html = `
-      <div class="form-secao">
-        <p><strong>Data:</strong> ${UI.dataBR(p.Data)}</p>
-        <p><strong>Tipo:</strong> ${UI.escapar(p.Tipo)}</p>
-        <p><strong>Tema:</strong> ${UI.escapar(p.Tema || 'Não informado')}</p>
-        <p><strong>Pregador:</strong> ${UI.escapar(p.Pregador || 'Não informado')}</p>
-        <hr style="margin:16px 0; border:0; border-top:1px solid #e2e8f0;">
-        <p><strong>Total de Presentes:</strong> ${p.TotalPresentes}</p>
-        <p><strong>Visitantes:</strong><br> ${UI.escapar(p.Visitantes || 'Nenhum')}</p>
-        <p><strong>Observações:</strong><br> ${UI.escapar(p.Observacoes || 'Nenhuma')}</p>
-      </div>
-    `;
+    UI.openModal(`📋 Chamada: ${UI.dataBR(p.Data)} - ${UI.escapar(p.Tipo)}`, UI.loading('Carregando membros...'), '');
 
-    UI.openModal('👁️ Detalhes do Culto', html, `<button class="btn btn-neutral" onclick="UI.closeModal()">Fechar</button>`);
+    try {
+      // Busca todos os membros ativos
+      const membros = await API.listar(CONFIG.TABELAS.MEMBROS);
+      const listaMembros = (membros || []).filter(m => (m.Situação || 'Ativo') === 'Ativo').sort((a,b) => (a.Nome||'').localeCompare(b.Nome||''));
+
+      // Se o banco já tiver um JSON de quem veio (ex: p.MembrosPresentes), a gente lê. Senão, cria vazio.
+      let presentes = [];
+      try {
+        if (p.MembrosPresentes) presentes = JSON.parse(p.MembrosPresentes);
+      } catch (e) { presentes = []; }
+
+      const html = `
+        <div style="margin-bottom:16px; display:flex; gap:12px; flex-wrap:wrap;">
+          <div style="background:#f1f5f9; padding:12px; border-radius:8px; flex:1; min-width:120px;">
+            <span style="font-size:11px; color:#64748b; font-weight:700;">TOTAL PRESENTES</span>
+            <div style="font-size:24px; font-weight:800; color:#1e293b;">${p.TotalPresentes || 0}</div>
+          </div>
+          <div style="background:#f1f5f9; padding:12px; border-radius:8px; flex:1; min-width:120px;">
+            <span style="font-size:11px; color:#64748b; font-weight:700;">VISITANTES</span>
+            <div style="font-size:14px; font-weight:600; color:#1e293b; margin-top:4px;">${UI.escapar(p.Visitantes || 'Nenhum')}</div>
+          </div>
+          <div style="background:#f1f5f9; padding:12px; border-radius:8px; flex:1; min-width:120px;">
+            <span style="font-size:11px; color:#64748b; font-weight:700;">PREGADOR</span>
+            <div style="font-size:14px; font-weight:600; color:#1e293b; margin-top:4px;">${UI.escapar(p.Pregador || '—')}</div>
+          </div>
+        </div>
+
+        <div style="border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
+          <div style="background:#f8fafc; padding:12px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+            <strong style="font-size:14px; color:#334155;">Lista de Presença</strong>
+            <span style="font-size:12px; color:#64748b;" id="contador-checkin">${presentes.length} marcados</span>
+          </div>
+          <div style="max-height:300px; overflow-y:auto; padding:8px;">
+            ${listaMembros.map(m => {
+              const isChecked = presentes.includes(String(m.sheetRowIndex));
+              return `
+                <label style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:6px; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
+                  <input type="checkbox" class="check-membro" value="${m.sheetRowIndex}" ${isChecked ? 'checked' : ''} onchange="Presenca._atualizarContador()" style="width:18px; height:18px; cursor:pointer;">
+                  <span style="font-size:14px; color:#1e293b;">${UI.escapar(m.Nome)}</span>
+                </label>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+
+      const botoes = `
+        <button class="btn btn-neutral" onclick="UI.closeModal()">Fechar</button>
+        <button class="btn btn-success" onclick="Presenca._salvarCheckin('${p.sheetRowIndex}')">
+          <i class="fas fa-check-double"></i> Salvar Presença
+        </button>
+      `;
+
+      // Atualiza o conteúdo do modal
+      document.getElementById('modal-body').innerHTML = html;
+      document.getElementById('modal-footer').innerHTML = botoes;
+
+    } catch (err) {
+      UI.toast('Erro ao carregar membros: ' + err.message, 'error');
+    }
+  },
+
+  _atualizarContador() {
+    const marcados = document.querySelectorAll('.check-membro:checked').length;
+    const el = document.getElementById('contador-checkin');
+    if (el) el.textContent = marcados + ' marcados';
+  },
+
+  async _salvarCheckin(idCulto) {
+    const checkboxes = document.querySelectorAll('.check-membro:checked');
+    const presentes = Array.from(checkboxes).map(cb => cb.value);
+    
+    const p = this._dados.find(x => x.sheetRowIndex == idCulto);
+    if (!p) return;
+
+    // Atualiza o total de presentes (membros marcados + visitantes se quiser contar manual)
+    // Aqui estamos considerando apenas os membros cadastrados que foram marcados
+    const totalMembrosPresentes = presentes.length;
+
+    const dadosAtualizados = {
+      ...p,
+      TotalPresentes: totalMembrosPresentes.toString(),
+      MembrosPresentes: JSON.stringify(presentes)
+    };
+
+    try {
+      await API.salvar(CONFIG.TABELAS.PRESENCAS, dadosAtualizados, idCulto);
+      UI.toast('Presença salva com sucesso!', 'success');
+      UI.closeModal();
+      this.render();
+    } catch (e) {
+      UI.toast('Erro ao salvar: ' + e.message, 'error');
+    }
   },
 
   _abrirForm(registro) {
@@ -134,7 +218,6 @@ const Presenca = {
       let valor = registro ? (registro[campo.nome] || '') : '';
       if (campo.tipo === 'date' && valor) valor = UI.dataInput(valor);
 
-      // Define textos de ajuda diferentes para cada campo
       let placeholder = '';
       if (campo.nome === 'Visitantes') placeholder = 'Ex: Maria Silva, João Pedro (2)';
       else if (campo.nome === 'Observacoes') placeholder = 'Alguma observação sobre o culto...';
@@ -211,4 +294,4 @@ const Presenca = {
 
 };
 
-console.log('%c[Presenca] Módulo carregado v2.1', 'color:#64748b;font-size:11px;');
+console.log('%c[Presenca] Módulo carregado v2.2', 'color:#64748b;font-size:11px;');

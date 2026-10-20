@@ -23,7 +23,7 @@ const CONFIG = {
   APP_NAME: 'PIBENS ADM',
   APP_SHORT_NAME: 'PIBENS',
   APP_TAGLINE: 'Gestão eclesiástica com inteligência',
-  APP_VERSION: '3.9.0',
+  APP_VERSION: '4.0.0',
 
   TABELAS: {
     MEMBROS:      'Membros',
@@ -59,6 +59,7 @@ const CONFIG = {
   CAMPOS: {
     Membros: [
       { nome: 'Nome',                obrigatorio: true,  tipo: 'text' },
+      { nome: 'Apelido',             obrigatorio: false, tipo: 'text' }, // ← NOVO
       { nome: 'Nascimento',          obrigatorio: true,  tipo: 'date' },
       { nome: 'CPF',                 obrigatorio: false, tipo: 'text' },
       { nome: 'RG',                  obrigatorio: false, tipo: 'text' },
@@ -120,7 +121,7 @@ const CONFIG = {
       { nome: 'Tema',             obrigatorio: false, tipo: 'text' },
       { nome: 'Pregador',         obrigatorio: false, tipo: 'text' },
       { nome: 'TotalPresentes',   obrigatorio: true,  tipo: 'number' },
-      { nome: 'Visitantes',       obrigatorio: false, tipo: 'text' }, // Alterado para texto (aceita nomes)
+      { nome: 'Visitantes',       obrigatorio: false, tipo: 'text' },
       { nome: 'Observacoes',      obrigatorio: false, tipo: 'textarea' }
     ],
     Escalas: [

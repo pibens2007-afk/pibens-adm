@@ -1,7 +1,7 @@
 /* ============================================================
-   PIBENS ADM — Módulo Presença v2.2
+   PIBENS ADM — Módulo Presença v2.3
    ============================================================
-   - Inclui Check-in de Membros na tela de "Ver Detalhes"
+   - Check-in mostra o Nome e o Apelido do membro
    ============================================================ */
 
 const Presenca = {
@@ -108,7 +108,7 @@ const Presenca = {
     if (registro) this._abrirForm(registro);
   },
 
-  // ⚠️ AQUI ESTÁ A TELA DE CHECK-IN
+  // ⚠️ AQUI ESTÁ A TELA DE CHECK-IN COM O APELIDO
   async ver(id) {
     const p = this._dados.find(x => x.sheetRowIndex == id);
     if (!p) return;
@@ -116,11 +116,9 @@ const Presenca = {
     UI.openModal(`📋 Chamada: ${UI.dataBR(p.Data)} - ${UI.escapar(p.Tipo)}`, UI.loading('Carregando membros...'), '');
 
     try {
-      // Busca todos os membros ativos
       const membros = await API.listar(CONFIG.TABELAS.MEMBROS);
       const listaMembros = (membros || []).filter(m => (m.Situação || 'Ativo') === 'Ativo').sort((a,b) => (a.Nome||'').localeCompare(b.Nome||''));
 
-      // Se o banco já tiver um JSON de quem veio (ex: p.MembrosPresentes), a gente lê. Senão, cria vazio.
       let presentes = [];
       try {
         if (p.MembrosPresentes) presentes = JSON.parse(p.MembrosPresentes);
@@ -150,10 +148,13 @@ const Presenca = {
           <div style="max-height:300px; overflow-y:auto; padding:8px;">
             ${listaMembros.map(m => {
               const isChecked = presentes.includes(String(m.sheetRowIndex));
+              // MOSTRANDO O APELIDO AQUI
+              const nomeExibicao = m.Nome + (m.Apelido ? ` <span style="color:#64748b;font-weight:400;font-size:0.85em;">(${m.Apelido})</span>` : '');
+              
               return `
                 <label style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:6px; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
                   <input type="checkbox" class="check-membro" value="${m.sheetRowIndex}" ${isChecked ? 'checked' : ''} onchange="Presenca._atualizarContador()" style="width:18px; height:18px; cursor:pointer;">
-                  <span style="font-size:14px; color:#1e293b;">${UI.escapar(m.Nome)}</span>
+                  <span style="font-size:14px; color:#1e293b;">${nomeExibicao}</span>
                 </label>
               `;
             }).join('')}
@@ -168,7 +169,6 @@ const Presenca = {
         </button>
       `;
 
-      // Atualiza o conteúdo do modal
       document.getElementById('modal-body').innerHTML = html;
       document.getElementById('modal-footer').innerHTML = botoes;
 
@@ -190,8 +190,6 @@ const Presenca = {
     const p = this._dados.find(x => x.sheetRowIndex == idCulto);
     if (!p) return;
 
-    // Atualiza o total de presentes (membros marcados + visitantes se quiser contar manual)
-    // Aqui estamos considerando apenas os membros cadastrados que foram marcados
     const totalMembrosPresentes = presentes.length;
 
     const dadosAtualizados = {
@@ -294,4 +292,4 @@ const Presenca = {
 
 };
 
-console.log('%c[Presenca] Módulo carregado v2.2', 'color:#64748b;font-size:11px;');
+console.log('%c[Presenca] Módulo carregado v2.3 com Apelido no Check-in', 'color:#64748b;font-size:11px;');

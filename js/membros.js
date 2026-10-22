@@ -1,5 +1,5 @@
 /* ============================================================
-   PIBENS ADM — Módulo Membros v3.0
+   PIBENS ADM — Módulo Membros v3.1
    ============================================================ */
 
 const Membros = {
@@ -47,6 +47,7 @@ const Membros = {
       lista = lista.filter((m) =>
         (m.Nome || '').toLowerCase().includes(b) ||
         (m.Apelido || '').toLowerCase().includes(b) ||
+        (m.Sexo || '').toLowerCase().includes(b) ||
         (m.Telefone || '').toLowerCase().includes(b) ||
         (m.CPF || '').toLowerCase().includes(b)
       );
@@ -255,7 +256,6 @@ const Membros = {
          </button>`
       : '';
 
-    // MOSTRANDO O APELIDO
     const nomeExibicao = m.Nome + (m.Apelido ? ` <span style="color:#64748b;font-weight:400;font-size:0.85em;">(${m.Apelido})</span>` : '');
 
     return `
@@ -306,7 +306,7 @@ const Membros = {
     const ministerios = this._parseMinisterios(m.Ministérios);
 
     const secoes = {
-      'Dados Pessoais': ['Nome', 'Apelido', 'Nascimento', 'CPF', 'RG', 'Estado Civil', 'Nome do Cônjuge', 'Parentesco', 'Profissão'],
+      'Dados Pessoais': ['Nome', 'Apelido', 'Sexo', 'Nascimento', 'CPF', 'RG', 'Estado Civil', 'Nome do Cônjuge', 'Parentesco', 'Profissão'],
       'Contato': ['Telefone', 'Email', 'Endereço', 'Bairro', 'Cidade', 'Estado', 'CEP'],
       'Igreja': ['Já foi batizado?', 'Data de Batismo', 'Situação', 'Categoria', 'Função', 'Talento', 'Data de Membro'],
       'Outros': ['Observações']
@@ -365,7 +365,7 @@ const Membros = {
     const ministeriosSelecionados = membro ? this._parseMinisterios(membro.Ministérios) : [];
 
     const secoes = {
-      'Dados Pessoais': ['Nome', 'Apelido', 'Nascimento', 'CPF', 'RG', 'Estado Civil', 'Nome do Cônjuge', 'Parentesco', 'Profissão'],
+      'Dados Pessoais': ['Nome', 'Apelido', 'Sexo', 'Nascimento', 'CPF', 'RG', 'Estado Civil', 'Nome do Cônjuge', 'Parentesco', 'Profissão'],
       'Contato': ['Telefone', 'Email', 'Endereço', 'Bairro', 'Cidade', 'Estado', 'CEP'],
       'Igreja': ['Já foi batizado?', 'Data de Batismo', 'Situação', 'Categoria', 'Função', 'Talento', 'Data de Membro'],
       'Outros': ['Observações']
@@ -501,4 +501,4 @@ const Membros = {
 
 };
 
-console.log('%c[Membros] Módulo carregado v3.0 com Apelido', 'color:#64748b;font-size:11px;');
+console.log('%c[Membros] Módulo carregado v3.1 com Sexo', 'color:#64748b;font-size:11px;');

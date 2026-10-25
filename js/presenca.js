@@ -1,12 +1,15 @@
 /* ============================================================
-   PIBENS ADM — Módulo Presença v2.3
+   PIBENS ADM — Módulo Presença v2.4
    ============================================================
-   - Check-in mostra o Nome e o Apelido do membro
+   - Check-in com Apelido
+   - Alerta de membros ausentes (3+ cultos)
+   - Botão de WhatsApp para contato
    ============================================================ */
 
 const Presenca = {
 
   _dados: [],
+  _membros: [],
 
   async render() {
     const c = document.getElementById('content');
@@ -15,8 +18,14 @@ const Presenca = {
     c.innerHTML = UI.loading('Carregando cultos...');
 
     try {
-      const dados = await API.listar(CONFIG.TABELAS.PRESENCAS);
-      this._dados = dados || [];
+      // Busca os cultos e os membros juntos
+      const [cultos, membros] = await Promise.all([
+        API.listar(CONFIG.TABELAS.PRESENCAS),
+        API.listar(CONFIG.TABELAS.MEMBROS)
+      ]);
+      
+      this._dados = cultos || [];
+      this._membros = membros || [];
       this._renderTudo();
     } catch (e) {
       c.innerHTML = `
@@ -24,9 +33,6 @@ const Presenca = {
           <div class="empty-state-icon" style="color:#dc2626;"><i class="fas fa-exclamation-triangle"></i></div>
           <div class="empty-state-title">Erro ao carregar</div>
           <div class="empty-state-text">${UI.escapar(e.message)}</div>
-          <button class="btn btn-primary" onclick="Presenca.render()">
-            <i class="fas fa-sync"></i> Tentar de novo
-          </button>
         </div>
       `;
     }
@@ -108,7 +114,7 @@ const Presenca = {
     if (registro) this._abrirForm(registro);
   },
 
-  // ⚠️ AQUI ESTÁ A TELA DE CHECK-IN COM O APELIDO
+  // ⚠️ AQUI ESTÁ A TELA DE CHECK-IN COM O ALERTA DE AUSENTES
   async ver(id) {
     const p = this._dados.find(x => x.sheetRowIndex == id);
     if (!p) return;
@@ -116,15 +122,72 @@ const Presenca = {
     UI.openModal(`📋 Chamada: ${UI.dataBR(p.Data)} - ${UI.escapar(p.Tipo)}`, UI.loading('Carregando membros...'), '');
 
     try {
-      const membros = await API.listar(CONFIG.TABELAS.MEMBROS);
-      const listaMembros = (membros || []).filter(m => (m.Situação || 'Ativo') === 'Ativo').sort((a,b) => (a.Nome||'').localeCompare(b.Nome||''));
+      const listaMembros = this._membros.filter(m => (m.Situação || 'Ativo') === 'Ativo').sort((a,b) => (a.Nome||'').localeCompare(b.Nome||''));
 
       let presentes = [];
       try {
         if (p.MembrosPresentes) presentes = JSON.parse(p.MembrosPresentes);
       } catch (e) { presentes = []; }
 
+      // Lógica para calcular quem está faltando
+      // Pega os últimos 4 cultos (incluindo o atual)
+      const ultimosCultos = [...this._dados]
+        .sort((a, b) => new Date(b.Data) - new Date(a.Data))
+        .slice(0, 4);
+      
+      const faltantes3 = []; // Membros que faltaram nos últimos 3 cultos mas estavam no 4º
+      
+      if (ultimosCultos.length >= 4) {
+        listaMembros.forEach(m => {
+          // Vê se estava no culto mais antigo dessa lista (4º culto atrás)
+          let estavaAntes = false;
+          try {
+            const presencasAntigas = JSON.parse(ultimosCultos[3].MembrosPresentes || '[]');
+            estavaAntes = presencasAntigas.includes(String(m.sheetRowIndex));
+          } catch(e) {}
+
+          if (estavaAntes) {
+            // Agora vê se faltou nos 3 últimos
+            let faltouTodos = true;
+            for (let i = 0; i < 3; i++) {
+              try {
+                const presencasRecentes = JSON.parse(ultimosCultos[i].MembrosPresentes || '[]');
+                if (presencasRecentes.includes(String(m.sheetRowIndex))) {
+                  faltouTodos = false;
+                  break;
+                }
+              } catch(e) {}
+            }
+            if (faltouTodos) faltantes3.push(m);
+          }
+        });
+      }
+
       const html = `
+        ${faltantes3.length > 0 ? `
+          <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:16px; margin-bottom:16px;">
+            <h4 style="margin:0 0 12px 0; color:#dc2626; font-size:14px; display:flex; align-items:center; gap:8px;">
+              <i class="fas fa-exclamation-triangle"></i> Atenção Pastoral: Membros Ausentes (3+ cultos)
+            </h4>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              ${faltantes3.map(m => {
+                const telLimpo = (m.Telefone || '').replace(/\D/g, '');
+                const msgWpp = encodeURIComponent(`Olá ${m.Nome}, a paz do Senhor! Sentimos sua falta nos nossos cultos. Estamos orando por você. Como você está?`);
+                return `
+                  <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:8px 12px; border-radius:6px; border:1px solid #fecaca;">
+                    <span style="font-size:13px; color:#1e293b;"><strong>${UI.escapar(m.Nome)}</strong></span>
+                    ${telLimpo ? `
+                      <a href="https://wa.me/55${telLimpo}?text=${msgWpp}" target="_blank" style="background:#25D366; color:#fff; padding:4px 10px; border-radius:6px; font-size:12px; text-decoration:none; display:flex; align-items:center; gap:4px; font-weight:600;">
+                        <i class="fab fa-whatsapp"></i> Enviar Mensagem
+                      </a>
+                    ` : `<span style="font-size:11px; color:#94a3b8;">Sem telefone</span>`}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        ` : ''}
+
         <div style="margin-bottom:16px; display:flex; gap:12px; flex-wrap:wrap;">
           <div style="background:#f1f5f9; padding:12px; border-radius:8px; flex:1; min-width:120px;">
             <span style="font-size:11px; color:#64748b; font-weight:700;">TOTAL PRESENTES</span>
@@ -148,7 +211,6 @@ const Presenca = {
           <div style="max-height:300px; overflow-y:auto; padding:8px;">
             ${listaMembros.map(m => {
               const isChecked = presentes.includes(String(m.sheetRowIndex));
-              // MOSTRANDO O APELIDO AQUI
               const nomeExibicao = m.Nome + (m.Apelido ? ` <span style="color:#64748b;font-weight:400;font-size:0.85em;">(${m.Apelido})</span>` : '');
               
               return `
@@ -292,4 +354,4 @@ const Presenca = {
 
 };
 
-console.log('%c[Presenca] Módulo carregado v2.3 com Apelido no Check-in', 'color:#64748b;font-size:11px;');
+console.log('%c[Presenca] Módulo carregado v2.4 (Alerta Pastoral)', 'color:#64748b;font-size:11px;');

@@ -1,5 +1,5 @@
 /* ============================================================
-   PIBENS ADM — Menu / Navegação v3.5
+   PIBENS ADM — Menu / Navegação v3.6
    ============================================================ */
 
 const Menu = {
@@ -70,6 +70,7 @@ const Menu = {
       case 'Financeiro':       if (typeof Financeiro !== 'undefined') Financeiro.render(); break;
       case 'Presenca':         if (typeof Presenca !== 'undefined') Presenca.render(); break;
       case 'Escalas':          if (typeof Escalas !== 'undefined') Escalas.render(); break;
+      case 'Diretoria':        if (typeof Diretoria !== 'undefined') Diretoria.render(); break; // ← NOVO
       case 'Discipulado':      if (typeof Discipulado !== 'undefined') Discipulado.render(); break;
       case 'PedidosOracao':    if (typeof PedidosOracao !== 'undefined') PedidosOracao.render(); break;
       case 'Relatorios':       if (typeof Relatorios !== 'undefined') Relatorios.render(); break;
@@ -106,4 +107,4 @@ const Menu = {
 
 };
 
-console.log('%c[Menu] Módulo carregado v3.5', 'color:#64748b;font-size:11px;');
+console.log('%c[Menu] Módulo carregado v3.6', 'color:#64748b;font-size:11px;');

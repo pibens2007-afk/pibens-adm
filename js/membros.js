@@ -1,5 +1,8 @@
 /* ============================================================
-   PIBENS ADM — Módulo Membros v3.2
+   PIBENS ADM — Módulo Membros v3.3
+   ============================================================
+   - Barrinha de aviso de filtro ativo
+   - Clique no card desativa o filtro
    ============================================================ */
 
 const Membros = {
@@ -113,6 +116,9 @@ const Membros = {
     });
 
     const ministeriosAtivos = CONFIG.MINISTERIOS.filter((min) => contagemMin[min.nome] > 0);
+    
+    // Verifica se tem algum filtro ativo para mostrar a barrinha
+    const temFiltroAtivo = this._filtroMinisterio || this._busca || this._filtroCategoria || this._filtroSituacao;
 
     c.innerHTML = `
       <div class="membros-stats">
@@ -185,6 +191,22 @@ const Membros = {
           </button>
         </div>
       </div>
+
+      ${temFiltroAtivo ? `
+        <div class="membros-filtro-ativo" style="background:#e0e7ff; border:1px solid #c7d2fe; padding:12px 16px; border-radius:8px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="color:#3730a3; font-size:14px; font-weight:600;">
+            <i class="fas fa-filter"></i> Filtrando por: 
+            ${this._filtroMinisterio ? `<strong>${this._filtroMinisterio}</strong> ` : ''}
+            ${this._filtroCategoria ? `<strong>${this._filtroCategoria}</strong> ` : ''}
+            ${this._filtroSituacao ? `<strong>${this._filtroSituacao}</strong> ` : ''}
+            ${this._busca ? `<strong>"${UI.escapar(this._busca)}"</strong>` : ''}
+            — ${dados.length} resultado(s)
+          </span>
+          <button class="btn btn-sm" onclick="Membros._limparFiltros()" style="background:#fff; color:#3730a3; border:1px solid #c7d2fe; padding:4px 12px; font-weight:700;">
+            <i class="fas fa-times"></i> Limpar
+          </button>
+        </div>
+      ` : ''}
 
       ${dados.length === 0 ? UI.emptyState(
         'Nenhum membro encontrado',
@@ -296,7 +318,20 @@ const Membros = {
   _filtrarCategoria(valor) { this._filtroCategoria = valor; this._renderTudo(); },
   _filtrarSituacao(valor) { this._filtroSituacao = valor; this._renderTudo(); },
   _filtrarMinisterio(valor) { this._filtroMinisterio = valor; this._renderTudo(); },
-  _clicarMinisterio(nome) { this._filtroMinisterio = (this._filtroMinisterio === nome) ? '' : nome; this._renderTudo(); },
+  
+  // O clique desativa o filtro se já estiver ativo
+  _clicarMinisterio(nome) { 
+    this._filtroMinisterio = (this._filtroMinisterio === nome) ? '' : nome; 
+    this._renderTudo(); 
+  },
+
+  _limparFiltros() { 
+    this._filtroCategoria = ''; 
+    this._filtroSituacao = ''; 
+    this._filtroMinisterio = ''; 
+    this._busca = ''; 
+    this._renderTudo(); 
+  },
 
   ordenarAZ() {
     this._dados.sort((a, b) => (a.Nome || '').localeCompare(b.Nome || '', 'pt-BR', { sensitivity: 'base' }));
@@ -522,4 +557,4 @@ const Membros = {
 
 };
 
-console.log('%c[Membros] Módulo carregado v3.2', 'color:#64748b;font-size:11px;');
+console.log('%c[Membros] Módulo carregado v3.3 (com aviso de filtro)', 'color:#64748b;font-size:11px;');

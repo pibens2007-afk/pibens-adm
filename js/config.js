@@ -23,7 +23,7 @@ const CONFIG = {
   APP_NAME: 'PIBENS ADM',
   APP_SHORT_NAME: 'PIBENS',
   APP_TAGLINE: 'Gestão eclesiástica com inteligência',
-  APP_VERSION: '4.2.0',
+  APP_VERSION: '4.3.0',
 
   TABELAS: {
     MEMBROS:      'Membros',
@@ -61,6 +61,7 @@ const CONFIG = {
       { nome: 'Nome',                obrigatorio: true,  tipo: 'text' },
       { nome: 'Apelido',             obrigatorio: false, tipo: 'text' },
       { nome: 'Sexo',                obrigatorio: false, tipo: 'select', opcoes: ['Masculino', 'Feminino'] },
+      { nome: 'Cargo de Liderança',  obrigatorio: false, tipo: 'text' }, // ← NOVO
       { nome: 'Nascimento',          obrigatorio: true,  tipo: 'date' },
       { nome: 'CPF',                 obrigatorio: false, tipo: 'text' },
       { nome: 'RG',                  obrigatorio: false, tipo: 'text' },
@@ -207,7 +208,7 @@ const CONFIG = {
     {
       secao: 'Pastoral',
       itens: [
-        { id: 'diretoria',      label: 'Diretoria',         icon: 'fa-crown',         modulo: 'Diretoria' }, // ← NOVO
+        { id: 'diretoria',      label: 'Diretoria',         icon: 'fa-crown',         modulo: 'Diretoria' },
         { id: 'discipulado',    label: 'Discipulado',       icon: 'fa-seedling',      modulo: 'Discipulado' },
         { id: 'pedidos-oracao', label: 'Pedidos de Oração', icon: 'fa-praying-hands', modulo: 'PedidosOracao' }
       ]

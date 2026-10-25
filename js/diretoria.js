@@ -1,5 +1,7 @@
 /* ============================================================
-   PIBENS ADM — Módulo Diretoria e Cargos v1.2
+   PIBENS ADM — Módulo Diretoria e Cargos v1.3
+   ============================================================
+   - Sincronização automática com os ministérios do cadastro
    ============================================================ */
 
 const Diretoria = {
@@ -10,10 +12,62 @@ const Diretoria = {
     const c = document.getElementById('content');
     c.innerHTML = UI.loading('Carregando diretoria...');
     try {
-      const dados = await API.call('adminListarCargos');
-      this._dados = dados || [];
+      // Busca os cargos manuais E todos os membros para cruzar os dados
+      const [cargos, membros] = await Promise.all([
+        API.call('adminListarCargos'),
+        API.listar(CONFIG.TABELAS.MEMBROS)
+      ]);
+      
+      this._dados = this._sincronizar(cargos || [], membros || []);
       this._renderTudo();
-    } catch (e) { c.innerHTML = `<div class="empty-state"><div class="empty-state-text">${UI.escapar(e.message)}</div></div>`; }
+    } catch (e) { 
+      c.innerHTML = `<div class="empty-state"><div class="empty-state-icon" style="color:#dc2626;"><i class="fas fa-exclamation-triangle"></i></div><div class="empty-state-title">Erro</div><div class="empty-state-text">${UI.escapar(e.message)}</div></div>`; 
+    }
+  },
+
+  // Função que faz a mágica de cruzar os cargos manuais com os ministérios do cadastro
+  _sincronizar(cargosManuais, membros) {
+    const listaFinal = [...cargosManuais];
+    
+    // Mapeamento: Ministério do cadastro -> Cargo na diretoria
+    const mapa = {
+      'Ministério de Homens': 'Líder de Homens',
+      'Ministério de Mulheres': 'Líder de Mulheres',
+      'Ministério de Jovens': 'Líder de Jovens',
+      'Ministério de Adolescentes': 'Líder de Adolescentes',
+      'Ministério de Crianças': 'Líder de Crianças',
+      'Ministério Infantil': 'Líder de Crianças',
+      'Ministério de Levitas': 'Líder de Louvor',
+      'Ministério de Missões': 'Líder de Missões',
+      'Missões': 'Líder de Missões'
+    };
+
+    membros.forEach(m => {
+      let mins = [];
+      try { mins = JSON.parse(m.Ministérios || '[]'); } catch(e) {}
+      
+      mins.forEach(min => {
+        if (mapa[min]) {
+          const cargoNome = mapa[min];
+          // Verifica se a pessoa JÁ não está na lista manual com esse cargo
+          const jaExiste = listaFinal.find(c => c.membro_id == m.sheetRowIndex && c.cargo === cargoNome);
+          
+          if (!jaExiste) {
+            // Adiciona como um cargo "virtual"
+            listaFinal.push({
+              id: 'auto_' + m.sheetRowIndex + '_' + cargoNome,
+              cargo: cargoNome,
+              membro_id: m.sheetRowIndex,
+              nome_membro: m.Nome,
+              apelido: m.Apelido,
+              ordem: 7 // Líderes ficam no meio da hierarquia
+            });
+          }
+        }
+      });
+    });
+
+    return listaFinal;
   },
 
   _renderTudo() {
@@ -24,7 +78,7 @@ const Diretoria = {
     cargosOrdenados.forEach(d => { if (!grupos[d.cargo]) grupos[d.cargo] = []; grupos[d.cargo].push(d); });
 
     c.innerHTML = `
-      <div class="membros-toolbar" style="margin-bottom:24px;"><div style="flex:1;"></div><div class="membros-filtros"><button class="btn btn-success" onclick="Diretoria.novo()"><i class="fas fa-plus"></i> Novo Cargo</button></div></div>
+      <div class="membros-toolbar" style="margin-bottom:24px;"><div style="flex:1;"></div><div class="membros-filtros"><button class="btn btn-success" onclick="Diretoria.novo()"><i class="fas fa-plus"></i> Novo Cargo Manual</button></div></div>
 
       ${Object.keys(grupos).length === 0 ? UI.emptyState('Nenhum cargo cadastrado', 'Defina a diretoria e os líderes da igreja.', '') : ''}
 
@@ -34,13 +88,29 @@ const Diretoria = {
             ${cargo.includes('Pastor') ? '<i class="fas fa-crown" style="color:#f59e0b; margin-right:8px;"></i>' : '<i class="fas fa-user-tie" style="color:#94a3b8; margin-right:8px;"></i>'} ${cargo}
           </h3>
           <div style="display:flex; gap:12px; flex-wrap:wrap;">
-            ${grupos[cargo].map(d => `
-              <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:12px 16px; border-radius:12px; display:flex; align-items:center; gap:12px;">
-                <div class="avatar" style="width:40px; height:40px; font-size:16px; background:${cargo.includes('Pastor') ? '#fef3c7; color:#d97706' : '#e2e8f0; color:#475569'};">${(d.nome_membro || '?').charAt(0).toUpperCase()}</div>
-                <div><strong style="display:block; color:#1e293b; font-size:14px;">${UI.escapar(d.nome_membro || 'Membro Removido')}</strong><span style="font-size:12px; color:#64748b;">${d.apelido ? '('+d.apelido+')' : 'Membro'}</span></div>
-                <button class="btn btn-danger btn-sm" onclick="Diretoria.remover('${d.id}')" style="margin-left:12px; padding:4px 8px;"><i class="fas fa-trash"></i></button>
-              </div>
-            `).join('')}
+            ${grupos[cargo].map(d => {
+              // Se o ID for 'auto_', significa que veio do cadastro e não pode ser deletado direto por aqui
+              const isAuto = String(d.id).startsWith('auto_');
+              return `
+                <div style="background:${isAuto ? '#f0fdf4' : '#f8fafc'}; border:1px solid ${isAuto ? '#bbf7d0' : '#e2e8f0'}; padding:12px 16px; border-radius:12px; display:flex; align-items:center; gap:12px;">
+                  <div class="avatar" style="width:40px; height:40px; font-size:16px; background:${cargo.includes('Pastor') ? '#fef3c7; color:#d97706' : (isAuto ? '#dcfce7; color:#059669' : '#e2e8f0; color:#475569')};">${(d.nome_membro || '?').charAt(0).toUpperCase()}</div>
+                  <div>
+                    <strong style="display:block; color:#1e293b; font-size:14px;">${UI.escapar(d.nome_membro || 'Membro Removido')}</strong>
+                    <span style="font-size:12px; color:#64748b;">${d.apelido ? '('+d.apelido+')' : 'Membro'}</span>
+                  </div>
+                  
+                  ${isAuto ? `
+                    <span title="Cargo automático via cadastro do membro" style="margin-left:12px; color:#059669; font-size:12px; font-weight:600; display:flex; align-items:center; gap:4px;">
+                      <i class="fas fa-sync-alt"></i> Auto
+                    </span>
+                  ` : `
+                    <button class="btn btn-danger btn-sm" onclick="Diretoria.remover('${d.id}')" style="margin-left:12px; padding:4px 8px;" title="Remover Cargo Manual">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  `}
+                </div>
+              `;
+            }).join('')}
           </div>
         </div>
       `).join('')}
@@ -56,16 +126,19 @@ const Diretoria = {
             <option value="Pastor Presidente">Pastor Presidente</option><option value="Vice-Presidente">Vice-Presidente</option>
             <option value="1º Secretário">1º Secretário</option><option value="2º Secretário">2º Secretário</option>
             <option value="1º Tesoureiro">1º Tesoureiro</option><option value="2º Tesoureiro">2º Tesoureiro</option>
-            <option value="Líder de Homens">Líder de Homens</option><option value="Líder de Mulheres">Líder de Mulheres</option>
-            <option value="Líder de Jovens">Líder de Jovens</option><option value="Líder de Louvor">Líder de Louvor</option>
-            <option value="Líder de Missões">Líder de Missões</option><option value="Diácono">Diácono</option><option value="Presbítero">Presbítero</option>
+            <option value="Diácono">Diácono</option><option value="Presbítero">Presbítero</option>
+            <option value="Outro Cargo (digitar abaixo)">Outro Cargo (digitar abaixo)</option>
           </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nome do Cargo (se for outro)</label>
+          <input class="form-input" id="dir-cargo-outro" placeholder="Ex: Líder de Casais">
         </div>
         <div class="form-group"><label class="form-label form-label-required">Membro</label><select class="form-select" id="dir-membro"><option value="">Carregando...</option></select></div>
       </div>
     `;
     const botoes = `<button class="btn btn-neutral" onclick="UI.closeModal()">Cancelar</button><button class="btn btn-success" onclick="Diretoria._salvar()"><i class="fas fa-save"></i> Salvar Cargo</button>`;
-    UI.openModal('👑 Adicionar à Diretoria', html, botoes);
+    UI.openModal('👑 Adicionar Cargo Manual', html, botoes);
 
     API.listar(CONFIG.TABELAS.MEMBROS).then(membros => {
       const select = document.getElementById('dir-membro'); if (!select) return;
@@ -74,22 +147,39 @@ const Diretoria = {
   },
 
   async _salvar() {
-    const cargo = document.getElementById('dir-cargo').value;
+    let cargo = document.getElementById('dir-cargo').value;
+    const cargoOutro = document.getElementById('dir-cargo-outro').value.trim();
     const membroId = document.getElementById('dir-membro').value;
+    
+    if (cargo === 'Outro Cargo (digitar abaixo)') {
+      if (!cargoOutro) return UI.toast('Digite o nome do cargo', 'error');
+      cargo = cargoOutro;
+    }
+    
     if (!membroId) return UI.toast('Selecione um membro', 'error');
+    
     try {
       await API.call('adminCriarCargo', [cargo, membroId]);
-      UI.toast('Cargo adicionado!', 'success');
+      UI.toast('Cargo manual adicionado!', 'success');
       UI.closeModal();
       this.render();
     } catch (e) { UI.toast('Erro: ' + e.message, 'error'); }
   },
 
   async remover(id) {
-    const ok = await UI.confirmar('Remover este membro da diretoria?', 'Remover');
+    // Proteção para não tentar apagar cargo automático
+    if (String(id).startsWith('auto_')) {
+      return UI.toast('Este cargo é automático. Para remover, vá no cadastro do membro e desmarque o ministério.', 'info');
+    }
+    
+    const ok = await UI.confirmar('Remover este cargo da diretoria?', 'Remover');
     if (!ok) return;
-    try { await API.call('adminRemoverCargo', [id]); UI.toast('Removido!', 'success'); this.render(); } catch (e) { UI.toast('Erro: ' + e.message, 'error'); }
+    try { 
+      await API.call('adminRemoverCargo', [id]); 
+      UI.toast('Cargo removido!', 'success'); 
+      this.render(); 
+    } catch (e) { UI.toast('Erro: ' + e.message, 'error'); }
   }
 
 };
-console.log('%c[Diretoria] Módulo carregado v1.2', 'color:#64748b;font-size:11px;');
+console.log('%c[Diretoria] Módulo carregado v1.3 (Sincronizado)', 'color:#64748b;font-size:11px;');

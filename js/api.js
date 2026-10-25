@@ -1,12 +1,11 @@
 /* ============================================================
-   PIBENS ADM — Camada de API v3.0
+   PIBENS ADM — Camada de API v3.1
    ============================================================ */
 
 const API = {
 
   async call(funcao, args = []) {
     if (!funcao) throw new Error('Função não especificada.');
-
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), CONFIG.API_TIMEOUT);
 
@@ -21,16 +20,11 @@ const API = {
       });
 
       clearTimeout(timeoutId);
-
       const texto = await resp.text();
       let json;
 
-      try {
-        json = JSON.parse(texto);
-      } catch (e) {
-        console.error('[API] Resposta não-JSON:', texto.substring(0, 300));
-        throw new Error(CONFIG.MSG.ERRO_JSON);
-      }
+      try { json = JSON.parse(texto); }
+      catch (e) { throw new Error(CONFIG.MSG.ERRO_JSON); }
 
       if (!json.ok) throw new Error(json.erro || CONFIG.MSG.ERRO_GENERICO);
       return json.data;
@@ -59,11 +53,8 @@ const API = {
     return r;
   },
 
-  // ⚠️ AQUI ESTÁ A CORREÇÃO DO BOTÃO APAGAR
   async remover(id, tabela = null, nomeRegistro = null) {
-    // Envia o ID e a TABELA para o Apps Script
     const r = await this.call('removerRegistro', [id, tabela]);
-    
     const descricao = `Removeu registro${tabela ? ' de ' + tabela : ''}${nomeRegistro ? ': ' + nomeRegistro : ' #' + id}`;
     this.log('remover', tabela || 'Sistema', descricao).catch(() => {});
     return r;
@@ -111,4 +102,4 @@ const API = {
 
 };
 
-console.log('%c[API] Módulo carregado v3.0', 'color:#64748b;font-size:11px;');
+console.log('%c[API] Módulo carregado v3.1 (log real)', 'color:#64748b;font-size:11px;');

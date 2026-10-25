@@ -1,10 +1,11 @@
 /* ============================================================
-   PIBENS ADM — Módulo Membros v3.1
+   PIBENS ADM — Módulo Membros v3.2
    ============================================================ */
 
 const Membros = {
 
   _dados: [],
+  _cargos: [],
   _filtroCategoria: '',
   _filtroSituacao: '',
   _filtroMinisterio: '',
@@ -17,8 +18,12 @@ const Membros = {
     c.innerHTML = UI.loading('Carregando membros...');
 
     try {
-      const dados = await API.listar(CONFIG.TABELAS.MEMBROS);
+      const [dados, cargos] = await Promise.all([
+        API.listar(CONFIG.TABELAS.MEMBROS),
+        API.call('adminListarCargos')
+      ]);
       this._dados = dados || [];
+      this._cargos = cargos || [];
       this._renderTudo();
     } catch (e) {
       c.innerHTML = `
@@ -155,7 +160,7 @@ const Membros = {
       <div class="membros-toolbar">
         <div class="membros-busca">
           <i class="fas fa-search"></i>
-          <input type="text" id="membros-busca-input" placeholder="Buscar por nome, apelido, telefone..." value="${UI.escapar(this._busca)}" oninput="Membros._buscar(this.value)">
+          <input type="text" id="membros-busca-input" placeholder="Buscar por nome, apelido..." value="${UI.escapar(this._busca)}" oninput="Membros._buscar(this.value)">
         </div>
         <div class="membros-filtros">
           <select class="form-select" onchange="Membros._filtrarCategoria(this.value)">
@@ -256,11 +261,14 @@ const Membros = {
          </button>`
       : '';
 
-    const nomeExibicao = m.Nome + (m.Apelido ? ` <span style="color:#64748b;font-weight:400;font-size:0.85em;">(${m.Apelido})</span>` : '');
+    const cargo = this._cargos?.find(c => c.membro_id == m.sheetRowIndex);
+    const coroa = cargo ? `<i class="fas fa-crown" style="color:#f59e0b; margin-right:6px;" title="${cargo.cargo}"></i>` : '';
+    
+    const nomeExibicao = `${coroa}<strong>${m.Nome}</strong> ${m.Apelido ? `<span style="color:#64748b;font-weight:400;font-size:0.85em;">(${m.Apelido})</span>` : ''}`;
 
     return `
       <tr>
-        <td><strong>${nomeExibicao}</strong></td>
+        <td>${nomeExibicao}</td>
         <td>${UI.telefone(m.Telefone)}</td>
         <td><div class="membros-badges-min">${badgesMin}</div></td>
         <td><span class="membros-badge" style="background:${corSit}22;color:${corSit};">${situacao}</span></td>
@@ -289,7 +297,6 @@ const Membros = {
   _filtrarSituacao(valor) { this._filtroSituacao = valor; this._renderTudo(); },
   _filtrarMinisterio(valor) { this._filtroMinisterio = valor; this._renderTudo(); },
   _clicarMinisterio(nome) { this._filtroMinisterio = (this._filtroMinisterio === nome) ? '' : nome; this._renderTudo(); },
-  _limparFiltros() { this._filtroCategoria = ''; this._filtroSituacao = ''; this._filtroMinisterio = ''; this._busca = ''; this._renderTudo(); },
 
   ordenarAZ() {
     this._dados.sort((a, b) => (a.Nome || '').localeCompare(b.Nome || '', 'pt-BR', { sensitivity: 'base' }));
@@ -456,6 +463,20 @@ const Membros = {
     form.querySelectorAll('.min-checkbox-input:checked').forEach((cb) => { marcados.push(cb.value); });
     dados.Ministérios = JSON.stringify(marcados);
 
+    const cpfLimpo = (dados.CPF || '').replace(/\D/g, '');
+    const nomeLimpo = (dados.Nome || '').toLowerCase().trim();
+
+    for (const m of this._dados) {
+      if (id && m.sheetRowIndex == id) continue;
+
+      if (cpfLimpo && (m.CPF || '').replace(/\D/g, '') === cpfLimpo) {
+        return UI.toast('Erro: Já existe um membro com este CPF!', 'error');
+      }
+      if (nomeLimpo && (m.Nome || '').toLowerCase().trim() === nomeLimpo) {
+        return UI.toast('Erro: Já existe um membro com este Nome!', 'error');
+      }
+    }
+
     for (const campo of CONFIG.CAMPOS.Membros) {
       if (campo.obrigatorio && !dados[campo.nome]) return UI.toast(`Preencha o campo obrigatório: ${campo.nome}`, 'error');
     }
@@ -501,4 +522,4 @@ const Membros = {
 
 };
 
-console.log('%c[Membros] Módulo carregado v3.1 com Sexo', 'color:#64748b;font-size:11px;');
+console.log('%c[Membros] Módulo carregado v3.2', 'color:#64748b;font-size:11px;');

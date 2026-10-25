@@ -1,5 +1,5 @@
 /* ============================================================
-   PIBENS ADM — Módulo Diretoria e Cargos v1.0
+   PIBENS ADM — Módulo Diretoria e Cargos v1.1
    ============================================================ */
 
 const Diretoria = {
@@ -22,9 +22,15 @@ const Diretoria = {
   _renderTudo() {
     const c = document.getElementById('content');
     
-    // Agrupa por cargo
+    // ORDENA OS CARGOS POR HIERARQUIA
+    const cargosOrdenados = [...this._dados].sort((a, b) => {
+      const ordemA = a.ordem || 99;
+      const ordemB = b.ordem || 99;
+      return ordemA - ordemB;
+    });
+
     const grupos = {};
-    this._dados.forEach(d => {
+    cargosOrdenados.forEach(d => {
       if (!grupos[d.cargo]) grupos[d.cargo] = [];
       grupos[d.cargo].push(d);
     });
@@ -42,14 +48,15 @@ const Diretoria = {
       ${Object.keys(grupos).length === 0 ? UI.emptyState('Nenhum cargo cadastrado', 'Defina a diretoria e os líderes da igreja.', '') : ''}
 
       ${Object.keys(grupos).map(cargo => `
-        <div class="data-card" style="margin-bottom:16px; padding:20px;">
-          <h3 style="font-size:16px; color:#1e293b; border-bottom:2px solid #e2e8f0; padding-bottom:8px; margin-bottom:16px;">
-            <i class="fas fa-crown" style="color:#f59e0b; margin-right:8px;"></i> ${cargo}
+        <div class="data-card" style="margin-bottom:16px; padding:20px; border-left:4px solid ${cargo.includes('Pastor') ? '#f59e0b' : '#e2e8f0'};">
+          <h3 style="font-size:16px; color:#1e293b; border-bottom:1px solid #e2e8f0; padding-bottom:8px; margin-bottom:16px;">
+            ${cargo.includes('Pastor') ? '<i class="fas fa-crown" style="color:#f59e0b; margin-right:8px;"></i>' : '<i class="fas fa-user-tie" style="color:#94a3b8; margin-right:8px;"></i>'} 
+            ${cargo}
           </h3>
           <div style="display:flex; gap:12px; flex-wrap:wrap;">
             ${grupos[cargo].map(d => `
               <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:12px 16px; border-radius:12px; display:flex; align-items:center; gap:12px;">
-                <div class="avatar" style="width:40px; height:40px; font-size:16px;">${(d.nome_membro || '?').charAt(0).toUpperCase()}</div>
+                <div class="avatar" style="width:40px; height:40px; font-size:16px; background:${cargo.includes('Pastor') ? '#fef3c7; color:#d97706' : '#e2e8f0; color:#475569'};">${(d.nome_membro || '?').charAt(0).toUpperCase()}</div>
                 <div>
                   <strong style="display:block; color:#1e293b; font-size:14px;">${UI.escapar(d.nome_membro || 'Membro Removido')}</strong>
                   <span style="font-size:12px; color:#64748b;">${d.apelido ? '('+d.apelido+')' : 'Membro'}</span>
@@ -102,7 +109,6 @@ const Diretoria = {
 
     UI.openModal('👑 Adicionar à Diretoria', html, botoes);
 
-    // Preenche o select de membros
     API.listar(CONFIG.TABELAS.MEMBROS).then(membros => {
       const select = document.getElementById('dir-membro');
       if (!select) return;
@@ -140,4 +146,4 @@ const Diretoria = {
   }
 
 };
-console.log('%c[Diretoria] Módulo carregado v1.0', 'color:#64748b;font-size:11px;');
+console.log('%c[Diretoria] Módulo carregado v1.1 (hierárquico)', 'color:#64748b;font-size:11px;');

@@ -1,9 +1,8 @@
 /* ============================================================
-   PIBENS ADM — Módulo Presença v2.7
+   PIBENS ADM — Módulo Presença v2.8
    ============================================================
    - Check-in com Apelido
-   - Alerta de ausentes direto na tabela (Lógica melhorada)
-   - Botão de WhatsApp para contato
+   - Alerta de ausentes com WhatsApp humanizado
    ============================================================ */
 
 const Presenca = {
@@ -84,26 +83,21 @@ const Presenca = {
     const taxa = total > 0 ? Math.min(Math.round((total / 60) * 100), 100) : 0;
     const corTaxa = taxa >= 70 ? '#10b981' : taxa >= 50 ? '#f59e0b' : '#dc2626';
 
-    // Lógica para achar os faltantes deste culto:
-    // Se não for o último culto, a gente calcula quem faltou nele comparando com o anterior.
     let faltantesDesteCulto = [];
     
     if (index > 0) {
-      const cultoAnterior = listaCompleta[index - 1]; // O que aconteceu antes deste
+      const cultoAnterior = listaCompleta[index - 1];
       let presAnterior = [];
       let presAtual = [];
-      
       try { presAnterior = JSON.parse(cultoAnterior.MembrosPresentes || '[]'); } catch(e) {}
       try { presAtual = JSON.parse(p.MembrosPresentes || '[]'); } catch(e) {}
       
-      // Faltantes: Estavam no culto anterior, mas não estão neste
       faltantesDesteCulto = this._membros.filter(m => 
         presAnterior.includes(String(m.sheetRowIndex)) && 
         !presAtual.includes(String(m.sheetRowIndex)) &&
         (m.Situação || 'Ativo') === 'Ativo'
       );
     } else if (index === 0) {
-      // Se for o culto mais recente, calcula quem já não vem do penúltimo para cá
       const cultoAnterior = listaCompleta[1];
       if (cultoAnterior) {
         let presAnterior = [];
@@ -140,15 +134,9 @@ const Presenca = {
         <td style="text-align:center;">${botaoFaltantes}</td>
         <td class="col-actions" style="display:flex; gap:6px;">
           ${botaoYoutube}
-          <button class="btn btn-success btn-sm" onclick="Presenca.editar('${p.sheetRowIndex}')" title="Editar">
-            <i class="fas fa-edit"></i>
-          </button>
-          <button class="btn btn-primary btn-sm" onclick="Presenca.ver('${p.sheetRowIndex}')" title="Fazer Check-in">
-            <i class="fas fa-eye"></i>
-          </button>
-          <button class="btn btn-danger btn-sm" onclick="Presenca.remover('${p.sheetRowIndex}')" title="Remover">
-            <i class="fas fa-trash"></i>
-          </button>
+          <button class="btn btn-success btn-sm" onclick="Presenca.editar('${p.sheetRowIndex}')" title="Editar"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-primary btn-sm" onclick="Presenca.ver('${p.sheetRowIndex}')" title="Fazer Check-in"><i class="fas fa-eye"></i></button>
+          <button class="btn btn-danger btn-sm" onclick="Presenca.remover('${p.sheetRowIndex}')" title="Remover"><i class="fas fa-trash"></i></button>
         </td>
       </tr>
     `;
@@ -168,13 +156,12 @@ const Presenca = {
       let presentes = [];
       try { if (p.MembrosPresentes) presentes = JSON.parse(p.MembrosPresentes); } catch (e) { presentes = []; }
 
-      // Pega a lista completa para achar o anterior
       const listaCompleta = [...this._dados].sort((a, b) => new Date(b.Data) - new Date(a.Data));
       const indexAtual = listaCompleta.findIndex(x => x.sheetRowIndex == id);
       
       let faltantes = [];
       if (indexAtual < listaCompleta.length - 1) {
-        const cultoAnterior = listaCompleta[indexAtual + 1]; // O imediatamente anterior a este
+        const cultoAnterior = listaCompleta[indexAtual + 1];
         let presAnterior = [];
         try { presAnterior = JSON.parse(cultoAnterior.MembrosPresentes || '[]'); } catch(e) {}
         
@@ -192,16 +179,22 @@ const Presenca = {
         ${faltantes.length > 0 ? `
           <div style="background:${focarFaltantes ? '#fef2f2' : '#f8fafc'}; border:1px solid ${focarFaltantes ? '#fecaca' : '#e2e8f0'}; border-radius:8px; padding:16px; margin-bottom:16px; ${focarFaltantes ? 'box-shadow:0 0 0 3px rgba(220,38,38,0.2);' : ''}">
             <h4 style="margin:0 0 12px 0; color:#dc2626; font-size:14px; display:flex; align-items:center; gap:8px;">
-              <i class="fas fa-exclamation-triangle"></i> Atenção Pastoral: Membros que faltaram neste culto (${faltantes.length})
+              <i class="fas fa-heart"></i> Cuidado Pastoral: Ausentes neste culto (${faltantes.length})
             </h4>
             <div style="display:flex; flex-direction:column; gap:8px;">
               ${faltantes.map(m => {
                 const telLimpo = (m.Telefone || '').replace(/\D/g, '');
-                const msgWpp = encodeURIComponent(`Olá ${m.Nome}, a paz do Senhor! Sentimos sua falta no último culto. Estamos orando por você. Como você está?`);
+                
+                // LÓGICA HUMANIZADA: Pega o apelido ou o primeiro nome
+                const nomeChamada = m.Apelido ? m.Apelido : (m.Nome || '').split(' ')[0];
+                
+                // Mensagem mais acolhedora e pessoal
+                const msgWpp = encodeURIComponent(`Olá ${nomeChamada}, a paz do Senhor! 💙 Sentimos sua falta no nosso último encontro. Estamos orando por você e sua família. Que Deus te abençoe!`);
+                
                 return `
                   <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:8px 12px; border-radius:6px; border:1px solid #fecaca;">
-                    <span style="font-size:13px; color:#1e293b;"><strong>${UI.escapar(m.Nome)}</strong></span>
-                    ${telLimpo ? `<a href="https://wa.me/55${telLimpo}?text=${msgWpp}" target="_blank" style="background:#25D366; color:#fff; padding:4px 10px; border-radius:6px; font-size:12px; text-decoration:none; display:flex; align-items:center; gap:4px; font-weight:600;"><i class="fab fa-whatsapp"></i> Enviar Mensagem</a>` : `<span style="font-size:11px; color:#94a3b8;">Sem telefone</span>`}
+                    <span style="font-size:13px; color:#1e293b;"><strong>${UI.escapar(m.Nome)}</strong> ${m.Apelido ? `(${m.Apelido})` : ''}</span>
+                    ${telLimpo ? `<a href="https://wa.me/55${telLimpo}?text=${msgWpp}" target="_blank" style="background:#25D366; color:#fff; padding:4px 10px; border-radius:6px; font-size:12px; text-decoration:none; display:flex; align-items:center; gap:4px; font-weight:600;"><i class="fab fa-whatsapp"></i> Enviar Carinho</a>` : `<span style="font-size:11px; color:#94a3b8;">Sem telefone</span>`}
                   </div>
                 `;
               }).join('')}
@@ -303,5 +296,4 @@ const Presenca = {
   }
 
 };
-
-console.log('%c[Presenca] Módulo carregado v2.7 (Faltantes Inteligentes)', 'color:#64748b;font-size:11px;');
+console.log('%c[Presenca] Módulo carregado v2.8 (WhatsApp Pastoral)', 'color:#64748b;font-size:11px;');

@@ -1,8 +1,8 @@
 /* ============================================================
-   PIBENS ADM — Módulo Presença v2.6
+   PIBENS ADM — Módulo Presença v2.7
    ============================================================
    - Check-in com Apelido
-   - Alerta de ausentes direto na tabela (Lógica: 4º culto)
+   - Alerta de ausentes direto na tabela (Lógica melhorada)
    - Botão de WhatsApp para contato
    ============================================================ */
 
@@ -39,8 +39,6 @@ const Presenca = {
 
   _renderTudo() {
     const c = document.getElementById('content');
-    
-    // Ordena do mais recente para o mais antigo
     const lista = [...this._dados].sort((a, b) => new Date(b.Data) - new Date(a.Data));
 
     c.innerHTML = `
@@ -67,7 +65,7 @@ const Presenca = {
                 <th>Pregador</th>
                 <th>Presentes</th>
                 <th>Taxa</th>
-                <th>Faltantes</th> <!-- NOVA COLUNA -->
+                <th>Faltantes</th>
                 <th>Ações</th>
               </tr>
             </thead>
@@ -86,38 +84,44 @@ const Presenca = {
     const taxa = total > 0 ? Math.min(Math.round((total / 60) * 100), 100) : 0;
     const corTaxa = taxa >= 70 ? '#10b981' : taxa >= 50 ? '#f59e0b' : '#dc2626';
 
-    // Lógica de faltantes para ESTE culto
-    // Pega os 4 cultos a partir da data deste culto (ele + os 3 anteriores)
-    const janelaCultos = listaCompleta.slice(index, index + 4);
-    let faltantes = 0;
-
-    // Só calcula se tiver pelo menos 4 cultos na janela
-    if (janelaCultos.length === 4) {
-      const cultoAntigo = janelaCultos[3];
-      const ultimos3 = [janelaCultos[0], janelaCultos[1], janelaCultos[2]];
+    // Lógica para achar os faltantes deste culto:
+    // Se não for o último culto, a gente calcula quem faltou nele comparando com o anterior.
+    let faltantesDesteCulto = [];
+    
+    if (index > 0) {
+      const cultoAnterior = listaCompleta[index - 1]; // O que aconteceu antes deste
+      let presAnterior = [];
+      let presAtual = [];
       
-      this._membros.forEach(m => {
-        let estavaAntes = false;
-        try {
-          const presAntigas = JSON.parse(cultoAntigo.MembrosPresentes || '[]');
-          estavaAntes = presAntigas.includes(String(m.sheetRowIndex));
-        } catch(e) {}
-
-        if (estavaAntes) {
-          let faltouTodos = true;
-          for (let i = 0; i < 3; i++) {
-            try {
-              const presRecentes = JSON.parse(ultimos3[i].MembrosPresentes || '[]');
-              if (presRecentes.includes(String(m.sheetRowIndex))) { faltouTodos = false; break; }
-            } catch(e) {}
-          }
-          if (faltouTodos) faltantes++;
-        }
-      });
+      try { presAnterior = JSON.parse(cultoAnterior.MembrosPresentes || '[]'); } catch(e) {}
+      try { presAtual = JSON.parse(p.MembrosPresentes || '[]'); } catch(e) {}
+      
+      // Faltantes: Estavam no culto anterior, mas não estão neste
+      faltantesDesteCulto = this._membros.filter(m => 
+        presAnterior.includes(String(m.sheetRowIndex)) && 
+        !presAtual.includes(String(m.sheetRowIndex)) &&
+        (m.Situação || 'Ativo') === 'Ativo'
+      );
+    } else if (index === 0) {
+      // Se for o culto mais recente, calcula quem já não vem do penúltimo para cá
+      const cultoAnterior = listaCompleta[1];
+      if (cultoAnterior) {
+        let presAnterior = [];
+        let presAtual = [];
+        try { presAnterior = JSON.parse(cultoAnterior.MembrosPresentes || '[]'); } catch(e) {}
+        try { presAtual = JSON.parse(p.MembrosPresentes || '[]'); } catch(e) {}
+        faltantesDesteCulto = this._membros.filter(m => 
+          presAnterior.includes(String(m.sheetRowIndex)) && 
+          !presAtual.includes(String(m.sheetRowIndex)) &&
+          (m.Situação || 'Ativo') === 'Ativo'
+        );
+      }
     }
 
-    const botaoFaltantes = faltantes > 0 
-      ? `<button class="btn btn-sm" onclick="Presenca._abrirFaltantes('${p.sheetRowIndex}')" style="background:#fee2e2; color:#dc2626; border:1px solid #fecaca; font-weight:700; display:flex; align-items:center; gap:4px;" title="Ver quem faltou"><i class="fas fa-user-slash"></i> ${faltantes}</button>`
+    const qtdFaltantes = faltantesDesteCulto.length;
+
+    const botaoFaltantes = qtdFaltantes > 0 
+      ? `<button class="btn btn-sm" onclick="Presenca.ver('${p.sheetRowIndex}')" style="background:#fee2e2; color:#dc2626; border:1px solid #fecaca; font-weight:700; display:flex; align-items:center; gap:4px;" title="Ver quem faltou"><i class="fas fa-user-slash"></i> ${qtdFaltantes}</button>`
       : `<span style="color:#cbd5e1; font-size:12px;">—</span>`;
 
     const temLink = p['Link do Culto'] && p['Link do Culto'].trim() !== '';
@@ -150,15 +154,6 @@ const Presenca = {
     `;
   },
 
-  // Abre o modal focado nos faltantes (chamado pelo botão da tabela)
-  _abrirFaltantes(idCulto) {
-    const p = this._dados.find(x => x.sheetRowIndex == idCulto);
-    if (!p) return;
-    
-    // Chama a função ver(), mas passando um sinalizador para focar nos faltantes
-    this.ver(idCulto, true);
-  },
-
   novo() { this._abrirForm(null); },
   editar(id) { const r = this._dados.find(p => p.sheetRowIndex == id); if (r) this._abrirForm(r); },
 
@@ -173,34 +168,20 @@ const Presenca = {
       let presentes = [];
       try { if (p.MembrosPresentes) presentes = JSON.parse(p.MembrosPresentes); } catch (e) { presentes = []; }
 
-      // Calcula os faltantes novamente para exibir no modal
+      // Pega a lista completa para achar o anterior
       const listaCompleta = [...this._dados].sort((a, b) => new Date(b.Data) - new Date(a.Data));
-      const index = listaCompleta.findIndex(x => x.sheetRowIndex == id);
-      const janelaCultos = listaCompleta.slice(index, index + 4);
-      const faltantes3 = [];
-
-      if (janelaCultos.length === 4) {
-        const cultoAntigo = janelaCultos[3];
-        const ultimos3 = [janelaCultos[0], janelaCultos[1], janelaCultos[2]];
+      const indexAtual = listaCompleta.findIndex(x => x.sheetRowIndex == id);
+      
+      let faltantes = [];
+      if (indexAtual < listaCompleta.length - 1) {
+        const cultoAnterior = listaCompleta[indexAtual + 1]; // O imediatamente anterior a este
+        let presAnterior = [];
+        try { presAnterior = JSON.parse(cultoAnterior.MembrosPresentes || '[]'); } catch(e) {}
         
-        listaMembros.forEach(m => {
-          let estavaAntes = false;
-          try {
-            const presAntigas = JSON.parse(cultoAntigo.MembrosPresentes || '[]');
-            estavaAntes = presAntigas.includes(String(m.sheetRowIndex));
-          } catch(e) {}
-
-          if (estavaAntes) {
-            let faltouTodos = true;
-            for (let i = 0; i < 3; i++) {
-              try {
-                const presRecentes = JSON.parse(ultimos3[i].MembrosPresentes || '[]');
-                if (presRecentes.includes(String(m.sheetRowIndex))) { faltouTodos = false; break; }
-              } catch(e) {}
-            }
-            if (faltouTodos) faltantes3.push(m);
-          }
-        });
+        faltantes = listaMembros.filter(m => 
+          presAnterior.includes(String(m.sheetRowIndex)) && 
+          !presentes.includes(String(m.sheetRowIndex))
+        );
       }
 
       const linkYoutube = p['Link do Culto'] && p['Link do Culto'].trim() !== ''
@@ -208,15 +189,15 @@ const Presenca = {
         : '';
 
       const html = `
-        ${faltantes3.length > 0 ? `
+        ${faltantes.length > 0 ? `
           <div style="background:${focarFaltantes ? '#fef2f2' : '#f8fafc'}; border:1px solid ${focarFaltantes ? '#fecaca' : '#e2e8f0'}; border-radius:8px; padding:16px; margin-bottom:16px; ${focarFaltantes ? 'box-shadow:0 0 0 3px rgba(220,38,38,0.2);' : ''}">
             <h4 style="margin:0 0 12px 0; color:#dc2626; font-size:14px; display:flex; align-items:center; gap:8px;">
-              <i class="fas fa-exclamation-triangle"></i> Atenção Pastoral: Membros Ausentes (3+ cultos)
+              <i class="fas fa-exclamation-triangle"></i> Atenção Pastoral: Membros que faltaram neste culto (${faltantes.length})
             </h4>
             <div style="display:flex; flex-direction:column; gap:8px;">
-              ${faltantes3.map(m => {
+              ${faltantes.map(m => {
                 const telLimpo = (m.Telefone || '').replace(/\D/g, '');
-                const msgWpp = encodeURIComponent(`Olá ${m.Nome}, a paz do Senhor! Sentimos sua falta nos nossos cultos. Estamos orando por você. Como você está?`);
+                const msgWpp = encodeURIComponent(`Olá ${m.Nome}, a paz do Senhor! Sentimos sua falta no último culto. Estamos orando por você. Como você está?`);
                 return `
                   <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:8px 12px; border-radius:6px; border:1px solid #fecaca;">
                     <span style="font-size:13px; color:#1e293b;"><strong>${UI.escapar(m.Nome)}</strong></span>
@@ -323,4 +304,4 @@ const Presenca = {
 
 };
 
-console.log('%c[Presenca] Módulo carregado v2.6 (Faltantes na Tabela)', 'color:#64748b;font-size:11px;');
+console.log('%c[Presenca] Módulo carregado v2.7 (Faltantes Inteligentes)', 'color:#64748b;font-size:11px;');

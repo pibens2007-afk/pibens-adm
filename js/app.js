@@ -1,70 +1,60 @@
 /* ============================================================
-   PIBENS ADM — Orquestrador principal
-   ============================================================
-   Roda ao carregar a página. Responsável por:
-   - Inicializar os módulos na ordem correta
-   - Verificar sessão e direcionar (login ou app)
-   - Atualizar elementos globais (data, versão, etc.)
+   PIBENS ADM — Inicialização do App v2.1
    ============================================================ */
 
 const App = {
-
-  /* ----------------------------------------------------------
-     Inicialização principal (chamada ao carregar)
-     ---------------------------------------------------------- */
+  
   async iniciar() {
-    console.log('%c[App] Inicializando...', 'color:#2563eb;font-weight:bold;');
-
     try {
-      // 1) Preenche ano no rodapé
-      const anoEl = document.getElementById('footer-year');
-      if (anoEl) anoEl.textContent = new Date().getFullYear();
+      // Verifica se o usuário já está logado (sessão salva)
+      const usuarioSalvo = localStorage.getItem('pibens_adm_usuario');
+      
+      if (usuarioSalvo) {
+        // Já está logado, vai direto pro app
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('otp-screen').style.display = 'none';
+        document.getElementById('app-root').style.display = 'flex';
+        
+        // Atualiza o nome no menu lateral
+        const user = JSON.parse(usuarioSalvo);
+        const nomeMenu = document.querySelector('.sidebar-user-name');
+        if (nomeMenu && user.nome) nomeMenu.textContent = user.nome;
 
-      // 2) Atualiza a data na topbar
-      UI.setDataTopbar();
-
-      // 3) Monta o menu (sidebar) e já navega pra última página
-      Menu.iniciar();
-
-      // 4) Carrega os banners do topo (aniversariantes + CBB)
-      //    O dashboard vai renderizar os banners por conta própria,
-      //    mas se o usuário já estiver em outra tela, isso garante
-      //    que os banners apareçam mesmo assim.
-      this._carregarBannersGlobais();
-
-      console.log('%c[App] Pronto!', 'color:#059669;font-weight:bold;');
-
-    } catch (e) {
-      console.error('[App] Erro na inicialização:', e);
-      UI.toast('Erro ao iniciar o app: ' + e.message, 'error', 6000);
-    }
-  },
-
-  /* ----------------------------------------------------------
-     Carrega os banners do topo (independe do módulo ativo)
-     ---------------------------------------------------------- */
-  async _carregarBannersGlobais() {
-    try {
-      const info = await API.banners();
-      if (typeof Dashboard !== 'undefined' && typeof Dashboard._renderBanners === 'function') {
-        Dashboard._renderBanners(info);
+        // Inicia o Menu
+        if (typeof Menu !== 'undefined') Menu.iniciar();
+        
+      } else {
+        // Não está logado, mostra a tela de login
+        document.getElementById('login-screen').style.display = 'flex';
+        document.getElementById('app-root').style.display = 'none';
+        
+        // Foca no campo de senha
+        const inputSenha = document.getElementById('login-password');
+        if (inputSenha) inputSenha.focus();
       }
+      
+      // Preenche o ano no rodapé
+      const footerYear = document.getElementById('footer-year');
+      if (footerYear) footerYear.textContent = new Date().getFullYear();
+      
+      // Preenche a data no topo
+      const topbarDate = document.getElementById('topbar-date');
+      if (topbarDate) {
+        const hoje = new Date();
+        const opcoes = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+        topbarDate.querySelector('span').textContent = hoje.toLocaleDateString('pt-BR', opcoes);
+      }
+
     } catch (e) {
-      console.warn('[App] Não foi possível carregar banners:', e.message);
+      console.error('Erro ao iniciar o App:', e);
     }
   }
 
 };
 
-/* ============================================================
-   BOOT — Roda quando a página termina de carregar
-   ============================================================ */
-window.addEventListener('load', () => {
-  console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color:#2563eb;');
-  console.log(`%c${CONFIG.APP_NAME} v${CONFIG.APP_VERSION}`, 'color:#2563eb;font-weight:bold;font-size:16px;');
-  console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color:#2563eb;');
-
-  Auth.iniciar();
+// Inicia o aplicativo assim que a página carregar
+document.addEventListener('DOMContentLoaded', () => {
+  App.iniciar();
 });
 
-console.log('%c[App] Módulo carregado', 'color:#64748b;font-size:11px;');
+console.log('%c[App] Módulo carregado v2.1', 'color:#64748b;font-size:11px;');

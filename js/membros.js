@@ -1,8 +1,7 @@
 /* ============================================================
-   PIBENS ADM — Módulo Membros v3.3
+   PIBENS ADM — Módulo Membros v4.0
    ============================================================
-   - Barrinha de aviso de filtro ativo
-   - Clique no card desativa o filtro
+   - Filtro de Liderança inteligente (cruza com Diretoria)
    ============================================================ */
 
 const Membros = {
@@ -29,16 +28,7 @@ const Membros = {
       this._cargos = cargos || [];
       this._renderTudo();
     } catch (e) {
-      c.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-state-icon" style="color:#dc2626;"><i class="fas fa-exclamation-triangle"></i></div>
-          <div class="empty-state-title">Erro ao carregar</div>
-          <div class="empty-state-text">${UI.escapar(e.message)}</div>
-          <button class="btn btn-primary" onclick="Membros.render()">
-            <i class="fas fa-sync"></i> Tentar de novo
-          </button>
-        </div>
-      `;
+      c.innerHTML = `<div class="empty-state"><div class="empty-state-icon" style="color:#dc2626;"><i class="fas fa-exclamation-triangle"></i></div><div class="empty-state-title">Erro</div><div class="empty-state-text">${UI.escapar(e.message)}</div></div>`;
     }
   },
 
@@ -72,6 +62,13 @@ const Membros = {
     if (this._filtroMinisterio) {
       lista = lista.filter((m) => {
         const mins = this._parseMinisterios(m.Ministérios);
+        
+        // Se filtrou por "Liderança", tem que ver se a pessoa tem o ministério Liderança OU se tem um cargo na diretoria
+        if (this._filtroMinisterio === 'Liderança') {
+          const temCargo = this._cargos?.some(c => c.membro_id == m.sheetRowIndex);
+          return mins.includes('Liderança') || temCargo;
+        }
+
         return mins.includes(this._filtroMinisterio);
       });
     }
@@ -86,8 +83,7 @@ const Membros = {
       try {
         const arr = JSON.parse(v);
         if (Array.isArray(arr)) return arr;
-      } catch (e) { /* não é JSON, tenta split */ }
-      return v.split(',').map((s) => s.trim()).filter(Boolean);
+      } catch (e) { return v.split(',').map((s) => s.trim()).filter(Boolean); }
     }
     return [];
   },
@@ -110,50 +106,38 @@ const Membros = {
     const contagemMin = {};
     this._dados.forEach((m) => {
       const mins = this._parseMinisterios(m.Ministérios);
-      mins.forEach((min) => {
-        contagemMin[min] = (contagemMin[min] || 0) + 1;
-      });
+      mins.forEach((min) => { contagemMin[min] = (contagemMin[min] || 0) + 1; });
+      
+      // Se tem cargo de diretoria, conta como Liderança
+      if (this._cargos?.some(c => c.membro_id == m.sheetRowIndex)) {
+        contagemMin['Liderança'] = (contagemMin['Liderança'] || 0) + 1;
+      }
     });
 
     const ministeriosAtivos = CONFIG.MINISTERIOS.filter((min) => contagemMin[min.nome] > 0);
-    
-    // Verifica se tem algum filtro ativo para mostrar a barrinha
     const temFiltroAtivo = this._filtroMinisterio || this._busca || this._filtroCategoria || this._filtroSituacao;
 
     c.innerHTML = `
       <div class="membros-stats">
         <div class="membros-stat">
           <i class="fas fa-users" style="color:#2563eb;"></i>
-          <div>
-            <span class="membros-stat-value">${total}</span>
-            <span class="membros-stat-label">Total</span>
-          </div>
+          <div><span class="membros-stat-value">${total}</span><span class="membros-stat-label">Total</span></div>
         </div>
         <div class="membros-stat">
           <i class="fas fa-user-check" style="color:#059669;"></i>
-          <div>
-            <span class="membros-stat-value">${ativos}</span>
-            <span class="membros-stat-label">Ativos</span>
-          </div>
+          <div><span class="membros-stat-value">${ativos}</span><span class="membros-stat-label">Ativos</span></div>
         </div>
         <div class="membros-stat">
           <i class="fas fa-sitemap" style="color:#7c3aed;"></i>
-          <div>
-            <span class="membros-stat-value">${ministeriosAtivos.length}</span>
-            <span class="membros-stat-label">Ministérios ativos</span>
-          </div>
+          <div><span class="membros-stat-value">${ministeriosAtivos.length}</span><span class="membros-stat-label">Ministérios</span></div>
         </div>
       </div>
 
       ${ministeriosAtivos.length > 0 ? `
         <div class="membros-ministerios-cards">
           ${ministeriosAtivos.map((min) => `
-            <div class="membros-min-card ${this._filtroMinisterio === min.nome ? 'active' : ''}"
-                 style="border-left-color:${min.cor};"
-                 onclick="Membros._clicarMinisterio('${min.nome.replace(/'/g, "\\'")}')">
-              <div class="membros-min-icon" style="background:${min.cor}22;color:${min.cor};">
-                <i class="fas ${min.icon}"></i>
-              </div>
+            <div class="membros-min-card ${this._filtroMinisterio === min.nome ? 'active' : ''}" style="border-left-color:${min.cor};" onclick="Membros._clicarMinisterio('${min.nome.replace(/'/g, "\\'")}')">
+              <div class="membros-min-icon" style="background:${min.cor}22;color:${min.cor};"><i class="fas ${min.icon}"></i></div>
               <div class="membros-min-info">
                 <span class="membros-min-count" style="color:${min.cor};">${contagemMin[min.nome]}</span>
                 <span class="membros-min-label">${min.nome}</span>
@@ -166,7 +150,7 @@ const Membros = {
       <div class="membros-toolbar">
         <div class="membros-busca">
           <i class="fas fa-search"></i>
-          <input type="text" id="membros-busca-input" placeholder="Buscar por nome, apelido..." value="${UI.escapar(this._busca)}" oninput="Membros._buscar(this.value)">
+          <input type="text" id="membros-busca-input" placeholder="Buscar..." value="${UI.escapar(this._busca)}" oninput="Membros._buscar(this.value)">
         </div>
         <div class="membros-filtros">
           <select class="form-select" onchange="Membros._filtrarCategoria(this.value)">
@@ -182,13 +166,9 @@ const Membros = {
           </select>
           <select class="form-select" onchange="Membros._filtrarMinisterio(this.value)">
             <option value="">Todos os ministérios</option>
-            ${CONFIG.MINISTERIOS.map((m) => `
-              <option value="${UI.escapar(m.nome)}" ${this._filtroMinisterio === m.nome ? 'selected' : ''}>${m.nome}</option>
-            `).join('')}
+            ${CONFIG.MINISTERIOS.map((m) => `<option value="${UI.escapar(m.nome)}" ${this._filtroMinisterio === m.nome ? 'selected' : ''}>${m.nome}</option>`).join('')}
           </select>
-          <button class="btn btn-success" onclick="Membros.novo()">
-            <i class="fas fa-plus"></i> Novo
-          </button>
+          <button class="btn btn-success" onclick="Membros.novo()"><i class="fas fa-plus"></i> Novo</button>
         </div>
       </div>
 
@@ -202,59 +182,31 @@ const Membros = {
             ${this._busca ? `<strong>"${UI.escapar(this._busca)}"</strong>` : ''}
             — ${dados.length} resultado(s)
           </span>
-          <button class="btn btn-sm" onclick="Membros._limparFiltros()" style="background:#fff; color:#3730a3; border:1px solid #c7d2fe; padding:4px 12px; font-weight:700;">
-            <i class="fas fa-times"></i> Limpar
-          </button>
+          <button class="btn btn-sm" onclick="Membros._limparFiltros()" style="background:#fff; color:#3730a3; border:1px solid #c7d2fe; padding:4px 12px; font-weight:700;"><i class="fas fa-times"></i> Limpar</button>
         </div>
       ` : ''}
 
-      ${dados.length === 0 ? UI.emptyState(
-        'Nenhum membro encontrado',
-        'Tente ajustar os filtros ou cadastre o primeiro membro.',
-        `<button class="btn btn-success btn-lg" onclick="Membros.novo()"><i class="fas fa-user-plus"></i> Cadastrar</button>`
-      ) : this._renderDataCard(dados)}
+      ${dados.length === 0 ? UI.emptyState('Nenhum membro encontrado', 'Tente ajustar os filtros.', '') : this._renderDataCard(dados)}
     `;
 
     if (this._busca) {
-      setTimeout(() => {
-        const i = document.getElementById('membros-busca-input');
-        if (i) { i.focus(); i.setSelectionRange(this._busca.length, this._busca.length); }
-      }, 10);
+      setTimeout(() => { const i = document.getElementById('membros-busca-input'); if (i) { i.focus(); i.setSelectionRange(this._busca.length, this._busca.length); } }, 10);
     }
   },
 
   _renderDataCard(dados) {
     const linhas = dados.map((m) => this._renderLinha(m)).join('');
-
     return `
       <div class="data-card">
         <div class="data-header">
           <div class="data-header-top">
-            <div>
-              <h2 class="data-title"><i class="fas fa-users mr-2"></i>Membros</h2>
-              <p class="data-subtitle">${dados.length} cadastrado(s)</p>
-            </div>
-            <div class="data-actions">
-              <button class="btn btn-ghost btn-sm" onclick="Membros.ordenarAZ()">
-                <i class="fas fa-sort-alpha-down"></i> A-Z
-              </button>
-              <button class="btn btn-success btn-sm" onclick="Membros.novo()">
-                <i class="fas fa-plus"></i> Novo
-              </button>
-            </div>
+            <div><h2 class="data-title"><i class="fas fa-users mr-2"></i>Membros</h2><p class="data-subtitle">${dados.length} cadastrado(s)</p></div>
+            <div class="data-actions"><button class="btn btn-ghost btn-sm" onclick="Membros.ordenarAZ()"><i class="fas fa-sort-alpha-down"></i> A-Z</button><button class="btn btn-success btn-sm" onclick="Membros.novo()"><i class="fas fa-plus"></i> Novo</button></div>
           </div>
         </div>
         <div class="data-table-wrap">
           <table class="data-table">
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>Telefone</th>
-                <th>Ministérios</th>
-                <th>Situação</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
+            <thead><tr><th>Nome</th><th>Telefone</th><th>Ministérios</th><th>Situação</th><th>Ações</th></tr></thead>
             <tbody>${linhas}</tbody>
           </table>
         </div>
@@ -269,23 +221,14 @@ const Membros = {
 
     const badgesMin = ministerios.length > 0
       ? ministerios.slice(0, 3).map((min) => {
-          const cor = this._corMinisterio(min);
-          const icon = this._iconMinisterio(min);
-          return `<span class="membros-badge-min" style="background:${cor}18;color:${cor};border:1px solid ${cor}40;" title="${UI.escapar(min)}">
-            <i class="fas ${icon}"></i> ${UI.escapar(this._abreviar(min))}
-          </span>`;
+          const cor = this._corMinisterio(min); const icon = this._iconMinisterio(min);
+          return `<span class="membros-badge-min" style="background:${cor}18;color:${cor};border:1px solid ${cor}40;" title="${UI.escapar(min)}"><i class="fas ${icon}"></i> ${UI.escapar(this._abreviar(min))}</span>`;
         }).join('') + (ministerios.length > 3 ? `<span class="membros-badge-min" style="background:#f1f5f9;color:#64748b;">+${ministerios.length - 3}</span>` : '')
       : '<span style="color:#cbd5e1;font-size:0.85rem;">—</span>';
 
-    const botaoTalento = m.Talento
-      ? `<button class="btn btn-purple btn-sm" onclick="Membros.enviarParaTalentos(${m.sheetRowIndex})" title="Enviar para Talentos">
-           <i class="fas fa-star"></i>
-         </button>`
-      : '';
-
+    const botaoTalento = m.Talento ? `<button class="btn btn-purple btn-sm" onclick="Membros.enviarParaTalentos(${m.sheetRowIndex})" title="Enviar para Talentos"><i class="fas fa-star"></i></button>` : '';
     const cargo = this._cargos?.find(c => c.membro_id == m.sheetRowIndex);
     const coroa = cargo ? `<i class="fas fa-crown" style="color:#f59e0b; margin-right:6px;" title="${cargo.cargo}"></i>` : '';
-    
     const nomeExibicao = `${coroa}<strong>${m.Nome}</strong> ${m.Apelido ? `<span style="color:#64748b;font-weight:400;font-size:0.85em;">(${m.Apelido})</span>` : ''}`;
 
     return `
@@ -295,49 +238,24 @@ const Membros = {
         <td><div class="membros-badges-min">${badgesMin}</div></td>
         <td><span class="membros-badge" style="background:${corSit}22;color:${corSit};">${situacao}</span></td>
         <td class="col-actions">
-          <button class="btn btn-primary btn-sm" onclick="Membros.ver(${m.sheetRowIndex})" title="Ver detalhes">
-            <i class="fas fa-eye"></i>
-          </button>
-          <button class="btn btn-warning btn-sm" onclick="Membros.editar(${m.sheetRowIndex})" title="Editar">
-            <i class="fas fa-edit"></i>
-          </button>
-          <button class="btn btn-danger btn-sm" onclick="Membros.remover(${m.sheetRowIndex})" title="Remover">
-            <i class="fas fa-trash"></i>
-          </button>
+          <button class="btn btn-primary btn-sm" onclick="Membros.ver(${m.sheetRowIndex})" title="Ver detalhes"><i class="fas fa-eye"></i></button>
+          <button class="btn btn-warning btn-sm" onclick="Membros.editar(${m.sheetRowIndex})" title="Editar"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-danger btn-sm" onclick="Membros.remover(${m.sheetRowIndex})" title="Remover"><i class="fas fa-trash"></i></button>
           ${botaoTalento}
         </td>
       </tr>
     `;
   },
 
-  _abreviar(nome) {
-    return nome.replace('Ministério de ', '').replace('Ministério ', '').replace('Ministerio de ', '').replace('Ministerio ', '');
-  },
-
+  _abreviar(nome) { return nome.replace('Ministério de ', '').replace('Ministério ', '').replace('Ministerio de ', '').replace('Ministerio ', ''); },
   _buscar(valor) { this._busca = valor; this._renderTudo(); },
   _filtrarCategoria(valor) { this._filtroCategoria = valor; this._renderTudo(); },
   _filtrarSituacao(valor) { this._filtroSituacao = valor; this._renderTudo(); },
   _filtrarMinisterio(valor) { this._filtroMinisterio = valor; this._renderTudo(); },
-  
-  // O clique desativa o filtro se já estiver ativo
-  _clicarMinisterio(nome) { 
-    this._filtroMinisterio = (this._filtroMinisterio === nome) ? '' : nome; 
-    this._renderTudo(); 
-  },
+  _clicarMinisterio(nome) { this._filtroMinisterio = (this._filtroMinisterio === nome) ? '' : nome; this._renderTudo(); },
+  _limparFiltros() { this._filtroCategoria = ''; this._filtroSituacao = ''; this._filtroMinisterio = ''; this._busca = ''; this._renderTudo(); },
 
-  _limparFiltros() { 
-    this._filtroCategoria = ''; 
-    this._filtroSituacao = ''; 
-    this._filtroMinisterio = ''; 
-    this._busca = ''; 
-    this._renderTudo(); 
-  },
-
-  ordenarAZ() {
-    this._dados.sort((a, b) => (a.Nome || '').localeCompare(b.Nome || '', 'pt-BR', { sensitivity: 'base' }));
-    this._renderTudo();
-    UI.toast('Ordenado A-Z', 'info');
-  },
+  ordenarAZ() { this._dados.sort((a, b) => (a.Nome || '').localeCompare(b.Nome || '', 'pt-BR', { sensitivity: 'base' })); this._renderTudo(); UI.toast('Ordenado A-Z', 'info'); },
 
   ver(id) {
     const m = this._dados.find((x) => x.sheetRowIndex == id);
@@ -346,6 +264,7 @@ const Membros = {
     const campos = CONFIG.CAMPOS.Membros;
     const faixa = UI.calcularFaixaEtaria(m.Nascimento);
     const ministerios = this._parseMinisterios(m.Ministérios);
+    const cargo = this._cargos?.find(c => c.membro_id == m.sheetRowIndex);
 
     const secoes = {
       'Dados Pessoais': ['Nome', 'Apelido', 'Sexo', 'Nascimento', 'CPF', 'RG', 'Estado Civil', 'Nome do Cônjuge', 'Parentesco', 'Profissão'],
@@ -356,6 +275,10 @@ const Membros = {
 
     let html = '';
 
+    if (cargo) {
+      html += `<div class="membros-detalhe-faixa" style="background:#fef3c7;border-left:4px solid #f59e0b; padding:12px; border-radius:8px; margin-bottom:16px; display:flex; align-items:center; gap:12px;"><i class="fas fa-crown" style="color:#f59e0b;"></i><div><strong style="color:#d97706;">${cargo.cargo}</strong></div></div>`;
+    }
+
     if (faixa) {
       const idade = UI.calcularIdade(m.Nascimento);
       html += `<div class="membros-detalhe-faixa" style="background:${faixa.cor}15;border-left:4px solid ${faixa.cor}; padding:12px; border-radius:8px; margin-bottom:16px; display:flex; align-items:center; gap:12px;"><i class="fas ${faixa.icon}" style="color:${faixa.cor};"></i><div><strong style="color:${faixa.cor};">${faixa.nome}</strong><span style="color:#64748b;font-size:0.85rem;margin-left:0.5rem;">${idade} anos</span></div></div>`;
@@ -363,11 +286,9 @@ const Membros = {
 
     if (ministerios.length > 0) {
       const chips = ministerios.map((min) => {
-        const cor = this._corMinisterio(min);
-        const icon = this._iconMinisterio(min);
+        const cor = this._corMinisterio(min); const icon = this._iconMinisterio(min);
         return `<span class="membros-detalhe-chip" style="background:${cor}18;color:${cor};border:1px solid ${cor}40; padding:4px 8px; border-radius:12px; font-size:12px; margin-right:4px; display:inline-block; margin-bottom:4px;"><i class="fas ${icon}"></i> ${UI.escapar(min)}</span>`;
       }).join('');
-
       html += `<div class="membros-detalhe-secao" style="margin-bottom:16px;"><h3 class="membros-detalhe-secao-titulo" style="font-size:13px; color:#64748b; text-transform:uppercase; margin-bottom:8px;">Ministérios (${ministerios.length})</h3><div>${chips}</div></div>`;
     }
 
@@ -384,16 +305,10 @@ const Membros = {
         return `<div class="membros-detalhe-campo" style="margin-bottom:12px;"><div class="membros-detalhe-label" style="font-size:11px; color:#64748b; text-transform:uppercase;">${nomeCampo}</div><div class="membros-detalhe-valor" style="font-size:14px; color:#1e293b; font-weight:500;">${UI.escapar(valor)}</div></div>`;
       }).filter(Boolean).join('');
 
-      if (linhas) {
-        html += `<div class="membros-detalhe-secao" style="margin-bottom:16px;"><h3 class="membros-detalhe-secao-titulo" style="font-size:13px; color:#64748b; text-transform:uppercase; margin-bottom:12px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">${secao}</h3><div class="membros-detalhe-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">${linhas}</div></div>`;
-      }
+      if (linhas) html += `<div class="membros-detalhe-secao" style="margin-bottom:16px;"><h3 class="membros-detalhe-secao-titulo" style="font-size:13px; color:#64748b; text-transform:uppercase; margin-bottom:12px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">${secao}</h3><div class="membros-detalhe-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">${linhas}</div></div>`;
     }
 
-    const botoes = `
-      <button class="btn btn-neutral" onclick="UI.closeModal()">Fechar</button>
-      <button class="btn btn-warning" onclick="UI.closeModal(); Membros.editar(${m.sheetRowIndex})"><i class="fas fa-edit"></i> Editar</button>
-    `;
-
+    const botoes = `<button class="btn btn-neutral" onclick="UI.closeModal()">Fechar</button><button class="btn btn-warning" onclick="UI.closeModal(); Membros.editar(${m.sheetRowIndex})"><i class="fas fa-edit"></i> Editar</button>`;
     const tituloModal = m.Apelido ? `👤 ${UI.escapar(m.Nome)} (${m.Apelido})` : `👤 ${UI.escapar(m.Nome || 'Membro')}`;
     UI.openModal(tituloModal, html, botoes);
   },
@@ -423,19 +338,13 @@ const Membros = {
         if (campo.tipo === 'date' && valor) valor = UI.dataInput(valor);
         
         let input = '';
-        if (campo.tipo === 'textarea') {
-          input = `<textarea class="form-textarea" name="${campo.nome}" rows="3">${UI.escapar(valor)}</textarea>`;
-        } else if (campo.tipo === 'select') {
-          const opts = (campo.opcoes || []).map(o => `<option value="${UI.escapar(o)}" ${valor === o ? 'selected' : ''}>${UI.escapar(o)}</option>`).join('');
-          input = `<select class="form-select" name="${campo.nome}"><option value="">— Selecione —</option>${opts}</select>`;
-        } else {
-          input = `<input class="form-input" type="${campo.tipo}" name="${campo.nome}" value="${UI.escapar(valor)}">`;
-        }
+        if (campo.tipo === 'textarea') input = `<textarea class="form-textarea" name="${campo.nome}" rows="3">${UI.escapar(valor)}</textarea>`;
+        else if (campo.tipo === 'select') { const opts = (campo.opcoes || []).map(o => `<option value="${UI.escapar(o)}" ${valor === o ? 'selected' : ''}>${UI.escapar(o)}</option>`).join(''); input = `<select class="form-select" name="${campo.nome}"><option value="">— Selecione —</option>${opts}</select>`; }
+        else input = `<input class="form-input" type="${campo.tipo}" name="${campo.nome}" value="${UI.escapar(valor)}">`;
 
         const fullClass = campo.tipo === 'textarea' ? 'form-grid-full' : '';
         return `<div class="form-group ${fullClass}"><label class="form-label ${campo.obrigatorio ? 'form-label-required' : ''}">${campo.nome}</label>${input}</div>`;
       }).join('');
-
       html += `<div class="form-secao"><h3 class="form-secao-titulo">${tituloSecao}</h3><div class="form-grid">${camposHTML}</div></div>`;
     }
 
@@ -444,44 +353,26 @@ const Membros = {
       return `
         <label class="min-checkbox ${marcado ? 'checked' : ''}" style="--min-cor: ${min.cor};">
           <input type="checkbox" class="min-checkbox-input" value="${UI.escapar(min.nome)}" ${marcado ? 'checked' : ''} onchange="Membros._toggleMin(this)">
-          <div class="min-checkbox-content">
-            <div class="min-checkbox-icon" style="background:${min.cor}22;color:${min.cor};"><i class="fas ${min.icon}"></i></div>
-            <span class="min-checkbox-label">${min.nome}</span>
-            <i class="fas fa-check-circle min-checkbox-check"></i>
-          </div>
+          <div class="min-checkbox-content"><div class="min-checkbox-icon" style="background:${min.cor}22;color:${min.cor};"><i class="fas ${min.icon}"></i></div><span class="min-checkbox-label">${min.nome}</span><i class="fas fa-check-circle min-checkbox-check"></i></div>
         </label>
       `;
     }).join('');
 
     html += `<div class="form-secao"><h3 class="form-secao-titulo"><i class="fas fa-sitemap"></i> Ministérios / Departamentos <span class="form-secao-hint">(marque todos os que participa)</span></h3><div class="min-grid">${ministeriosHTML}</div><div class="min-contador"><i class="fas fa-check-circle"></i> <span id="min-contador">0</span> ministério(s) selecionado(s)</div></div>`;
 
-    const botoes = `
-      <button class="btn btn-neutral" onclick="UI.closeModal()">Cancelar</button>
-      <button class="btn btn-success" onclick="Membros._salvar()"><i class="fas fa-save"></i> ${ehEdicao ? 'Salvar alterações' : 'Cadastrar'}</button>
-    `;
+    const botoes = `<button class="btn btn-neutral" onclick="UI.closeModal()">Cancelar</button><button class="btn btn-success" onclick="Membros._salvar()"><i class="fas fa-save"></i> ${ehEdicao ? 'Salvar alterações' : 'Cadastrar'}</button>`;
 
     UI.openModal(ehEdicao ? `✏️ Editar: ${UI.escapar(membro.Nome)}` : '👤 Novo membro', html, botoes);
 
     const form = document.getElementById('modal-body');
     if (form) {
-      const inputId = document.createElement('input');
-      inputId.type = 'hidden'; inputId.id = 'membro-id'; inputId.value = membro ? membro.sheetRowIndex : '';
-      form.appendChild(inputId);
+      const inputId = document.createElement('input'); inputId.type = 'hidden'; inputId.id = 'membro-id'; inputId.value = membro ? membro.sheetRowIndex : ''; form.appendChild(inputId);
       this._atualizarContadorMin();
     }
   },
 
-  _toggleMin(input) {
-    const label = input.closest('.min-checkbox');
-    if (label) { if (input.checked) label.classList.add('checked'); else label.classList.remove('checked'); }
-    this._atualizarContadorMin();
-  },
-
-  _atualizarContadorMin() {
-    const contador = document.getElementById('min-contador');
-    if (!contador) return;
-    contador.textContent = document.querySelectorAll('.min-checkbox-input:checked').length;
-  },
+  _toggleMin(input) { const label = input.closest('.min-checkbox'); if (label) { if (input.checked) label.classList.add('checked'); else label.classList.remove('checked'); } this._atualizarContadorMin(); },
+  _atualizarContadorMin() { const contador = document.getElementById('min-contador'); if (!contador) return; contador.textContent = document.querySelectorAll('.min-checkbox-input:checked').length; },
 
   async _salvar() {
     const form = document.getElementById('modal-body');
@@ -503,13 +394,8 @@ const Membros = {
 
     for (const m of this._dados) {
       if (id && m.sheetRowIndex == id) continue;
-
-      if (cpfLimpo && (m.CPF || '').replace(/\D/g, '') === cpfLimpo) {
-        return UI.toast('Erro: Já existe um membro com este CPF!', 'error');
-      }
-      if (nomeLimpo && (m.Nome || '').toLowerCase().trim() === nomeLimpo) {
-        return UI.toast('Erro: Já existe um membro com este Nome!', 'error');
-      }
+      if (cpfLimpo && (m.CPF || '').replace(/\D/g, '') === cpfLimpo) return UI.toast('Erro: Já existe um membro com este CPF!', 'error');
+      if (nomeLimpo && (m.Nome || '').toLowerCase().trim() === nomeLimpo) return UI.toast('Erro: Já existe um membro com este Nome!', 'error');
     }
 
     for (const campo of CONFIG.CAMPOS.Membros) {
@@ -522,39 +408,22 @@ const Membros = {
       UI.closeModal();
       this.render();
       if (typeof Dashboard !== 'undefined') Dashboard.render();
-    } catch (e) {
-      UI.toast('Erro: ' + e.message, 'error');
-    }
+    } catch (e) { UI.toast('Erro: ' + e.message, 'error'); }
   },
 
   async enviarParaTalentos(id) {
-    const m = this._dados.find((x) => x.sheetRowIndex == id);
-    if (!m) return;
+    const m = this._dados.find((x) => x.sheetRowIndex == id); if (!m) return;
     const ok = await UI.confirmar(`Enviar "${m.Nome}" (talento: ${m.Talento || 'não especificado'}) para o Banco de Talentos?`, 'Enviar para Talentos');
     if (!ok) return;
     const dados = { Nome: m.Nome || '', Talento: m.Talento || m.Função || '', Telefone: m.Telefone || '', Email: m.Email || '' };
-    try {
-      await API.salvar(CONFIG.TABELAS.TALENTOS, dados, null);
-      UI.toast(`⭐ ${m.Nome} enviado!`, 'success');
-    } catch (e) {
-      UI.toast('Erro: ' + e.message, 'error');
-    }
+    try { await API.salvar(CONFIG.TABELAS.TALENTOS, dados, null); UI.toast(`⭐ ${m.Nome} enviado!`, 'success'); } catch (e) { UI.toast('Erro: ' + e.message, 'error'); }
   },
 
   async remover(id) {
-    const m = this._dados.find((x) => x.sheetRowIndex == id);
-    if (!m) return;
-    const ok = await UI.confirmar(`Remover "${m.Nome}"?`, 'Remover membro');
-    if (!ok) return;
-    try {
-      const r = await API.remover(id, 'Membros');
-      UI.toast(r.message || CONFIG.MSG.REMOVIDO_SUCESSO, 'success');
-      this.render();
-    } catch (e) {
-      UI.toast('Erro: ' + e.message, 'error');
-    }
+    const m = this._dados.find((x) => x.sheetRowIndex == id); if (!m) return;
+    const ok = await UI.confirmar(`Remover "${m.Nome}"?`, 'Remover membro'); if (!ok) return;
+    try { const r = await API.remover(id, 'Membros'); UI.toast(r.message || CONFIG.MSG.REMOVIDO_SUCESSO, 'success'); this.render(); } catch (e) { UI.toast('Erro: ' + e.message, 'error'); }
   }
 
 };
-
-console.log('%c[Membros] Módulo carregado v3.3 (com aviso de filtro)', 'color:#64748b;font-size:11px;');
+console.log('%c[Membros] Módulo carregado v4.0 (Liderança Inteligente)', 'color:#64748b;font-size:11px;');

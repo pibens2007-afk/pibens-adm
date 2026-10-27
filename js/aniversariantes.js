@@ -1,8 +1,7 @@
 /* ============================================================
-   PIBENS ADM — Módulo Aniversariantes v2.2
+   PIBENS ADM — Módulo Aniversariantes v2.3
    ============================================================
-   - Separa aniversariantes de HOJE (destaque no topo)
-   - Corrige ícone do WhatsApp
+   - Ícone do WhatsApp com tamanho forçado via inline
    ============================================================ */
 
 const Aniversariantes = {
@@ -33,7 +32,6 @@ const Aniversariantes = {
     const aniversariantesHoje = [];
     const aniversariantesMes = [];
 
-    // Filtra os aniversariantes
     this._dados.forEach(m => {
       const nasc = String(m.Nascimento || '').trim();
       if (!nasc) return;
@@ -54,22 +52,15 @@ const Aniversariantes = {
           idade: idade
         };
 
-        // Se for hoje, vai para a lista de destaque
-        if (dia === diaAtual) {
-          aniversariantesHoje.push(aniversariante);
-        } else {
-          // Se for do mês (mas não hoje), vai para a lista geral
-          aniversariantesMes.push(aniversariante);
-        }
+        if (dia === diaAtual) aniversariantesHoje.push(aniversariante);
+        else aniversariantesMes.push(aniversariante);
       }
     });
 
-    // Ordena os aniversariantes do mês por dia
     aniversariantesMes.sort((a, b) => a.dia - b.dia);
     const mesNome = hoje.toLocaleDateString('pt-BR', { month: 'long' });
 
     c.innerHTML = `
-      <!-- BLOCO DE DESTAQUE (HOJE) -->
       ${aniversariantesHoje.length > 0 ? `
         <div style="margin-bottom:24px;">
           <h3 style="font-size:14px; color:#64748b; text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
@@ -81,7 +72,6 @@ const Aniversariantes = {
         </div>
       ` : ''}
 
-      <!-- BLOCO DO MÊS -->
       <div class="data-card" style="margin-bottom:24px; background:linear-gradient(135deg, #e11d48, #be185d); color:#fff; border:none; padding:24px; border-radius:16px;">
         <h2 style="margin:0 0 8px 0; font-size:22px; display:flex; align-items:center; gap:8px;">
           <i class="fas fa-birthday-cake"></i> Aniversariantes de ${mesNome}
@@ -97,7 +87,6 @@ const Aniversariantes = {
     `;
   },
 
-  // Card de Destaque (Aniversariante de Hoje)
   _renderCardDestaque(a) {
     const nomeChamada = a.apelido ? a.apelido : a.nome.split(' ')[0];
     const telLimpo = (a.telefone || '').replace(/\D/g, '');
@@ -120,14 +109,16 @@ const Aniversariantes = {
 
         ${telLimpo ? `
           <a href="${linkWpp}" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; background:#25D366; color:#fff; padding:10px; border-radius:8px; text-decoration:none; font-weight:600; font-size:14px;">
-            <i class="fab fa-whatsapp"></i> Enviar Parabéns
+            <div style="width:20px; height:20px; display:flex; align-items:center; justify-content:center;">
+              <i class="fab fa-whatsapp" style="font-size:20px !important; color:#fff !important; line-height:1 !important; margin:0 !important; padding:0 !important;"></i>
+            </div>
+            Enviar Parabéns
           </a>
         ` : `<p style="text-align:center; font-size:12px; color:#94a3b8; margin:0;">Sem telefone cadastrado</p>`}
       </div>
     `;
   },
 
-  // Card Normal (Aniversariante do Mês)
   _renderCardNormal(a) {
     const nomeChamada = a.apelido ? a.apelido : a.nome.split(' ')[0];
     const telLimpo = (a.telefone || '').replace(/\D/g, '');
@@ -146,7 +137,10 @@ const Aniversariantes = {
 
         ${telLimpo ? `
           <a href="${linkWpp}" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; background:#25D366; color:#fff; padding:10px; border-radius:8px; text-decoration:none; font-weight:600; font-size:14px;">
-            <i class="fab fa-whatsapp"></i> Enviar Parabéns
+            <div style="width:20px; height:20px; display:flex; align-items:center; justify-content:center;">
+              <i class="fab fa-whatsapp" style="font-size:20px !important; color:#fff !important; line-height:1 !important; margin:0 !important; padding:0 !important;"></i>
+            </div>
+            Enviar Parabéns
           </a>
         ` : `<p style="text-align:center; font-size:12px; color:#94a3b8; margin:0;">Sem telefone cadastrado</p>`}
       </div>
@@ -154,4 +148,4 @@ const Aniversariantes = {
   }
 
 };
-console.log('%c[Aniversariantes] Módulo carregado v2.2 (Destaque Hoje)', 'color:#64748b;font-size:11px;');
+console.log('%c[Aniversariantes] Módulo carregado v2.3 (Ícone corrigido)', 'color:#64748b;font-size:11px;');

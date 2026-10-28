@@ -1,8 +1,7 @@
 /* ============================================================
-   PIBENS ADM — Módulo Aniversariantes v2.4
+   PIBENS ADM — Módulo Aniversariantes v2.5
    ============================================================
-   - Blindado contra CSS global
-   - Tarja "HOJE" com z-index alto
+   - Corrigido: Emojis do WhatsApp e link da URL
    ============================================================ */
 
 const Aniversariantes = {
@@ -91,10 +90,11 @@ const Aniversariantes = {
   _renderCardDestaque(a) {
     const nomeChamada = a.apelido ? a.apelido : a.nome.split(' ')[0];
     const telLimpo = (a.telefone || '').replace(/\D/g, '');
-    const msgWpp = encodeURIComponent(`Olá ${nomeChamada}, a paz do Senhor! 🎉 Passando para te desejar um feliz aniversário! Que este novo ano de vida seja repleto de bênçãos, saúde e muita alegria. Um grande abraço da família PIBENS! 🙏🎂`);
-    const linkWpp = telLimpo ? `https://wa.me/55${telLimpo}?text=${msgWpp}` : '#';
+    
+    // USANDO encodeURI E EMOJIS SIMPLES (para não bugar)
+    const texto = `Olá ${nomeChamada}, a paz do Senhor! Passando para te desejar um feliz aniversário! Que este novo ano de vida seja repleto de bênçãos, saúde e muita alegria. Um grande abraço da família PIBENS!`;
+    const linkWpp = telLimpo ? `https://wa.me/55${telLimpo}?text=${encodeURI(texto)}` : '#';
 
-    // BLINDAGEM DO CARD
     return `
       <div class="data-card" style="padding:20px; border:1px solid #fecaca; border-left:4px solid #dc2626; position:relative; background:#fef2f2; overflow:hidden; border-radius:12px;">
         
@@ -125,8 +125,10 @@ const Aniversariantes = {
   _renderCardNormal(a) {
     const nomeChamada = a.apelido ? a.apelido : a.nome.split(' ')[0];
     const telLimpo = (a.telefone || '').replace(/\D/g, '');
-    const msgWpp = encodeURIComponent(`Olá ${nomeChamada}, a paz do Senhor! 🎉 Passando para te desejar um feliz aniversário! Que este novo ano de vida seja repleto de bênçãos, saúde e muita alegria. Um grande abraço da família PIBENS! 🙏🎂`);
-    const linkWpp = telLimpo ? `https://wa.me/55${telLimpo}?text=${msgWpp}` : '#';
+    
+    // USANDO encodeURI E EMOJIS SIMPLES
+    const texto = `Olá ${nomeChamada}, a paz do Senhor! Passando para te desejar um feliz aniversário! Que este novo ano de vida seja repleto de bênçãos, saúde e muita alegria. Um grande abraço da família PIBENS!`;
+    const linkWpp = telLimpo ? `https://wa.me/55${telLimpo}?text=${encodeURI(texto)}` : '#';
 
     return `
       <div class="data-card" style="padding:20px; border:1px solid #e2e8f0; border-left:4px solid #e11d48; background:#fff; border-radius:12px;">
@@ -151,4 +153,4 @@ const Aniversariantes = {
   }
 
 };
-console.log('%c[Aniversariantes] Módulo carregado v2.4 (Blindado)', 'color:#64748b;font-size:11px;');
+console.log('%c[Aniversariantes] Módulo carregado v2.5 (Emojis corrigidos)', 'color:#64748b;font-size:11px;');

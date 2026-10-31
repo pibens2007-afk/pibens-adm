@@ -1,9 +1,5 @@
 /* ============================================================
-   PIBENS ADM — Módulo Membros v4.1
-   ============================================================
-   - Bloqueio de duplicados
-   - Destaque de líderes (coroa)
-   - Pedido de dados via WhatsApp (Humanizado)
+   PIBENS ADM — Módulo Membros v4.2
    ============================================================ */
 
 const Membros = {
@@ -234,9 +230,6 @@ const Membros = {
 
   ordenarAZ() { this._dados.sort((a, b) => (a.Nome || '').localeCompare(b.Nome || '', 'pt-BR', { sensitivity: 'base' })); this._renderTudo(); UI.toast('Ordenado A-Z', 'info'); },
 
-  // ============================================================
-  // NOVA FUNÇÃO: PEDIR DADOS FALTANTES VIA WHATSAPP
-  // ============================================================
   pedirDados(id) {
     const m = this._dados.find(x => x.sheetRowIndex == id);
     if (!m) return;
@@ -246,7 +239,6 @@ const Membros = {
       return UI.toast('Este membro não tem telefone cadastrado para receber a mensagem.', 'error');
     }
 
-    // Lista de campos que podemos pedir e o rótulo amigável
     const camposParaPedir = [
       { key: 'Nascimento', label: 'Data de Nascimento', icon: 'fa-birthday-cake' },
       { key: 'CPF', label: 'CPF', icon: 'fa-id-card' },
@@ -260,7 +252,6 @@ const Membros = {
       { key: 'Profissão', label: 'Profissão', icon: 'fa-briefcase' }
     ];
 
-    // Verifica quais estão vazios
     const vazios = camposParaPedir.filter(c => !m[c.key] || m[c.key].trim() === '');
 
     if (vazios.length === 0) {
@@ -269,7 +260,6 @@ const Membros = {
 
     const nomeChamada = m.Apelido ? m.Apelido : m.Nome.split(' ')[0];
 
-    // Monta o HTML com as caixinhas de marcação
     const html = `
       <div style="margin-bottom:16px;">
         <p style="color:#475569; font-size:14px; line-height:1.5;">
@@ -318,20 +308,16 @@ const Membros = {
       return UI.toast('Selecione pelo menos um dado para pedir.', 'error');
     }
 
-    // Monta a lista de dados formatada com marcadores
     const listaDados = selecionados.map(d => `• ${d}`).join('\n');
 
-    // Mensagem amorosa e explícita
-    const mensagem = `Olá ${nome}, a paz do Senhor! 🙏\n\nEstamos fazendo uma atualização carinhosa do cadastro da nossa igreja para podermos cuidar de você e da sua família com mais atenção.\n\nNotamos que faltam algumas informações importantes no seu perfil. Você poderia nos enviar por aqui?\n\n${listaDados}\n\nFique tranquilo(a), seus dados estão totalmente seguros e são utilizados apenas para a organização da igreja e para o cuidado pastoral. Nada é compartilhado com terceiros.\n\nDesde já agradecemos a sua colaboração! Deus abençoe! ❤️`;
+    // MENSAGEM SEM EMOJIS COMPLEXOS (Apenas texto e formatação limpa)
+    const mensagem = `Olá ${nome}, a paz do Senhor!\n\nEstamos fazendo uma atualização carinhosa do cadastro da nossa igreja para podermos cuidar de você e da sua família com mais atenção.\n\nNotamos que faltam algumas informações importantes no seu perfil. Você poderia nos enviar por aqui?\n\n${listaDados}\n\nFique tranquilo(a), seus dados estão totalmente seguros e são utilizados apenas para a organização da igreja e para o cuidado pastoral. Nada é compartilhado com terceiros.\n\nDesde já agradecemos a sua colaboração! Deus abençoe!`;
 
-    const linkWpp = `https://wa.me/55${telefone}?text=${encodeURI(mensagem)}`;
+    const linkWpp = `https://wa.me/55${telefone}?text=${encodeURIComponent(mensagem)}`;
     window.open(linkWpp, '_blank');
     UI.closeModal();
   },
 
-  // ============================================================
-  // DEMAIS FUNÇÕES (Ver, Editar, Salvar, Remover)
-  // ============================================================
   ver(id) {
     const m = this._dados.find((x) => x.sheetRowIndex == id);
     if (!m) return;
@@ -503,4 +489,4 @@ const Membros = {
   }
 
 };
-console.log('%c[Membros] Módulo carregado v4.1 (Pedido de Dados)', 'color:#64748b;font-size:11px;');
+console.log('%c[Membros] Módulo carregado v4.2', 'color:#64748b;font-size:11px;');

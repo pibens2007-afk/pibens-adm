@@ -23,7 +23,7 @@ const CONFIG = {
   APP_NAME: 'PIBENS ADM',
   APP_SHORT_NAME: 'PIBENS',
   APP_TAGLINE: 'Gestão eclesiástica com inteligência',
-  APP_VERSION: '4.5.0',
+  APP_VERSION: '4.6.0',
 
   TABELAS: {
     MEMBROS:      'Membros',
@@ -58,14 +58,14 @@ const CONFIG = {
 
   CAMPOS: {
     Membros: [
-      { nome: 'Nome',                obrigatorio: true,  essencial: true,  tipo: 'text' },
+      { nome: 'Nome',                obrigatorio: false, essencial: true,  tipo: 'text' },
       { nome: 'Apelido',             obrigatorio: false, essencial: true,  tipo: 'text' },
       { nome: 'Sexo',                obrigatorio: false, essencial: false, tipo: 'select', opcoes: ['Masculino', 'Feminino'] },
       { nome: 'Cargo de Liderança',  obrigatorio: false, essencial: false, tipo: 'text' },
-      { nome: 'Nascimento',          obrigatorio: true,  essencial: true,  tipo: 'date' },
+      { nome: 'Nascimento',          obrigatorio: false, essencial: true,  tipo: 'date' },
       { nome: 'CPF',                 obrigatorio: false, essencial: true,  tipo: 'text' },
       { nome: 'RG',                  obrigatorio: false, essencial: false, tipo: 'text' },
-      { nome: 'Telefone',            obrigatorio: true,  essencial: true,  tipo: 'text' }, // Usado como WhatsApp
+      { nome: 'Telefone',            obrigatorio: false, essencial: true,  tipo: 'text' }, // WhatsApp
       { nome: 'Email',               obrigatorio: false, essencial: false, tipo: 'email' },
       { nome: 'Endereço',            obrigatorio: false, essencial: true,  tipo: 'text' },
       { nome: 'Bairro',              obrigatorio: false, essencial: true,  tipo: 'text' },

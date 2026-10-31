@@ -1,5 +1,5 @@
 /* ============================================================
-   PIBENS ADM — Módulo Membros v4.2
+   PIBENS ADM — Módulo Membros v4.3
    ============================================================ */
 
 const Membros = {
@@ -178,7 +178,7 @@ const Membros = {
         </div>
         <div class="data-table-wrap">
           <table class="data-table">
-            <thead><tr><th>Nome</th><th>Telefone</th><th>Ministérios</th><th>Situação</th><th>Ações</th></tr></thead>
+            <thead><tr><th>Nome</th><th>WhatsApp</th><th>Ministérios</th><th>Situação</th><th>Ações</th></tr></thead>
             <tbody>${linhas}</tbody>
           </table>
         </div>
@@ -230,32 +230,24 @@ const Membros = {
 
   ordenarAZ() { this._dados.sort((a, b) => (a.Nome || '').localeCompare(b.Nome || '', 'pt-BR', { sensitivity: 'base' })); this._renderTudo(); UI.toast('Ordenado A-Z', 'info'); },
 
+  // ============================================================
+  // PEDIDO DE DADOS (Focado nos Essenciais)
+  // ============================================================
   pedirDados(id) {
     const m = this._dados.find(x => x.sheetRowIndex == id);
     if (!m) return;
 
     const telLimpo = (m.Telefone || '').replace(/\D/g, '');
     if (!telLimpo) {
-      return UI.toast('Este membro não tem telefone cadastrado para receber a mensagem.', 'error');
+      return UI.toast('Este membro não tem WhatsApp cadastrado para receber a mensagem.', 'error');
     }
 
-    const camposParaPedir = [
-      { key: 'Nascimento', label: 'Data de Nascimento', icon: 'fa-birthday-cake' },
-      { key: 'CPF', label: 'CPF', icon: 'fa-id-card' },
-      { key: 'RG', label: 'RG', icon: 'fa-id-badge' },
-      { key: 'Email', label: 'E-mail', icon: 'fa-envelope' },
-      { key: 'Endereço', label: 'Endereço Completo', icon: 'fa-map-marker-alt' },
-      { key: 'Bairro', label: 'Bairro', icon: 'fa-map' },
-      { key: 'Cidade', label: 'Cidade', icon: 'fa-city' },
-      { key: 'CEP', label: 'CEP', icon: 'fa-mail-bulk' },
-      { key: 'Estado Civil', label: 'Estado Civil', icon: 'fa-heart' },
-      { key: 'Profissão', label: 'Profissão', icon: 'fa-briefcase' }
-    ];
-
-    const vazios = camposParaPedir.filter(c => !m[c.key] || m[c.key].trim() === '');
+    // Filtra APENAS os campos essenciais que estão vazios
+    const camposEssenciais = CONFIG.CAMPOS.Membros.filter(c => c.essencial);
+    const vazios = camposEssenciais.filter(c => !m[c.nome] || m[c.nome].trim() === '');
 
     if (vazios.length === 0) {
-      return UI.toast('O cadastro deste membro já está 100% completo!', 'info');
+      return UI.toast('O cadastro essencial deste membro já está 100% completo!', 'info');
     }
 
     const nomeChamada = m.Apelido ? m.Apelido : m.Nome.split(' ')[0];
@@ -263,7 +255,7 @@ const Membros = {
     const html = `
       <div style="margin-bottom:16px;">
         <p style="color:#475569; font-size:14px; line-height:1.5;">
-          Olá, <strong>${UI.escapar(nomeChamada)}</strong>! O sistema notou que faltam algumas informações no seu cadastro. 
+          Olá, <strong>${UI.escapar(nomeChamada)}</strong>! O sistema notou que faltam algumas informações <strong>essenciais</strong> no cadastro. 
           Selecione abaixo quais dados você quer pedir via WhatsApp:
         </p>
       </div>
@@ -275,12 +267,14 @@ const Membros = {
         </label>
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:12px;">
-          ${vazios.map(v => `
+          ${vazios.map(v => {
+            const labelExibicao = v.nome === 'Telefone' ? 'WhatsApp' : v.nome;
+            return `
             <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:4px;">
-              <input type="checkbox" class="chk-dado-faltante" value="${v.key}" data-label="${v.label}" checked style="width:16px; height:16px;">
-              <span style="font-size:13px; color:#475569;"><i class="fas ${v.icon}" style="color:#94a3b8; width:16px;"></i> ${v.label}</span>
+              <input type="checkbox" class="chk-dado-faltante" value="${v.nome}" data-label="${labelExibicao}" checked style="width:16px; height:16px;">
+              <span style="font-size:13px; color:#475569;"><i class="fas fa-exclamation-circle" style="color:#dc2626; width:16px;"></i> ${labelExibicao}</span>
             </label>
-          `).join('')}
+          `}).join('')}
         </div>
       </div>
     `;
@@ -292,7 +286,7 @@ const Membros = {
       </button>
     `;
 
-    UI.openModal('📋 Pedir Dados Faltantes', html, botoes);
+    UI.openModal('📋 Pedir Dados Essenciais', html, botoes);
   },
 
   _toggleTodosDados(input) {
@@ -310,7 +304,6 @@ const Membros = {
 
     const listaDados = selecionados.map(d => `• ${d}`).join('\n');
 
-    // MENSAGEM SEM EMOJIS COMPLEXOS (Apenas texto e formatação limpa)
     const mensagem = `Olá ${nome}, a paz do Senhor!\n\nEstamos fazendo uma atualização carinhosa do cadastro da nossa igreja para podermos cuidar de você e da sua família com mais atenção.\n\nNotamos que faltam algumas informações importantes no seu perfil. Você poderia nos enviar por aqui?\n\n${listaDados}\n\nFique tranquilo(a), seus dados estão totalmente seguros e são utilizados apenas para a organização da igreja e para o cuidado pastoral. Nada é compartilhado com terceiros.\n\nDesde já agradecemos a sua colaboração! Deus abençoe!`;
 
     const linkWpp = `https://wa.me/55${telefone}?text=${encodeURIComponent(mensagem)}`;
@@ -318,6 +311,9 @@ const Membros = {
     UI.closeModal();
   },
 
+  // ============================================================
+  // DEMAIS FUNÇÕES (Ver, Editar, Salvar, Remover)
+  // ============================================================
   ver(id) {
     const m = this._dados.find((x) => x.sheetRowIndex == id);
     if (!m) return;
@@ -352,7 +348,9 @@ const Membros = {
         else if (nomeCampo === 'CPF') valor = UI.cpf(valor);
         else if (nomeCampo === 'CEP') valor = UI.cep(valor);
         if (!valor || valor === '—') return '';
-        return `<div class="membros-detalhe-campo" style="margin-bottom:12px;"><div class="membros-detalhe-label" style="font-size:11px; color:#64748b; text-transform:uppercase;">${nomeCampo}</div><div class="membros-detalhe-valor" style="font-size:14px; color:#1e293b; font-weight:500;">${UI.escapar(valor)}</div></div>`;
+        
+        const labelExibicao = nomeCampo === 'Telefone' ? 'WhatsApp' : nomeCampo;
+        return `<div class="membros-detalhe-campo" style="margin-bottom:12px;"><div class="membros-detalhe-label" style="font-size:11px; color:#64748b; text-transform:uppercase;">${labelExibicao}</div><div class="membros-detalhe-valor" style="font-size:14px; color:#1e293b; font-weight:500;">${UI.escapar(valor)}</div></div>`;
       }).filter(Boolean).join('');
       if (linhas) html += `<div class="membros-detalhe-secao" style="margin-bottom:16px;"><h3 class="membros-detalhe-secao-titulo" style="font-size:13px; color:#64748b; text-transform:uppercase; margin-bottom:12px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">${secao}</h3><div class="membros-detalhe-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">${linhas}</div></div>`;
     }
@@ -391,7 +389,14 @@ const Membros = {
         else input = `<input class="form-input" type="${campo.tipo}" name="${campo.nome}" value="${UI.escapar(valor)}">`;
 
         const fullClass = campo.tipo === 'textarea' ? 'form-grid-full' : '';
-        return `<div class="form-group ${fullClass}"><label class="form-label ${campo.obrigatorio ? 'form-label-required' : ''}">${campo.nome}</label>${input}</div>`;
+        const labelExibicao = nomeCampo === 'Telefone' ? 'WhatsApp' : nomeCampo;
+        
+        // ETIQUETAS DE ESSENCIAL/OPCIONAL
+        const tagEssencial = campo.essencial 
+          ? `<span style="font-size:9px; background:#fee2e2; color:#dc2626; padding:2px 6px; border-radius:4px; margin-left:6px; font-weight:800; letter-spacing:0.5px; vertical-align:middle;">ESSENCIAL</span>` 
+          : `<span style="font-size:9px; background:#f1f5f9; color:#94a3b8; padding:2px 6px; border-radius:4px; margin-left:6px; font-weight:800; letter-spacing:0.5px; vertical-align:middle;">OPCIONAL</span>`;
+
+        return `<div class="form-group ${fullClass}"><label class="form-label ${campo.obrigatorio ? 'form-label-required' : ''}">${labelExibicao} ${tagEssencial}</label>${input}</div>`;
       }).join('');
       html += `<div class="form-secao"><h3 class="form-secao-titulo">${tituloSecao}</h3><div class="form-grid">${camposHTML}</div></div>`;
     }
@@ -406,7 +411,7 @@ const Membros = {
       `;
     }).join('');
 
-    html += `<div class="form-secao"><h3 class="form-secao-titulo"><i class="fas fa-sitemap"></i> Ministérios / Departamentos <span class="form-secao-hint">(marque todos os que participa)</span></h3><div class="min-grid">${ministeriosHTML}</div><div class="min-contador"><i class="fas fa-check-circle"></i> <span id="min-contador">0</span> ministério(s) selecionado(s)</div></div>`;
+    html += `<div class="form-secao"><h3 class="form-secao-titulo"><i class="fas fa-sitemap"></i> Ministérios / Departamentos <span class="form-secao-hint">(Opcional)</span></h3><div class="min-grid">${ministeriosHTML}</div><div class="min-contador"><i class="fas fa-check-circle"></i> <span id="min-contador">0</span> ministério(s) selecionado(s)</div></div>`;
 
     const botoes = `
       ${ehEdicao ? `<button class="btn btn-info" style="background:#0ea5e9; color:#fff; margin-right:auto;" onclick="UI.closeModal(); Membros.pedirDados(${membro.sheetRowIndex})"><i class="fas fa-clipboard-list"></i> Pedir Dados</button>` : ''}
@@ -489,4 +494,4 @@ const Membros = {
   }
 
 };
-console.log('%c[Membros] Módulo carregado v4.2', 'color:#64748b;font-size:11px;');
+console.log('%c[Membros] Módulo carregado v4.3 (Marcação Essencial)', 'color:#64748b;font-size:11px;');

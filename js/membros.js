@@ -1,7 +1,9 @@
 /* ============================================================
-   PIBENS ADM — Módulo Membros v4.0
+   PIBENS ADM — Módulo Membros v4.1
    ============================================================
-   - Filtro de Liderança inteligente (cruza com Diretoria)
+   - Bloqueio de duplicados
+   - Destaque de líderes (coroa)
+   - Pedido de dados via WhatsApp (Humanizado)
    ============================================================ */
 
 const Membros = {
@@ -62,13 +64,6 @@ const Membros = {
     if (this._filtroMinisterio) {
       lista = lista.filter((m) => {
         const mins = this._parseMinisterios(m.Ministérios);
-        
-        // Se filtrou por "Liderança", tem que ver se a pessoa tem o ministério Liderança OU se tem um cargo na diretoria
-        if (this._filtroMinisterio === 'Liderança') {
-          const temCargo = this._cargos?.some(c => c.membro_id == m.sheetRowIndex);
-          return mins.includes('Liderança') || temCargo;
-        }
-
         return mins.includes(this._filtroMinisterio);
       });
     }
@@ -80,10 +75,8 @@ const Membros = {
     if (!v) return [];
     if (Array.isArray(v)) return v;
     if (typeof v === 'string') {
-      try {
-        const arr = JSON.parse(v);
-        if (Array.isArray(arr)) return arr;
-      } catch (e) { return v.split(',').map((s) => s.trim()).filter(Boolean); }
+      try { const arr = JSON.parse(v); if (Array.isArray(arr)) return arr; }
+      catch (e) { return v.split(',').map((s) => s.trim()).filter(Boolean); }
     }
     return [];
   },
@@ -107,11 +100,6 @@ const Membros = {
     this._dados.forEach((m) => {
       const mins = this._parseMinisterios(m.Ministérios);
       mins.forEach((min) => { contagemMin[min] = (contagemMin[min] || 0) + 1; });
-      
-      // Se tem cargo de diretoria, conta como Liderança
-      if (this._cargos?.some(c => c.membro_id == m.sheetRowIndex)) {
-        contagemMin['Liderança'] = (contagemMin['Liderança'] || 0) + 1;
-      }
     });
 
     const ministeriosAtivos = CONFIG.MINISTERIOS.filter((min) => contagemMin[min.nome] > 0);
@@ -119,18 +107,9 @@ const Membros = {
 
     c.innerHTML = `
       <div class="membros-stats">
-        <div class="membros-stat">
-          <i class="fas fa-users" style="color:#2563eb;"></i>
-          <div><span class="membros-stat-value">${total}</span><span class="membros-stat-label">Total</span></div>
-        </div>
-        <div class="membros-stat">
-          <i class="fas fa-user-check" style="color:#059669;"></i>
-          <div><span class="membros-stat-value">${ativos}</span><span class="membros-stat-label">Ativos</span></div>
-        </div>
-        <div class="membros-stat">
-          <i class="fas fa-sitemap" style="color:#7c3aed;"></i>
-          <div><span class="membros-stat-value">${ministeriosAtivos.length}</span><span class="membros-stat-label">Ministérios</span></div>
-        </div>
+        <div class="membros-stat"><i class="fas fa-users" style="color:#2563eb;"></i><div><span class="membros-stat-value">${total}</span><span class="membros-stat-label">Total</span></div></div>
+        <div class="membros-stat"><i class="fas fa-user-check" style="color:#059669;"></i><div><span class="membros-stat-value">${ativos}</span><span class="membros-stat-label">Ativos</span></div></div>
+        <div class="membros-stat"><i class="fas fa-sitemap" style="color:#7c3aed;"></i><div><span class="membros-stat-value">${ministeriosAtivos.length}</span><span class="membros-stat-label">Ministérios</span></div></div>
       </div>
 
       ${ministeriosAtivos.length > 0 ? `
@@ -138,10 +117,7 @@ const Membros = {
           ${ministeriosAtivos.map((min) => `
             <div class="membros-min-card ${this._filtroMinisterio === min.nome ? 'active' : ''}" style="border-left-color:${min.cor};" onclick="Membros._clicarMinisterio('${min.nome.replace(/'/g, "\\'")}')">
               <div class="membros-min-icon" style="background:${min.cor}22;color:${min.cor};"><i class="fas ${min.icon}"></i></div>
-              <div class="membros-min-info">
-                <span class="membros-min-count" style="color:${min.cor};">${contagemMin[min.nome]}</span>
-                <span class="membros-min-label">${min.nome}</span>
-              </div>
+              <div class="membros-min-info"><span class="membros-min-count" style="color:${min.cor};">${contagemMin[min.nome]}</span><span class="membros-min-label">${min.nome}</span></div>
             </div>
           `).join('')}
         </div>
@@ -150,7 +126,7 @@ const Membros = {
       <div class="membros-toolbar">
         <div class="membros-busca">
           <i class="fas fa-search"></i>
-          <input type="text" id="membros-busca-input" placeholder="Buscar..." value="${UI.escapar(this._busca)}" oninput="Membros._buscar(this.value)">
+          <input type="text" id="membros-busca-input" placeholder="Buscar por nome, apelido..." value="${UI.escapar(this._busca)}" oninput="Membros._buscar(this.value)">
         </div>
         <div class="membros-filtros">
           <select class="form-select" onchange="Membros._filtrarCategoria(this.value)">
@@ -237,9 +213,10 @@ const Membros = {
         <td>${UI.telefone(m.Telefone)}</td>
         <td><div class="membros-badges-min">${badgesMin}</div></td>
         <td><span class="membros-badge" style="background:${corSit}22;color:${corSit};">${situacao}</span></td>
-        <td class="col-actions">
+        <td class="col-actions" style="display:flex; gap:4px;">
           <button class="btn btn-primary btn-sm" onclick="Membros.ver(${m.sheetRowIndex})" title="Ver detalhes"><i class="fas fa-eye"></i></button>
           <button class="btn btn-warning btn-sm" onclick="Membros.editar(${m.sheetRowIndex})" title="Editar"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-info btn-sm" onclick="Membros.pedirDados(${m.sheetRowIndex})" style="background:#0ea5e9; border:none;" title="Pedir Dados Faltantes"><i class="fas fa-clipboard-list"></i></button>
           <button class="btn btn-danger btn-sm" onclick="Membros.remover(${m.sheetRowIndex})" title="Remover"><i class="fas fa-trash"></i></button>
           ${botaoTalento}
         </td>
@@ -257,6 +234,104 @@ const Membros = {
 
   ordenarAZ() { this._dados.sort((a, b) => (a.Nome || '').localeCompare(b.Nome || '', 'pt-BR', { sensitivity: 'base' })); this._renderTudo(); UI.toast('Ordenado A-Z', 'info'); },
 
+  // ============================================================
+  // NOVA FUNÇÃO: PEDIR DADOS FALTANTES VIA WHATSAPP
+  // ============================================================
+  pedirDados(id) {
+    const m = this._dados.find(x => x.sheetRowIndex == id);
+    if (!m) return;
+
+    const telLimpo = (m.Telefone || '').replace(/\D/g, '');
+    if (!telLimpo) {
+      return UI.toast('Este membro não tem telefone cadastrado para receber a mensagem.', 'error');
+    }
+
+    // Lista de campos que podemos pedir e o rótulo amigável
+    const camposParaPedir = [
+      { key: 'Nascimento', label: 'Data de Nascimento', icon: 'fa-birthday-cake' },
+      { key: 'CPF', label: 'CPF', icon: 'fa-id-card' },
+      { key: 'RG', label: 'RG', icon: 'fa-id-badge' },
+      { key: 'Email', label: 'E-mail', icon: 'fa-envelope' },
+      { key: 'Endereço', label: 'Endereço Completo', icon: 'fa-map-marker-alt' },
+      { key: 'Bairro', label: 'Bairro', icon: 'fa-map' },
+      { key: 'Cidade', label: 'Cidade', icon: 'fa-city' },
+      { key: 'CEP', label: 'CEP', icon: 'fa-mail-bulk' },
+      { key: 'Estado Civil', label: 'Estado Civil', icon: 'fa-heart' },
+      { key: 'Profissão', label: 'Profissão', icon: 'fa-briefcase' }
+    ];
+
+    // Verifica quais estão vazios
+    const vazios = camposParaPedir.filter(c => !m[c.key] || m[c.key].trim() === '');
+
+    if (vazios.length === 0) {
+      return UI.toast('O cadastro deste membro já está 100% completo!', 'info');
+    }
+
+    const nomeChamada = m.Apelido ? m.Apelido : m.Nome.split(' ')[0];
+
+    // Monta o HTML com as caixinhas de marcação
+    const html = `
+      <div style="margin-bottom:16px;">
+        <p style="color:#475569; font-size:14px; line-height:1.5;">
+          Olá, <strong>${UI.escapar(nomeChamada)}</strong>! O sistema notou que faltam algumas informações no seu cadastro. 
+          Selecione abaixo quais dados você quer pedir via WhatsApp:
+        </p>
+      </div>
+
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:16px;">
+        <label style="display:flex; align-items:center; gap:10px; padding:8px; cursor:pointer; border-bottom:1px solid #e2e8f0; margin-bottom:4px;">
+          <input type="checkbox" id="chk-todos" checked onchange="Membros._toggleTodosDados(this)" style="width:18px; height:18px;">
+          <span style="font-weight:700; color:#1e293b; font-size:14px;">Selecionar Todos os Faltantes</span>
+        </label>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:12px;">
+          ${vazios.map(v => `
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:4px;">
+              <input type="checkbox" class="chk-dado-faltante" value="${v.key}" data-label="${v.label}" checked style="width:16px; height:16px;">
+              <span style="font-size:13px; color:#475569;"><i class="fas ${v.icon}" style="color:#94a3b8; width:16px;"></i> ${v.label}</span>
+            </label>
+          `).join('')}
+        </div>
+      </div>
+    `;
+
+    const botoes = `
+      <button class="btn btn-neutral" onclick="UI.closeModal()">Cancelar</button>
+      <button class="btn btn-success" onclick="Membros._enviarPedidoDados('${telLimpo}', '${nomeChamada}')">
+        <i class="fab fa-whatsapp"></i> Enviar Pedido
+      </button>
+    `;
+
+    UI.openModal('📋 Pedir Dados Faltantes', html, botoes);
+  },
+
+  _toggleTodosDados(input) {
+    const checkboxes = document.querySelectorAll('.chk-dado-faltante');
+    checkboxes.forEach(c => c.checked = input.checked);
+  },
+
+  _enviarPedidoDados(telefone, nome) {
+    const checkboxes = document.querySelectorAll('.chk-dado-faltante:checked');
+    const selecionados = Array.from(checkboxes).map(cb => cb.getAttribute('data-label'));
+
+    if (selecionados.length === 0) {
+      return UI.toast('Selecione pelo menos um dado para pedir.', 'error');
+    }
+
+    // Monta a lista de dados formatada com marcadores
+    const listaDados = selecionados.map(d => `• ${d}`).join('\n');
+
+    // Mensagem amorosa e explícita
+    const mensagem = `Olá ${nome}, a paz do Senhor! 🙏\n\nEstamos fazendo uma atualização carinhosa do cadastro da nossa igreja para podermos cuidar de você e da sua família com mais atenção.\n\nNotamos que faltam algumas informações importantes no seu perfil. Você poderia nos enviar por aqui?\n\n${listaDados}\n\nFique tranquilo(a), seus dados estão totalmente seguros e são utilizados apenas para a organização da igreja e para o cuidado pastoral. Nada é compartilhado com terceiros.\n\nDesde já agradecemos a sua colaboração! Deus abençoe! ❤️`;
+
+    const linkWpp = `https://wa.me/55${telefone}?text=${encodeURI(mensagem)}`;
+    window.open(linkWpp, '_blank');
+    UI.closeModal();
+  },
+
+  // ============================================================
+  // DEMAIS FUNÇÕES (Ver, Editar, Salvar, Remover)
+  // ============================================================
   ver(id) {
     const m = this._dados.find((x) => x.sheetRowIndex == id);
     if (!m) return;
@@ -264,7 +339,6 @@ const Membros = {
     const campos = CONFIG.CAMPOS.Membros;
     const faixa = UI.calcularFaixaEtaria(m.Nascimento);
     const ministerios = this._parseMinisterios(m.Ministérios);
-    const cargo = this._cargos?.find(c => c.membro_id == m.sheetRowIndex);
 
     const secoes = {
       'Dados Pessoais': ['Nome', 'Apelido', 'Sexo', 'Nascimento', 'CPF', 'RG', 'Estado Civil', 'Nome do Cônjuge', 'Parentesco', 'Profissão'],
@@ -274,24 +348,14 @@ const Membros = {
     };
 
     let html = '';
-
-    if (cargo) {
-      html += `<div class="membros-detalhe-faixa" style="background:#fef3c7;border-left:4px solid #f59e0b; padding:12px; border-radius:8px; margin-bottom:16px; display:flex; align-items:center; gap:12px;"><i class="fas fa-crown" style="color:#f59e0b;"></i><div><strong style="color:#d97706;">${cargo.cargo}</strong></div></div>`;
-    }
-
     if (faixa) {
       const idade = UI.calcularIdade(m.Nascimento);
       html += `<div class="membros-detalhe-faixa" style="background:${faixa.cor}15;border-left:4px solid ${faixa.cor}; padding:12px; border-radius:8px; margin-bottom:16px; display:flex; align-items:center; gap:12px;"><i class="fas ${faixa.icon}" style="color:${faixa.cor};"></i><div><strong style="color:${faixa.cor};">${faixa.nome}</strong><span style="color:#64748b;font-size:0.85rem;margin-left:0.5rem;">${idade} anos</span></div></div>`;
     }
-
     if (ministerios.length > 0) {
-      const chips = ministerios.map((min) => {
-        const cor = this._corMinisterio(min); const icon = this._iconMinisterio(min);
-        return `<span class="membros-detalhe-chip" style="background:${cor}18;color:${cor};border:1px solid ${cor}40; padding:4px 8px; border-radius:12px; font-size:12px; margin-right:4px; display:inline-block; margin-bottom:4px;"><i class="fas ${icon}"></i> ${UI.escapar(min)}</span>`;
-      }).join('');
+      const chips = ministerios.map((min) => { const cor = this._corMinisterio(min); const icon = this._iconMinisterio(min); return `<span class="membros-detalhe-chip" style="background:${cor}18;color:${cor};border:1px solid ${cor}40; padding:4px 8px; border-radius:12px; font-size:12px; margin-right:4px; display:inline-block; margin-bottom:4px;"><i class="fas ${icon}"></i> ${UI.escapar(min)}</span>`; }).join('');
       html += `<div class="membros-detalhe-secao" style="margin-bottom:16px;"><h3 class="membros-detalhe-secao-titulo" style="font-size:13px; color:#64748b; text-transform:uppercase; margin-bottom:8px;">Ministérios (${ministerios.length})</h3><div>${chips}</div></div>`;
     }
-
     for (const [secao, camposSecao] of Object.entries(secoes)) {
       const linhas = camposSecao.map((nomeCampo) => {
         const campo = campos.find((c) => c.nome === nomeCampo);
@@ -304,11 +368,10 @@ const Membros = {
         if (!valor || valor === '—') return '';
         return `<div class="membros-detalhe-campo" style="margin-bottom:12px;"><div class="membros-detalhe-label" style="font-size:11px; color:#64748b; text-transform:uppercase;">${nomeCampo}</div><div class="membros-detalhe-valor" style="font-size:14px; color:#1e293b; font-weight:500;">${UI.escapar(valor)}</div></div>`;
       }).filter(Boolean).join('');
-
       if (linhas) html += `<div class="membros-detalhe-secao" style="margin-bottom:16px;"><h3 class="membros-detalhe-secao-titulo" style="font-size:13px; color:#64748b; text-transform:uppercase; margin-bottom:12px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">${secao}</h3><div class="membros-detalhe-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">${linhas}</div></div>`;
     }
 
-    const botoes = `<button class="btn btn-neutral" onclick="UI.closeModal()">Fechar</button><button class="btn btn-warning" onclick="UI.closeModal(); Membros.editar(${m.sheetRowIndex})"><i class="fas fa-edit"></i> Editar</button>`;
+    const botoes = `<button class="btn btn-neutral" onclick="UI.closeModal()">Fechar</button><button class="btn btn-info" style="background:#0ea5e9; color:#fff;" onclick="UI.closeModal(); Membros.pedirDados(${m.sheetRowIndex})"><i class="fas fa-clipboard-list"></i> Pedir Faltantes</button><button class="btn btn-warning" onclick="UI.closeModal(); Membros.editar(${m.sheetRowIndex})"><i class="fas fa-edit"></i> Editar</button>`;
     const tituloModal = m.Apelido ? `👤 ${UI.escapar(m.Nome)} (${m.Apelido})` : `👤 ${UI.escapar(m.Nome || 'Membro')}`;
     UI.openModal(tituloModal, html, botoes);
   },
@@ -329,7 +392,6 @@ const Membros = {
     };
 
     let html = '';
-
     for (const [tituloSecao, camposSecao] of Object.entries(secoes)) {
       const camposHTML = camposSecao.map((nomeCampo) => {
         const campo = campos.find((c) => c.nome === nomeCampo);
@@ -360,19 +422,34 @@ const Membros = {
 
     html += `<div class="form-secao"><h3 class="form-secao-titulo"><i class="fas fa-sitemap"></i> Ministérios / Departamentos <span class="form-secao-hint">(marque todos os que participa)</span></h3><div class="min-grid">${ministeriosHTML}</div><div class="min-contador"><i class="fas fa-check-circle"></i> <span id="min-contador">0</span> ministério(s) selecionado(s)</div></div>`;
 
-    const botoes = `<button class="btn btn-neutral" onclick="UI.closeModal()">Cancelar</button><button class="btn btn-success" onclick="Membros._salvar()"><i class="fas fa-save"></i> ${ehEdicao ? 'Salvar alterações' : 'Cadastrar'}</button>`;
+    const botoes = `
+      ${ehEdicao ? `<button class="btn btn-info" style="background:#0ea5e9; color:#fff; margin-right:auto;" onclick="UI.closeModal(); Membros.pedirDados(${membro.sheetRowIndex})"><i class="fas fa-clipboard-list"></i> Pedir Dados</button>` : ''}
+      <button class="btn btn-neutral" onclick="UI.closeModal()">Cancelar</button>
+      <button class="btn btn-success" onclick="Membros._salvar()"><i class="fas fa-save"></i> ${ehEdicao ? 'Salvar alterações' : 'Cadastrar'}</button>
+    `;
 
     UI.openModal(ehEdicao ? `✏️ Editar: ${UI.escapar(membro.Nome)}` : '👤 Novo membro', html, botoes);
 
     const form = document.getElementById('modal-body');
     if (form) {
-      const inputId = document.createElement('input'); inputId.type = 'hidden'; inputId.id = 'membro-id'; inputId.value = membro ? membro.sheetRowIndex : ''; form.appendChild(inputId);
+      const inputId = document.createElement('input');
+      inputId.type = 'hidden'; inputId.id = 'membro-id'; inputId.value = membro ? membro.sheetRowIndex : '';
+      form.appendChild(inputId);
       this._atualizarContadorMin();
     }
   },
 
-  _toggleMin(input) { const label = input.closest('.min-checkbox'); if (label) { if (input.checked) label.classList.add('checked'); else label.classList.remove('checked'); } this._atualizarContadorMin(); },
-  _atualizarContadorMin() { const contador = document.getElementById('min-contador'); if (!contador) return; contador.textContent = document.querySelectorAll('.min-checkbox-input:checked').length; },
+  _toggleMin(input) {
+    const label = input.closest('.min-checkbox');
+    if (label) { if (input.checked) label.classList.add('checked'); else label.classList.remove('checked'); }
+    this._atualizarContadorMin();
+  },
+
+  _atualizarContadorMin() {
+    const contador = document.getElementById('min-contador');
+    if (!contador) return;
+    contador.textContent = document.querySelectorAll('.min-checkbox-input:checked').length;
+  },
 
   async _salvar() {
     const form = document.getElementById('modal-body');
@@ -426,4 +503,4 @@ const Membros = {
   }
 
 };
-console.log('%c[Membros] Módulo carregado v4.0 (Liderança Inteligente)', 'color:#64748b;font-size:11px;');
+console.log('%c[Membros] Módulo carregado v4.1 (Pedido de Dados)', 'color:#64748b;font-size:11px;');

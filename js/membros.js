@@ -1,5 +1,7 @@
 /* ============================================================
-   PIBENS ADM — Módulo Membros v4.3
+   PIBENS ADM — Módulo Membros v4.4
+   ============================================================
+   - Removida trava de salvamento obrigatório
    ============================================================ */
 
 const Membros = {
@@ -201,7 +203,7 @@ const Membros = {
     const botaoTalento = m.Talento ? `<button class="btn btn-purple btn-sm" onclick="Membros.enviarParaTalentos(${m.sheetRowIndex})" title="Enviar para Talentos"><i class="fas fa-star"></i></button>` : '';
     const cargo = this._cargos?.find(c => c.membro_id == m.sheetRowIndex);
     const coroa = cargo ? `<i class="fas fa-crown" style="color:#f59e0b; margin-right:6px;" title="${cargo.cargo}"></i>` : '';
-    const nomeExibicao = `${coroa}<strong>${m.Nome}</strong> ${m.Apelido ? `<span style="color:#64748b;font-weight:400;font-size:0.85em;">(${m.Apelido})</span>` : ''}`;
+    const nomeExibicao = `${coroa}<strong>${m.Nome || '(Sem nome)'}</strong> ${m.Apelido ? `<span style="color:#64748b;font-weight:400;font-size:0.85em;">(${m.Apelido})</span>` : ''}`;
 
     return `
       <tr>
@@ -230,9 +232,6 @@ const Membros = {
 
   ordenarAZ() { this._dados.sort((a, b) => (a.Nome || '').localeCompare(b.Nome || '', 'pt-BR', { sensitivity: 'base' })); this._renderTudo(); UI.toast('Ordenado A-Z', 'info'); },
 
-  // ============================================================
-  // PEDIDO DE DADOS (Focado nos Essenciais)
-  // ============================================================
   pedirDados(id) {
     const m = this._dados.find(x => x.sheetRowIndex == id);
     if (!m) return;
@@ -242,7 +241,6 @@ const Membros = {
       return UI.toast('Este membro não tem WhatsApp cadastrado para receber a mensagem.', 'error');
     }
 
-    // Filtra APENAS os campos essenciais que estão vazios
     const camposEssenciais = CONFIG.CAMPOS.Membros.filter(c => c.essencial);
     const vazios = camposEssenciais.filter(c => !m[c.nome] || m[c.nome].trim() === '');
 
@@ -250,7 +248,7 @@ const Membros = {
       return UI.toast('O cadastro essencial deste membro já está 100% completo!', 'info');
     }
 
-    const nomeChamada = m.Apelido ? m.Apelido : m.Nome.split(' ')[0];
+    const nomeChamada = m.Apelido ? m.Apelido : (m.Nome || 'Membro').split(' ')[0];
 
     const html = `
       <div style="margin-bottom:16px;">
@@ -311,9 +309,6 @@ const Membros = {
     UI.closeModal();
   },
 
-  // ============================================================
-  // DEMAIS FUNÇÕES (Ver, Editar, Salvar, Remover)
-  // ============================================================
   ver(id) {
     const m = this._dados.find((x) => x.sheetRowIndex == id);
     if (!m) return;
@@ -391,12 +386,11 @@ const Membros = {
         const fullClass = campo.tipo === 'textarea' ? 'form-grid-full' : '';
         const labelExibicao = nomeCampo === 'Telefone' ? 'WhatsApp' : nomeCampo;
         
-        // ETIQUETAS DE ESSENCIAL/OPCIONAL
         const tagEssencial = campo.essencial 
           ? `<span style="font-size:9px; background:#fee2e2; color:#dc2626; padding:2px 6px; border-radius:4px; margin-left:6px; font-weight:800; letter-spacing:0.5px; vertical-align:middle;">ESSENCIAL</span>` 
           : `<span style="font-size:9px; background:#f1f5f9; color:#94a3b8; padding:2px 6px; border-radius:4px; margin-left:6px; font-weight:800; letter-spacing:0.5px; vertical-align:middle;">OPCIONAL</span>`;
 
-        return `<div class="form-group ${fullClass}"><label class="form-label ${campo.obrigatorio ? 'form-label-required' : ''}">${labelExibicao} ${tagEssencial}</label>${input}</div>`;
+        return `<div class="form-group ${fullClass}"><label class="form-label">${labelExibicao} ${tagEssencial}</label>${input}</div>`;
       }).join('');
       html += `<div class="form-secao"><h3 class="form-secao-titulo">${tituloSecao}</h3><div class="form-grid">${camposHTML}</div></div>`;
     }
@@ -419,7 +413,7 @@ const Membros = {
       <button class="btn btn-success" onclick="Membros._salvar()"><i class="fas fa-save"></i> ${ehEdicao ? 'Salvar alterações' : 'Cadastrar'}</button>
     `;
 
-    UI.openModal(ehEdicao ? `✏️ Editar: ${UI.escapar(membro.Nome)}` : '👤 Novo membro', html, botoes);
+    UI.openModal(ehEdicao ? `✏️ Editar: ${UI.escapar(membro.Nome || 'Sem Nome')}` : '👤 Novo membro', html, botoes);
 
     const form = document.getElementById('modal-body');
     if (form) {
@@ -466,9 +460,7 @@ const Membros = {
       if (nomeLimpo && (m.Nome || '').toLowerCase().trim() === nomeLimpo) return UI.toast('Erro: Já existe um membro com este Nome!', 'error');
     }
 
-    for (const campo of CONFIG.CAMPOS.Membros) {
-      if (campo.obrigatorio && !dados[campo.nome]) return UI.toast(`Preencha o campo obrigatório: ${campo.nome}`, 'error');
-    }
+    // REMOVIDA A TRAVA DE CAMPOS OBRIGATÓRIOS AQUI
 
     try {
       const r = await API.salvar(CONFIG.TABELAS.MEMBROS, dados, id ? parseInt(id) : null);
@@ -494,4 +486,4 @@ const Membros = {
   }
 
 };
-console.log('%c[Membros] Módulo carregado v4.3 (Marcação Essencial)', 'color:#64748b;font-size:11px;');
+console.log('%c[Membros] Módulo carregado v4.4 (Sem trava de salvamento)', 'color:#64748b;font-size:11px;');

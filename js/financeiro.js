@@ -24,7 +24,7 @@ const Financeiro = {
     c.innerHTML = UI.loading('Carregando lançamentos...');
 
     try {
-      const dados = await API.listarFinanceiro();
+      const dados = await API.listar(CONFIG.TABELAS.FINANCEIRO);
       this._dados = (dados || []).map((d) => {
         d._valorNum = this._parseValor(d.Valor);
         return d;
@@ -456,7 +456,7 @@ const Financeiro = {
     dados.Valor = String(dados.Valor).replace(',', '.');
 
     try {
-      const r = await API.salvarFinanceiro(dados, id ? parseInt(id) : null);
+      const r = await API.salvar(CONFIG.TABELAS.FINANCEIRO, dados, id ? parseInt(id) : null);
       UI.toast(r.message || CONFIG.MSG.SALVO_SUCESSO, 'success');
       UI.closeModal();
       this.render();
@@ -479,7 +479,7 @@ const Financeiro = {
     if (!ok) return;
 
     try {
-      const r = await API.removerFinanceiro(id);
+      const r = await API.remover(id, CONFIG.TABELAS.FINANCEIRO, d.Categoria);
       UI.toast(r.message || CONFIG.MSG.REMOVIDO_SUCESSO, 'success');
       this.render();
     } catch (e) {

@@ -189,7 +189,7 @@ const Presenca = {
                 const nomeChamada = m.Apelido ? m.Apelido : (m.Nome || '').split(' ')[0];
                 
                 // Mensagem mais acolhedora e pessoal
-                const msgWpp = encodeURIComponent(`Olá ${nomeChamada}, a paz do Senhor! 💙 Sentimos sua falta no nosso último encontro. Estamos orando por você e sua família. Que Deus te abençoe!`);
+                const msgWpp = encodeURIComponent(`Olá ${nomeChamada}, a paz do Senhor! Sentimos muito a sua falta no culto de ${UI.dataBR(p.Data)}. Sua presença faz falta à nossa família da igreja, e o culto não é o mesmo sem você. Queremos lembrar, com carinho, do nosso compromisso de nos reunirmos para congregar e fortalecer a fé uns dos outros. Esperamos você no próximo culto! Se estiver passando por um momento difícil ou precisar conversar, conte conosco. Estamos orando por você e por sua família. Receba nosso abraço fraterno.`);
                 
                 return `
                   <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:8px 12px; border-radius:6px; border:1px solid #fecaca;">

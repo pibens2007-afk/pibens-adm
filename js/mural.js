@@ -50,6 +50,10 @@ const Mural = {
     const cfg = CONFIG.MURAL.TIPOS.find(t => t.id === a.Tipo) || CONFIG.MURAL.TIPOS[0];
     const fixado = a.Fixo === 'Sim';
     const dataFormatada = a.criado_em ? new Date(a.criado_em).toLocaleDateString('pt-BR', {day: '2-digit', month: 'short'}) : '--';
+    const dataExpiracao = String(a.DataExpira || '').slice(0, 10);
+    const expiracaoFormatada = dataExpiracao
+      ? new Date(dataExpiracao + 'T00:00:00').toLocaleDateString('pt-BR')
+      : '';
     const mensagemFormatada = a.Mensagem.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color:#2563eb;text-decoration:underline;word-break:break-all;">$1</a>');
 
     // Botão de compartilhar no WhatsApp
@@ -61,6 +65,7 @@ const Mural = {
         <div style="display:flex;gap:6px;margin-bottom:12px;">
           <span style="background:${cfg.cor};color:#fff;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:800;">${cfg.icon} ${cfg.nome.toUpperCase()}</span>
           ${fixado ? `<span style="background:#fff;color:${cfg.cor};border:1.5px solid ${cfg.cor};padding:4px 10px;border-radius:20px;font-size:10px;font-weight:800;">📌 FIXADO</span>` : ''}
+          ${expiracaoFormatada ? `<span style="background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:800;"><i class="fas fa-hourglass-end"></i> EXPIRA ${expiracaoFormatada}</span>` : ''}
         </div>
 
         <h3 style="color:${fixado ? cfg.cor : '#1F2937'}; margin:0 0 8px 0; font-size:16px;">${UI.escapar(a.Titulo)}</h3>
@@ -97,6 +102,11 @@ const Mural = {
           <div class="form-group"><label class="form-label">Tipo de Aviso</label><select class="form-select" id="mur-tipo">${tipos}</select></div>
           <div class="form-group"><label class="form-label">Autor</label><input class="form-input" id="mur-autor" value="${aviso?.Autor || 'Liderança'}"></div>
         </div>
+        <div class="form-group">
+          <label class="form-label" for="mur-data-expira">Prazo de expiração (opcional)</label>
+          <input class="form-input" id="mur-data-expira" type="date" value="${String(aviso?.DataExpira || '').slice(0, 10)}">
+          <small class="mural-form-hint"><i class="fas fa-info-circle"></i> O aviso ficará visível até o fim dessa data. Deixe em branco para não expirar.</small>
+        </div>
         <div class="form-group" style="margin-top:16px;">
           <label class="form-checkbox" style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="mur-fixo" ${aviso?.Fixo === 'Sim' ? 'checked' : ''} style="width:auto;"><span style="font-weight:600; font-size:14px;">📌 Fixar este aviso no topo</span></label>
         </div>
@@ -113,10 +123,18 @@ const Mural = {
     const tipo = document.getElementById('mur-tipo').value;
     const autor = document.getElementById('mur-autor').value.trim();
     const fixo = document.getElementById('mur-fixo').checked;
+    const dataExpira = document.getElementById('mur-data-expira').value;
 
     if (!titulo || !mensagem) return UI.toast('Preencha título e mensagem', 'error');
 
-    const dados = { Titulo: titulo, Mensagem: mensagem, Tipo: tipo, Autor: autor, Fixo: fixo ? 'Sim' : 'Não' };
+    const dados = {
+      Titulo: titulo,
+      Mensagem: mensagem,
+      Tipo: tipo,
+      Autor: autor,
+      Fixo: fixo ? 'Sim' : 'Não',
+      DataExpira: dataExpira
+    };
 
     try {
       await API.salvar(CONFIG.TABELAS.MURAL, dados, id ? parseInt(id) : null);

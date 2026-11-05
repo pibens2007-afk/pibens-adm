@@ -41,142 +41,102 @@ const Dashboard = {
       });
 
       c.innerHTML = `
-        <style>
-          .dash-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-          }
-          .dash-card {
-            background: #fff;
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-            border: 1px solid #E2E8F0;
-            display: flex;
-            flex-direction: column;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-          }
-          .dash-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
-          }
-          .dash-card-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            margin-bottom: 16px;
-          }
-          .dash-card-number {
-            font-size: 32px;
-            font-weight: 800;
-            color: #1e293b;
-            line-height: 1;
-            margin-bottom: 8px;
-          }
-          .dash-card-label {
-            font-size: 13px;
-            font-weight: 600;
-            color: #64748b;
-            margin-top: auto;
-          }
-          
-          .dash-banner {
-            flex: 1;
-            min-width: 300px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 20px;
-            cursor: pointer;
-            transition: transform 0.2s;
-          }
-          .dash-banner:hover {
-            transform: translateY(-2px);
-          }
-        </style>
+        <section class="dash-highlights" aria-label="Destaques">
+          <button type="button" class="dash-banner dash-banner-birthday" onclick="Menu.navegar('aniversarios')">
+            <span class="dash-banner-icon"><i class="fas fa-birthday-cake"></i></span>
+            <span class="dash-banner-copy">
+              <span class="dash-banner-title">Aniversariantes de hoje</span>
+              <span class="dash-banner-text">${nomesAniversariantes}</span>
+            </span>
+            <i class="fas fa-arrow-right dash-banner-arrow" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="dash-banner dash-banner-calendar" onclick="Menu.navegar('calendario')">
+            <span class="dash-banner-icon"><i class="fas fa-bookmark"></i></span>
+            <span class="dash-banner-copy">
+              <span class="dash-banner-title">Calendário Batista CBB</span>
+              <span class="dash-banner-text">${aniversariantes.baptistDates || 'Disponível'}</span>
+            </span>
+            <i class="fas fa-arrow-right dash-banner-arrow" aria-hidden="true"></i>
+          </button>
+        </section>
 
-        <div style="display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap;">
-          
-          <div class="data-card dash-banner" onclick="Menu.navegar('aniversarios')">
-            <div style="width: 48px; height: 48px; border-radius: 12px; background: ${temAniversariante ? '#fee2e2' : '#f1f5f9'}; display: flex; align-items: center; justify-content: center; font-size: 20px; color: ${temAniversariante ? '#dc2626' : '#94a3b8'};">
-              <i class="fas fa-birthday-cake"></i>
-            </div>
-            <div>
-              <h3 style="font-size: 12px; font-weight: 800; color: #64748b; margin: 0 0 4px 0; text-transform: uppercase;">Aniversariantes de Hoje</h3>
-              <p style="font-size: 15px; font-weight: 600; color: #1e293b; margin: 0;">${nomesAniversariantes}</p>
-            </div>
+        <section class="dash-section-heading">
+          <div>
+            <span class="dash-eyebrow">Visão geral</span>
+            <h2>Resumo da igreja</h2>
           </div>
+          <span class="dash-updated"><i class="fas fa-circle"></i> Dados atualizados</span>
+        </section>
 
-          <div class="dash-banner" style="background: linear-gradient(135deg, #2563eb, #7c3aed); border-radius: 16px; color: white;" onclick="Menu.navegar('calendario')">
-            <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 20px;">
-              <i class="fas fa-bookmark"></i>
-            </div>
-            <div>
-              <h3 style="font-size: 12px; font-weight: 800; color: rgba(255,255,255,0.8); margin: 0 0 4px 0; text-transform: uppercase;">Calendário Batista CBB</h3>
-              <p style="font-size: 15px; font-weight: 600; margin: 0;">${aniversariantes.baptistDates || 'Disponível'}</p>
-            </div>
-          </div>
-
-        </div>
-
-        <div class="dash-grid">
-          
-          <div class="dash-card" onclick="Menu.navegar('membros')">
-            <div class="dash-card-icon" style="background: #e0e7ff; color: #4f46e5;">
+        <section class="dash-grid" aria-label="Indicadores">
+          <button type="button" class="dash-card dash-card-violet" onclick="Menu.navegar('membros')">
+            <span class="dash-card-icon">
               <i class="fas fa-users"></i>
-            </div>
-            <div class="dash-card-number">${totalMembros}</div>
-            <div class="dash-card-label">Membros cadastrados</div>
-          </div>
+            </span>
+            <span class="dash-card-number">${totalMembros}</span>
+            <span class="dash-card-label">Membros cadastrados</span>
+            <i class="fas fa-users dash-card-art" aria-hidden="true"></i>
+          </button>
 
-          <div class="dash-card" onclick="Menu.navegar('talentos')">
-            <div class="dash-card-icon" style="background: #ede9fe; color: #7c3aed;">
+          <button type="button" class="dash-card dash-card-purple" onclick="Menu.navegar('talentos')">
+            <span class="dash-card-icon">
               <i class="fas fa-star"></i>
-            </div>
-            <div class="dash-card-number">${totalTalentos}</div>
-            <div class="dash-card-label">Talentos registrados</div>
-          </div>
+            </span>
+            <span class="dash-card-number">${totalTalentos}</span>
+            <span class="dash-card-label">Talentos registrados</span>
+            <i class="fas fa-trophy dash-card-art" aria-hidden="true"></i>
+          </button>
 
-          <div class="dash-card" onclick="Menu.navegar('agenda')">
-            <div class="dash-card-icon" style="background: #cffafe; color: #0891b2;">
+          <button type="button" class="dash-card dash-card-cyan" onclick="Menu.navegar('agenda')">
+            <span class="dash-card-icon">
               <i class="fas fa-calendar-alt"></i>
-            </div>
-            <div class="dash-card-number">${totalEventos}</div>
-            <div class="dash-card-label">Eventos na agenda</div>
-          </div>
+            </span>
+            <span class="dash-card-number">${totalEventos}</span>
+            <span class="dash-card-label">Eventos na agenda</span>
+            <i class="fas fa-calendar-check dash-card-art" aria-hidden="true"></i>
+          </button>
 
-          <div class="dash-card" onclick="Menu.navegar('aniversarios')">
-            <div class="dash-card-icon" style="background: #fef3c7; color: #d97706;">
+          <button type="button" class="dash-card dash-card-amber" onclick="Menu.navegar('aniversarios')">
+            <span class="dash-card-icon">
               <i class="fas fa-birthday-cake"></i>
-            </div>
-            <div class="dash-card-number">${temAniversariante ? aniversariantes.birthdays.length : 0}</div>
-            <div class="dash-card-label">Aniversariantes hoje</div>
-          </div>
+            </span>
+            <span class="dash-card-number">${temAniversariante ? aniversariantes.birthdays.length : 0}</span>
+            <span class="dash-card-label">Aniversariantes hoje</span>
+            <i class="fas fa-gift dash-card-art" aria-hidden="true"></i>
+          </button>
 
-          <div class="dash-card" onclick="Menu.navegar('aniversarios')">
-            <div class="dash-card-icon" style="background: #ffe4e6; color: #e11d48;">
+          <button type="button" class="dash-card dash-card-rose" onclick="Menu.navegar('aniversarios')">
+            <span class="dash-card-icon">
               <i class="fas fa-gift"></i>
-            </div>
-            <div class="dash-card-number">${totalAniversariantesMes}</div>
-            <div class="dash-card-label">Aniversariantes do mês</div>
-          </div>
+            </span>
+            <span class="dash-card-number">${totalAniversariantesMes}</span>
+            <span class="dash-card-label">Aniversariantes do mês</span>
+            <i class="fas fa-gift dash-card-art" aria-hidden="true"></i>
+          </button>
 
-          <div class="dash-card" onclick="Menu.navegar('ia')">
-            <div class="dash-card-icon" style="background: #dbeafe; color: #2563eb;">
+          <button type="button" class="dash-card dash-card-blue" onclick="Menu.navegar('ia')">
+            <span class="dash-card-icon">
               <i class="fas fa-robot"></i>
-            </div>
-            <div class="dash-card-number">∞</div>
-            <div class="dash-card-label">Assistente IA</div>
-          </div>
+            </span>
+            <span class="dash-card-number">∞</span>
+            <span class="dash-card-label">Assistente IA</span>
+            <i class="fas fa-microchip dash-card-art" aria-hidden="true"></i>
+          </button>
+        </section>
 
-        </div>
+        <section class="dash-assistant">
+          <div class="dash-assistant-mark"><i class="fas fa-robot"></i></div>
+          <div class="dash-assistant-copy">
+            <span class="dash-eyebrow">Assistente IA</span>
+            <h2>Sempre ao seu lado para ajudar na gestão da sua igreja.</h2>
+            <p>Encontre ferramentas inteligentes para apoiar sua rotina.</p>
+            <button type="button" class="btn btn-primary dash-assistant-action" onclick="Menu.navegar('ia')">
+              Acessar assistente <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+          <i class="fas fa-book-open dash-assistant-art" aria-hidden="true"></i>
+          <span class="dash-assistant-glow" aria-hidden="true"></span>
+        </section>
       `;
 
     } catch (e) {

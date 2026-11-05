@@ -3845,9 +3845,8 @@ select:focus-visible, textarea:focus-visible {
   pointer-events: none;
 }
 
-@media (min-width: 1200px) {
-  .dash-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-  .dash-card:last-child { grid-column: span 1; }
+@media (min-width: 1500px) {
+  .dash-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 }
 
 @media (max-width: 900px) {

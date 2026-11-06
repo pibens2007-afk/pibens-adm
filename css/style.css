@@ -4072,7 +4072,139 @@ select:focus-visible, textarea:focus-visible {
   font-weight: 400;
 }
 
+.agenda-grupo-row td {
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.agenda-grupo-futuro td {
+  background: #17213d;
+  color: #d7ddff;
+}
+
+.agenda-grupo-passado td {
+  background: #111a31;
+  color: #aab6d1;
+}
+
+.agenda-detalhe-item {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #29395c;
+}
+
+.agenda-detalhe-label {
+  color: #aab6d1;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.agenda-detalhe-valor {
+  margin-top: 0.2rem;
+  color: #e1e8f7;
+  font-size: 0.95rem;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.agenda-detalhe-vazio { color: #8190b1; }
+
+.pres-faltantes-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid rgba(251, 113, 133, 0.36);
+  background: rgba(190, 44, 72, 0.2);
+  color: #fecdd3;
+  font-weight: 700;
+}
+
+.pres-faltantes-btn:hover:not(:disabled) {
+  background: rgba(190, 44, 72, 0.34);
+}
+
+.pres-sem-faltantes {
+  color: #aab6d1;
+  font-size: 12px;
+}
+
+.pres-alerta-ausentes {
+  margin-bottom: 16px;
+  padding: 16px;
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  border-radius: var(--radius-sm);
+  background: linear-gradient(130deg, rgba(92, 33, 54, 0.32), rgba(34, 23, 42, 0.7));
+}
+
+.pres-alerta-ausentes.is-focused {
+  border-color: rgba(251, 113, 133, 0.72);
+  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.16);
+}
+
+.pres-alerta-ausentes-titulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  color: #fda4af;
+  font-size: 14px;
+}
+
+.pres-alerta-ausentes-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pres-alerta-ausentes-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border: 1px solid rgba(244, 63, 94, 0.22);
+  border-radius: 6px;
+  background: rgba(9, 17, 38, 0.75);
+}
+
+.pres-alerta-ausentes-membro {
+  color: #e1e8f7;
+  font-size: 13px;
+}
+
+.pres-alerta-whatsapp {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: #087c68;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.pres-alerta-whatsapp:hover {
+  background: #099278;
+}
+
+.pres-alerta-whatsapp:focus-visible {
+  outline: 2px solid #86efac;
+  outline-offset: 2px;
+}
+
+.pres-alerta-sem-telefone {
+  color: #aab6d1;
+  font-size: 11px;
+}
+
 @media (max-width: 520px) {
   .pres-modal-resumo { grid-template-columns: 1fr; gap: 8px; }
   .pres-modal-resumo-card { padding: 10px 12px; }
+  .pres-alerta-ausentes-item { align-items: flex-start; flex-direction: column; }
 }

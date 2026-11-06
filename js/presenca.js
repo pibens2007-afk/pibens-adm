@@ -115,8 +115,8 @@ const Presenca = {
     const qtdFaltantes = faltantesDesteCulto.length;
 
     const botaoFaltantes = qtdFaltantes > 0 
-      ? `<button class="btn btn-sm" onclick="Presenca.ver('${p.sheetRowIndex}')" style="background:#fee2e2; color:#dc2626; border:1px solid #fecaca; font-weight:700; display:flex; align-items:center; gap:4px;" title="Ver quem faltou"><i class="fas fa-user-slash"></i> ${qtdFaltantes}</button>`
-      : `<span style="color:#cbd5e1; font-size:12px;">—</span>`;
+      ? `<button class="btn btn-sm pres-faltantes-btn" onclick="Presenca.ver('${p.sheetRowIndex}')" title="Ver quem faltou"><i class="fas fa-user-slash"></i> ${qtdFaltantes}</button>`
+      : `<span class="pres-sem-faltantes">—</span>`;
 
     const temLink = p['Link do Culto'] && p['Link do Culto'].trim() !== '';
     const botaoYoutube = temLink 
@@ -177,11 +177,11 @@ const Presenca = {
 
       const html = `
         ${faltantes.length > 0 ? `
-          <div style="background:${focarFaltantes ? '#fef2f2' : '#f8fafc'}; border:1px solid ${focarFaltantes ? '#fecaca' : '#e2e8f0'}; border-radius:8px; padding:16px; margin-bottom:16px; ${focarFaltantes ? 'box-shadow:0 0 0 3px rgba(220,38,38,0.2);' : ''}">
-            <h4 style="margin:0 0 12px 0; color:#dc2626; font-size:14px; display:flex; align-items:center; gap:8px;">
+          <div class="pres-alerta-ausentes ${focarFaltantes ? 'is-focused' : ''}">
+            <h4 class="pres-alerta-ausentes-titulo">
               <i class="fas fa-heart"></i> Cuidado Pastoral: Ausentes neste culto (${faltantes.length})
             </h4>
-            <div style="display:flex; flex-direction:column; gap:8px;">
+            <div class="pres-alerta-ausentes-lista">
               ${faltantes.map(m => {
                 const telLimpo = (m.Telefone || '').replace(/\D/g, '');
                 
@@ -192,9 +192,9 @@ const Presenca = {
                 const msgWpp = encodeURIComponent(`Olá ${nomeChamada}, a paz do Senhor! Sentimos muito a sua falta no culto de ${UI.dataBR(p.Data)}. Sua presença faz falta à nossa família da igreja, e o culto não é o mesmo sem você. Queremos lembrar, com carinho, do nosso compromisso de nos reunirmos para congregar e fortalecer a fé uns dos outros. Esperamos você no próximo culto! Se estiver passando por um momento difícil ou precisar conversar, conte conosco. Estamos orando por você e por sua família. Receba nosso abraço fraterno.`);
                 
                 return `
-                  <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:8px 12px; border-radius:6px; border:1px solid #fecaca;">
-                    <span style="font-size:13px; color:#1e293b;"><strong>${UI.escapar(m.Nome)}</strong> ${m.Apelido ? `(${m.Apelido})` : ''}</span>
-                    ${telLimpo ? `<a href="https://wa.me/55${telLimpo}?text=${msgWpp}" target="_blank" style="background:#25D366; color:#fff; padding:4px 10px; border-radius:6px; font-size:12px; text-decoration:none; display:flex; align-items:center; gap:4px; font-weight:600;"><i class="fab fa-whatsapp"></i> Enviar Carinho</a>` : `<span style="font-size:11px; color:#94a3b8;">Sem telefone</span>`}
+                  <div class="pres-alerta-ausentes-item">
+                    <span class="pres-alerta-ausentes-membro"><strong>${UI.escapar(m.Nome)}</strong> ${m.Apelido ? `(${UI.escapar(m.Apelido)})` : ''}</span>
+                    ${telLimpo ? `<a href="https://wa.me/55${telLimpo}?text=${msgWpp}" target="_blank" rel="noopener noreferrer" class="pres-alerta-whatsapp"><i class="fab fa-whatsapp"></i> Enviar Carinho</a>` : `<span class="pres-alerta-sem-telefone">Sem telefone</span>`}
                   </div>
                 `;
               }).join('')}

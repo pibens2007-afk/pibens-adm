@@ -3945,3 +3945,134 @@ select:focus-visible, textarea:focus-visible {
   transform: translateY(-3px) scale(1.01);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
 }
+
+/* Presença: manter badges e check-in legíveis no tema escuro do portal. */
+.pres-tipo-badge {
+  color: #e9ddff;
+  background: rgba(139, 92, 246, 0.2);
+  border: 1px solid rgba(167, 139, 250, 0.34);
+}
+
+.pres-modal-resumo {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.pres-modal-resumo-card {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: linear-gradient(145deg, #111b38, #0b1329);
+}
+
+.pres-modal-resumo-label {
+  color: #aebbd7;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.pres-modal-resumo-total {
+  margin-top: 3px;
+  color: #f2f5ff;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.pres-modal-resumo-valor {
+  margin-top: 4px;
+  color: #e1e8f7;
+  font-size: 0.9rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.pres-modal-lista {
+  overflow: hidden;
+  border: 1px solid #29395c;
+  border-radius: var(--radius);
+  background: #091126;
+}
+
+.pres-modal-lista-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border-bottom: 1px solid #29395c;
+  background: #101a34;
+}
+
+.pres-modal-lista-header strong {
+  color: #eef2ff;
+  font-size: 0.9rem;
+}
+
+.pres-modal-lista-header span {
+  color: #b7c3dd;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.pres-modal-lista-itens {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 8px;
+  scrollbar-color: #536486 #0b1329;
+  scrollbar-width: thin;
+}
+
+.pres-modal-checkin-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: #dce5f7;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.pres-modal-checkin-item:hover {
+  border-color: rgba(167, 139, 250, 0.2);
+  background: #17213d;
+}
+
+.pres-modal-checkin-item.is-checked {
+  border-color: rgba(52, 211, 153, 0.25);
+  background: rgba(16, 185, 129, 0.13);
+}
+
+.pres-modal-checkin-item .check-membro {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  margin: 0;
+  accent-color: #34d399;
+  cursor: pointer;
+}
+
+.pres-modal-checkin-nome {
+  min-width: 0;
+  color: #e1e8f7;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.pres-modal-apelido {
+  color: #aab6d1;
+  font-size: 0.85em;
+  font-weight: 400;
+}
+
+@media (max-width: 520px) {
+  .pres-modal-resumo { grid-template-columns: 1fr; gap: 8px; }
+  .pres-modal-resumo-card { padding: 10px 12px; }
+}

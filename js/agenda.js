@@ -82,7 +82,7 @@ const Agenda = {
 
     // Futuros
     if (futuros.length > 0) {
-      linhas += `<tr><td colspan="${colunas.length + 1}" style="background:#eff6ff;color:#1d4ed8;font-weight:800;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;">
+      linhas += `<tr class="agenda-grupo-row agenda-grupo-futuro"><td colspan="${colunas.length + 1}">
         <i class="fas fa-clock mr-1"></i> Próximos eventos
       </td></tr>`;
       futuros.forEach((e) => { linhas += this._linha(e, colunas); });
@@ -90,7 +90,7 @@ const Agenda = {
 
     // Passados
     if (passados.length > 0) {
-      linhas += `<tr><td colspan="${colunas.length + 1}" style="background:#f8fafc;color:#64748b;font-weight:800;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;">
+      linhas += `<tr class="agenda-grupo-row agenda-grupo-passado"><td colspan="${colunas.length + 1}">
         <i class="fas fa-history mr-1"></i> Eventos passados
       </td></tr>`;
       passados.reverse().forEach((e) => { linhas += this._linha(e, colunas); });
@@ -175,12 +175,12 @@ const Agenda = {
       let valor = e[campo.nome];
       if (campo.tipo === 'date') valor = UI.dataBR(valor);
       return `
-        <div style="padding:0.6rem 0;border-bottom:1px solid #f1f5f9;">
-          <div style="font-size:0.7rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;">
+        <div class="agenda-detalhe-item">
+          <div class="agenda-detalhe-label">
             ${campo.nome}
           </div>
-          <div style="font-size:0.95rem;color:#1e293b;font-weight:500;margin-top:0.2rem;word-break:break-word;white-space:pre-wrap;">
-            ${valor ? UI.escapar(valor) : '<span style="color:#cbd5e1;">—</span>'}
+          <div class="agenda-detalhe-valor">
+            ${valor ? UI.escapar(valor) : '<span class="agenda-detalhe-vazio">—</span>'}
           </div>
         </div>
       `;

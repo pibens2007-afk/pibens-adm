@@ -126,7 +126,7 @@ const Presenca = {
     return `
       <tr>
         <td style="font-weight:600;">${UI.dataBR(p.Data)}</td>
-        <td><span class="badge" style="background:#e0e7ff; color:#4338ca;">${UI.escapar(p.Tipo)}</span></td>
+        <td><span class="badge pres-tipo-badge">${UI.escapar(p.Tipo)}</span></td>
         <td>${UI.escapar(p.Tema || '—')}</td>
         <td>${UI.escapar(p.Pregador || '—')}</td>
         <td style="font-weight:700;">${total}</td>
@@ -204,19 +204,19 @@ const Presenca = {
 
         ${linkYoutube}
 
-        <div style="margin-bottom:16px; display:flex; gap:12px; flex-wrap:wrap;">
-          <div style="background:#f1f5f9; padding:12px; border-radius:8px; flex:1; min-width:120px;"><span style="font-size:11px; color:#64748b; font-weight:700;">TOTAL PRESENTES</span><div style="font-size:24px; font-weight:800; color:#1e293b;">${p.TotalPresentes || 0}</div></div>
-          <div style="background:#f1f5f9; padding:12px; border-radius:8px; flex:1; min-width:120px;"><span style="font-size:11px; color:#64748b; font-weight:700;">VISITANTES</span><div style="font-size:14px; font-weight:600; color:#1e293b; margin-top:4px;">${UI.escapar(p.Visitantes || 'Nenhum')}</div></div>
-          <div style="background:#f1f5f9; padding:12px; border-radius:8px; flex:1; min-width:120px;"><span style="font-size:11px; color:#64748b; font-weight:700;">PREGADOR</span><div style="font-size:14px; font-weight:600; color:#1e293b; margin-top:4px;">${UI.escapar(p.Pregador || '—')}</div></div>
+        <div class="pres-modal-resumo">
+          <div class="pres-modal-resumo-card"><span class="pres-modal-resumo-label">TOTAL PRESENTES</span><div class="pres-modal-resumo-total">${p.TotalPresentes || 0}</div></div>
+          <div class="pres-modal-resumo-card"><span class="pres-modal-resumo-label">VISITANTES</span><div class="pres-modal-resumo-valor">${UI.escapar(p.Visitantes || 'Nenhum')}</div></div>
+          <div class="pres-modal-resumo-card"><span class="pres-modal-resumo-label">PREGADOR</span><div class="pres-modal-resumo-valor">${UI.escapar(p.Pregador || '—')}</div></div>
         </div>
 
-        <div style="border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
-          <div style="background:#f8fafc; padding:12px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;"><strong style="font-size:14px; color:#334155;">Lista de Presença</strong><span style="font-size:12px; color:#64748b;" id="contador-checkin">${presentes.length} marcados</span></div>
-          <div style="max-height:300px; overflow-y:auto; padding:8px;">
+        <div class="pres-modal-lista">
+          <div class="pres-modal-lista-header"><strong>Lista de Presença</strong><span id="contador-checkin">${presentes.length} marcados</span></div>
+          <div class="pres-modal-lista-itens">
             ${listaMembros.map(m => {
               const isChecked = presentes.includes(String(m.sheetRowIndex));
-              const nomeExibicao = m.Nome + (m.Apelido ? ` <span style="color:#64748b;font-weight:400;font-size:0.85em;">(${m.Apelido})</span>` : '');
-              return `<label style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:6px; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'"><input type="checkbox" class="check-membro" value="${m.sheetRowIndex}" ${isChecked ? 'checked' : ''} onchange="Presenca._atualizarContador()" style="width:18px; height:18px; cursor:pointer;"><span style="font-size:14px; color:#1e293b;">${nomeExibicao}</span></label>`;
+              const nomeExibicao = `${UI.escapar(m.Nome)}${m.Apelido ? ` <span class="pres-modal-apelido">(${UI.escapar(m.Apelido)})</span>` : ''}`;
+              return `<label class="pres-modal-checkin-item ${isChecked ? 'is-checked' : ''}"><input type="checkbox" class="check-membro" value="${m.sheetRowIndex}" ${isChecked ? 'checked' : ''} onchange="Presenca._atualizarContador(this)"><span class="pres-modal-checkin-nome">${nomeExibicao}</span></label>`;
             }).join('')}
           </div>
         </div>
@@ -229,7 +229,8 @@ const Presenca = {
     } catch (err) { UI.toast('Erro: ' + err.message, 'error'); }
   },
 
-  _atualizarContador() {
+  _atualizarContador(input) {
+    if (input) input.closest('.pres-modal-checkin-item')?.classList.toggle('is-checked', input.checked);
     const m = document.querySelectorAll('.check-membro:checked').length;
     const el = document.getElementById('contador-checkin');
     if (el) el.textContent = m + ' marcados';

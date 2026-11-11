@@ -15,7 +15,7 @@ console.log('%c© 2026 PIBENS ADM — Todos os direitos reservados\nDesenvolvido
 const CONFIG = {
 
   API_URL: 'https://script.google.com/macros/s/AKfycbwUl-1KPF40lIc8FR8itFEYVkq5XhQlNXVvM6D_Hp2-3a2gaVAwg1AX1gZFS0hcaPeS_w/exec',
-  API_TIMEOUT: 25000,
+  API_TIMEOUT: 60000,
 
   SESSAO_KEY: 'pibens_adm_sessao',
   SESSAO_DIAS: 7,
@@ -234,6 +234,8 @@ const CONFIG = {
 
   MSG: {
     ERRO_CONEXAO:     'Tempo esgotado. Verifique sua conexão e tente novamente.',
+    ERRO_SEM_CONEXAO: 'Não foi possível falar com o servidor. Verifique sua internet; se persistir, reautorize o Apps Script.',
+    ERRO_AUTORIZACAO: 'O servidor pediu autorização (Apps Script). Abra o projeto no Apps Script e reautorize o acesso.',
     ERRO_JSON:        'Resposta inválida do servidor.',
     ERRO_GENERICO:    'Ocorreu um erro. Tente novamente.',
     SENHA_INCORRETA:  'Senha incorreta.',

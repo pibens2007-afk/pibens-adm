@@ -6,12 +6,35 @@
 
 const API_Portal = {
 
+  _cacheAcessos: null,
+  _cacheTs: 0,
+  _cacheTtl: 120000,
+
   /**
    * Lista todos os acessos do Portal do Membro
    * Retorna array com: { membro_id, email, ativo, ultimo_login, criado_em, nome }
+   * Usa cache de 2 minutos para evitar a chamada lenta (~25s) a cada re-render.
    */
-  listarAcessos() {
-    return API.call('portalListarAcessos');
+  async listarAcessos(force = false) {
+    const agora = Date.now();
+    if (!force && this._cacheAcessos && (agora - this._cacheTs) < this._cacheTtl) {
+      return this._cacheAcessos;
+    }
+
+    const dados = await API.call('portalListarAcessos');
+    this._cacheAcessos = dados || [];
+    this._cacheTs = agora;
+    return this._cacheAcessos;
+  },
+
+  atualizarCache(dados) {
+    this._cacheAcessos = dados || [];
+    this._cacheTs = Date.now();
+  },
+
+  invalidarCache() {
+    this._cacheAcessos = null;
+    this._cacheTs = 0;
   },
 
   /**

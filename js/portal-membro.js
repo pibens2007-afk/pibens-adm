@@ -17,14 +17,15 @@ const PortalMembro = {
   /* ----------------------------------------------------------
      RENDER PRINCIPAL
      ---------------------------------------------------------- */
-  async render() {
+  async render(force = false) {
     const c = document.getElementById('content');
     if (!c) return;
 
-    c.innerHTML = UI.loading('Carregando acessos do Portal...');
+    const temCache = !force && Array.isArray(API_Portal._cacheAcessos) && API_Portal._cacheAcessos.length > 0;
+    c.innerHTML = UI.loading(temCache ? 'Carregando acessos do Portal...' : 'Carregando acessos do Portal... isso pode levar até 30s');
 
     try {
-      const dados = await API_Portal.listarAcessos();
+      const dados = await API_Portal.listarAcessos(force);
       this._dados = dados || [];
       this._renderTudo();
     } catch (e) {
@@ -33,7 +34,7 @@ const PortalMembro = {
           <div class="empty-state-icon" style="color:#dc2626;"><i class="fas fa-exclamation-triangle"></i></div>
           <div class="empty-state-title">Erro ao carregar</div>
           <div class="empty-state-text">${UI.escapar(e.message)}</div>
-          <button class="btn btn-primary" onclick="PortalMembro.render()">
+          <button class="btn btn-primary" onclick="PortalMembro.render(true)">
             <i class="fas fa-sync"></i> Tentar de novo
           </button>
         </div>
@@ -110,7 +111,7 @@ const PortalMembro = {
             <option value="ativos" ${this._filtro === 'ativos' ? 'selected' : ''}>Só ativos</option>
             <option value="bloqueados" ${this._filtro === 'bloqueados' ? 'selected' : ''}>Só bloqueados</option>
           </select>
-          <button class="btn btn-primary" onclick="PortalMembro.render()">
+          <button class="btn btn-primary" onclick="PortalMembro.render(true)">
             <i class="fas fa-sync"></i> Atualizar
           </button>
         </div>
@@ -233,7 +234,6 @@ const PortalMembro = {
     try {
       await API_Portal.resetarSenha(membroId);
       UI.toast('Senha resetada para pibens@2026', 'success');
-      this.render();
     } catch (e) {
       UI.toast('Erro: ' + e.message, 'error');
     }
@@ -249,8 +249,11 @@ const PortalMembro = {
 
     try {
       await API_Portal.alternarAtivo(membroId, ativo);
+      const item = this._dados.find((a) => String(a.membro_id) === String(membroId));
+      if (item) item.ativo = ativo;
+      API_Portal.atualizarCache(this._dados);
       UI.toast(`Acesso ${ativo ? 'desbloqueado' : 'bloqueado'}!`, 'success');
-      this.render();
+      this._renderTudo();
     } catch (e) {
       UI.toast('Erro: ' + e.message, 'error');
     }
@@ -265,8 +268,10 @@ const PortalMembro = {
 
     try {
       await API_Portal.removerAcesso(membroId);
+      this._dados = this._dados.filter((a) => String(a.membro_id) !== String(membroId));
+      API_Portal.atualizarCache(this._dados);
       UI.toast('Acesso removido!', 'success');
-      this.render();
+      this._renderTudo();
     } catch (e) {
       UI.toast('Erro: ' + e.message, 'error');
     }

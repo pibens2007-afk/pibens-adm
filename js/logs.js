@@ -51,7 +51,7 @@ const Logs = {
     const stats = this._calcularStats();
 
     // Lista de usuários únicos
-    const usuarios = [...new Set(this._dados.map((l) => l.Usuario || l.UsuarioNome || '?'))].sort();
+    const usuarios = [...new Set(this._dados.map((l) => l.UsuarioNome || l.Usuario || '?'))].sort();
 
     c.innerHTML = `
       <div class="logs-aviso">
@@ -63,7 +63,9 @@ const Logs = {
       </div>
 
       <div class="logs-stats">
-        <div class="logs-stat">
+        <div class="logs-stat logs-stat-btn" role="button" tabindex="0" title="Ver todas as ações"
+             onclick="Logs._atalho('total')"
+             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();Logs._atalho('total')}">
           <div class="logs-stat-icon" style="background:#2563eb22;color:#2563eb;">
             <i class="fas fa-history"></i>
           </div>
@@ -72,7 +74,9 @@ const Logs = {
             <span class="logs-stat-label">Total de ações</span>
           </div>
         </div>
-        <div class="logs-stat">
+        <div class="logs-stat logs-stat-btn" role="button" tabindex="0" title="Ver usuários e quantidade de ações"
+             onclick="Logs._atalho('usuarios')"
+             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();Logs._atalho('usuarios')}">
           <div class="logs-stat-icon" style="background:#05966922;color:#059669;">
             <i class="fas fa-users"></i>
           </div>
@@ -81,7 +85,9 @@ const Logs = {
             <span class="logs-stat-label">Usuários ativos</span>
           </div>
         </div>
-        <div class="logs-stat">
+        <div class="logs-stat logs-stat-btn" role="button" tabindex="0" title="Filtrar ações de hoje"
+             onclick="Logs._atalho('hoje')"
+             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();Logs._atalho('hoje')}">
           <div class="logs-stat-icon" style="background:#f59e0b22;color:#f59e0b;">
             <i class="fas fa-calendar-day"></i>
           </div>
@@ -90,7 +96,9 @@ const Logs = {
             <span class="logs-stat-label">Ações hoje</span>
           </div>
         </div>
-        <div class="logs-stat">
+        <div class="logs-stat logs-stat-btn" role="button" tabindex="0" title="Filtrar ações do Portal do Membro"
+             onclick="Logs._atalho('portal')"
+             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();Logs._atalho('portal')}">
           <div class="logs-stat-icon" style="background:#0891b222;color:#0891b2;">
             <i class="fas fa-mobile-alt"></i>
           </div>
@@ -99,7 +107,9 @@ const Logs = {
             <span class="logs-stat-label">Ações no portal</span>
           </div>
         </div>
-        <div class="logs-stat">
+        <div class="logs-stat logs-stat-btn" role="button" tabindex="0" title="Ir para a ação mais recente"
+             onclick="Logs._atalho('ultima')"
+             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();Logs._atalho('ultima')}">
           <div class="logs-stat-icon" style="background:#7c3aed22;color:#7c3aed;">
             <i class="fas fa-clock"></i>
           </div>
@@ -399,14 +409,136 @@ const Logs = {
   },
 
   /* ==========================================================
+     ATALHOS DOS CARDS
+     ========================================================== */
+  _atalho(qual) {
+    switch (qual) {
+      case 'total':
+        this._filtroTipo = '';
+        this._filtroUsuario = '';
+        this._filtroOrigem = '';
+        this._busca = '';
+        this._filtroPeriodo = 'todos';
+        this._renderTudo();
+        break;
+
+      case 'usuarios':
+        this._mostrarUsuarios();
+        break;
+
+      case 'hoje':
+        this._filtroTipo = '';
+        this._filtroUsuario = '';
+        this._filtroOrigem = '';
+        this._busca = '';
+        this._filtroPeriodo = 'hoje';
+        this._renderTudo();
+        break;
+
+      case 'portal':
+        this._filtroTipo = '';
+        this._busca = '';
+        this._filtroUsuario = '';
+        this._filtroOrigem = 'portal';
+        this._filtroPeriodo = 'todos';
+        this._renderTudo();
+        break;
+
+      case 'ultima':
+        this._irParaUltima();
+        break;
+    }
+  },
+
+  _mostrarUsuarios() {
+    const mapa = new Map();
+
+    this._dados.forEach((l) => {
+      const nome = l.UsuarioNome || l.Usuario || 'Desconhecido';
+      const chave = nome.toLowerCase();
+
+      if (!mapa.has(chave)) {
+        mapa.set(chave, { nome, usuario: l.Usuario || '', total: 0, adm: 0, portal: 0 });
+      }
+
+      const item = mapa.get(chave);
+      item.total++;
+      item[this._origem(l)]++;
+    });
+
+    const lista = [...mapa.values()].sort((a, b) => b.total - a.total);
+    this._usuariosModal = lista;
+
+    const html = lista.length === 0
+      ? UI.emptyState('Nenhum usuário encontrado', 'Ainda não há ações registradas.', '')
+      : `<div class="logs-usuarios-lista">
+          ${lista.map((u, idx) => `
+            <div class="logs-usuarios-item" role="button" tabindex="0"
+                 title="Filtrar ações deste usuário"
+                 onclick="Logs._filtrarPorUsuarioIdx(${idx})"
+                 onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();Logs._filtrarPorUsuarioIdx(${idx})}">
+              <span class="logs-item-avatar" style="background:${this._corDoNome(u.nome)};">${UI.iniciais(u.nome)}</span>
+              <div class="logs-usuarios-info">
+                <strong>${UI.escapar(u.nome)}</strong>
+                ${u.usuario ? `<small>${UI.escapar(this._formatarUsuario(u.usuario))}</small>` : ''}
+              </div>
+              <div class="logs-usuarios-numeros">
+                <span>${u.total} ação(ões)</span>
+                <small>${u.portal} portal · ${u.adm} ADM</small>
+              </div>
+            </div>
+          `).join('')}
+        </div>`;
+
+    UI.openModal(
+      'Usuários ativos',
+      html,
+      `<button class="btn btn-neutral" onclick="UI.closeModal()"><i class="fas fa-times"></i> Fechar</button>`
+    );
+  },
+
+  _filtrarPorUsuarioIdx(idx) {
+    const u = (this._usuariosModal || [])[idx];
+    if (!u) return;
+    UI.closeModal();
+    this._filtroUsuario = u.nome;
+    this._filtroOrigem = '';
+    this._filtroTipo = '';
+    this._busca = '';
+    this._filtroPeriodo = 'todos';
+    this._renderTudo();
+  },
+
+  _irParaUltima() {
+    const lista = document.querySelector('.logs-lista');
+    if (!lista) return;
+
+    if (this._filtroPeriodo !== 'todos' || this._filtroTipo || this._filtroUsuario || this._filtroOrigem || this._busca) {
+      this._filtroTipo = '';
+      this._filtroUsuario = '';
+      this._filtroOrigem = '';
+      this._busca = '';
+      this._filtroPeriodo = 'todos';
+      this._renderTudo();
+    }
+
+    const item = document.querySelector('.logs-lista .logs-item');
+    if (!item) return;
+
+    item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    item.classList.add('logs-item-destaque');
+    setTimeout(() => item.classList.remove('logs-item-destaque'), 2400);
+  },
+
+  /* ==========================================================
      STATS
      ========================================================== */
   _calcularStats() {
     const usuarios = new Set();
 
     this._dados.forEach((l) => {
-      if (l.Usuario) usuarios.add(l.Usuario);
-      if (l.UsuarioNome) usuarios.add(l.UsuarioNome);
+      const nome = l.UsuarioNome || l.Usuario;
+      if (nome) usuarios.add(nome);
     });
 
     const hoje = new Date();

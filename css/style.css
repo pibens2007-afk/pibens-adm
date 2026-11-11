@@ -2469,12 +2469,34 @@ body {
 }
 
 .logs-item-modulo {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+  }
 
-.logs-item-descricao {
+  .logs-item-origem {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .logs-item-userid {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  
+  .logs-item-descricao {
   font-size: 0.9rem;
   color: var(--text);
   font-weight: 500;

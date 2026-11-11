@@ -11,6 +11,7 @@ const Logs = {
   _dados: [],
   _filtroTipo: '',
   _filtroUsuario: '',
+  _filtroOrigem: '',
   _filtroPeriodo: 'mes_atual',
   _busca: '',
 
@@ -90,6 +91,15 @@ const Logs = {
           </div>
         </div>
         <div class="logs-stat">
+          <div class="logs-stat-icon" style="background:#0891b222;color:#0891b2;">
+            <i class="fas fa-mobile-alt"></i>
+          </div>
+          <div>
+            <span class="logs-stat-value">${stats.portal}</span>
+            <span class="logs-stat-label">Ações no portal</span>
+          </div>
+        </div>
+        <div class="logs-stat">
           <div class="logs-stat-icon" style="background:#7c3aed22;color:#7c3aed;">
             <i class="fas fa-clock"></i>
           </div>
@@ -106,6 +116,11 @@ const Logs = {
           <input type="text" id="logs-busca-input" placeholder="Buscar por descrição, módulo ou usuário..." value="${UI.escapar(this._busca)}" oninput="Logs._buscar(this.value)">
         </div>
         <div class="logs-filtros">
+          <select class="form-select" onchange="Logs._filtrarOrigem(this.value)">
+            ${CONFIG.LOGS.ORIGENS.map((o) => `
+              <option value="${o.id}" ${this._filtroOrigem === o.id ? 'selected' : ''}>${o.nome}</option>
+            `).join('')}
+          </select>
           <select class="form-select" onchange="Logs._filtrarTipo(this.value)">
             <option value="">Todas as ações</option>
             ${CONFIG.LOGS.TIPOS.map((t) => `
@@ -132,7 +147,7 @@ const Logs = {
         </div>
       </div>
 
-      ${(this._filtroTipo || this._filtroUsuario || this._busca) ? `
+      ${(this._filtroTipo || this._filtroUsuario || this._filtroOrigem || this._busca) ? `
         <div class="logs-filtro-ativo">
           <span>
             <i class="fas fa-filter"></i> Mostrando <strong>${filtrados.length}</strong> resultado(s)
@@ -169,12 +184,22 @@ const Logs = {
   },
 
   _renderItem(log) {
-    const tipoInfo = CONFIG.LOGS.TIPOS.find((t) => t.id === log.Acao) || CONFIG.LOGS.TIPOS[0];
+    const tipoInfo = CONFIG.LOGS.TIPOS.find((t) => t.id === log.Acao) || {
+      nome: log.Acao || 'Ação',
+      icon: 'fa-circle',
+      cor: '#64748b'
+    };
+
+    const origem = this._origem(log);
+    const origemInfo = origem === 'portal'
+      ? { nome: 'Portal do Membro', icon: 'fa-mobile-alt', cor: '#0891b2' }
+      : { nome: 'PIBENS ADM', icon: 'fa-desktop', cor: '#64748b' };
 
     const data = log.Data ? new Date(log.Data) : null;
     const dataFormatada = data ? this._formatarDataHora(data) : '—';
 
     const usuario = log.UsuarioNome || log.Usuario || 'Desconhecido';
+    const usuarioId = log.Usuario && log.Usuario !== usuario ? this._formatarUsuario(log.Usuario) : '';
     const iniciais = UI.iniciais(usuario);
 
     return `
@@ -188,6 +213,9 @@ const Logs = {
               ${tipoInfo.nome}
             </span>
             <span class="logs-item-modulo">${UI.escapar(log.Modulo || '—')}</span>
+            <span class="logs-item-origem" style="background:${origemInfo.cor}18;color:${origemInfo.cor};">
+              <i class="fas ${origemInfo.icon}"></i> ${origemInfo.nome}
+            </span>
           </div>
           <div class="logs-item-descricao">${UI.escapar(log.Descricao || '—')}</div>
           <div class="logs-item-meta">
@@ -197,6 +225,12 @@ const Logs = {
               </span>
               ${UI.escapar(usuario)}
             </span>
+            ${usuarioId ? `
+              <span class="logs-item-userid">
+                <i class="fas fa-id-card"></i>
+                ${UI.escapar(usuarioId)}
+              </span>
+            ` : ''}
             <span class="logs-item-data">
               <i class="fas fa-clock"></i>
               ${dataFormatada}
@@ -205,6 +239,28 @@ const Logs = {
         </div>
       </div>
     `;
+  },
+
+  _origem(log) {
+    const modulo = (log.Modulo || '').toLowerCase();
+    if (!modulo.includes('portal')) return 'adm';
+
+    const usuario = String(log.Usuario || '');
+    const digitos = usuario.replace(/\D/g, '');
+    const ehCpf = digitos.length === 11 && /^[\d.\-\s]+$/.test(usuario);
+    const acao = (log.Acao || '').toLowerCase();
+
+    if (ehCpf || acao === 'acesso' || acao === 'logout') return 'portal';
+    return 'adm';
+  },
+
+  _formatarUsuario(valor) {
+    const v = String(valor || '');
+    const digitos = v.replace(/\D/g, '');
+    if (digitos.length === 11 && /^[\d.\-\s]+$/.test(v)) {
+      return digitos.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    }
+    return v;
   },
 
   _formatarDataHora(d) {
@@ -266,6 +322,10 @@ const Logs = {
       );
     }
 
+    if (this._filtroOrigem) {
+      lista = lista.filter((l) => this._origem(l) === this._filtroOrigem);
+    }
+
     // Período
     const hoje = new Date();
     const anoAtual = hoje.getFullYear();
@@ -319,6 +379,11 @@ const Logs = {
     this._renderTudo();
   },
 
+  _filtrarOrigem(valor) {
+    this._filtroOrigem = valor;
+    this._renderTudo();
+  },
+
   _filtrarPeriodo(valor) {
     this._filtroPeriodo = valor;
     this._renderTudo();
@@ -327,6 +392,7 @@ const Logs = {
   _limparFiltros() {
     this._filtroTipo = '';
     this._filtroUsuario = '';
+    this._filtroOrigem = '';
     this._filtroPeriodo = 'mes_atual';
     this._busca = '';
     this._renderTudo();
@@ -350,6 +416,8 @@ const Logs = {
       return d.toDateString() === hoje.toDateString();
     }).length;
 
+    const portalCount = this._dados.filter((l) => this._origem(l) === 'portal').length;
+
     // Última ação
     let ultimaAcao = '—';
     if (this._dados.length > 0) {
@@ -367,6 +435,7 @@ const Logs = {
       total: this._dados.length,
       usuarios: usuarios.size,
       hoje: hojeCount,
+      portal: portalCount,
       ultimaAcao
     };
   }

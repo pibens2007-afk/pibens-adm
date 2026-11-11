@@ -324,12 +324,19 @@ const CONFIG = {
   LOGS: {
     TIPOS: [
       { id: 'login',    nome: 'Login',         icon: 'fa-sign-in-alt',    cor: '#2563eb' },
+      { id: 'acesso',   nome: 'Acesso Portal', icon: 'fa-mobile-alt',     cor: '#0891b2' },
       { id: 'criar',    nome: 'Criar',         icon: 'fa-plus-circle',    cor: '#059669' },
       { id: 'editar',   nome: 'Editar',        icon: 'fa-edit',           cor: '#f59e0b' },
       { id: 'remover',  nome: 'Remover',       icon: 'fa-trash',          cor: '#dc2626' },
       { id: 'ia',       nome: 'IA',            icon: 'fa-robot',          cor: '#7c3aed' },
       { id: 'logout',   nome: 'Logout',        icon: 'fa-sign-out-alt',   cor: '#64748b' }
     ],
+    ORIGENS: [
+      { id: '',       nome: 'Todas as origens' },
+      { id: 'adm',    nome: 'PIBENS ADM' },
+      { id: 'portal', nome: 'Portal do Membro' }
+    ],
+    MODULO_PORTAL: 'Portal do Membro',
     RETENCAO_DIAS: 365
   },
 
@@ -372,6 +379,7 @@ Object.freeze(CONFIG.FAIXAS_ETARIAS);
 Object.freeze(CONFIG.RELATORIOS);
 Object.freeze(CONFIG.LOGS);
 Object.freeze(CONFIG.LOGS.TIPOS);
+Object.freeze(CONFIG.LOGS.ORIGENS);
 Object.freeze(CONFIG.MURAL);
 Object.freeze(CONFIG.MURAL.TIPOS);
 Object.freeze(CONFIG.MURAL.PRIORIDADES);
